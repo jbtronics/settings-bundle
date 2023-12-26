@@ -1,0 +1,35 @@
+{
+  "name": "jbtronics/user-config-bundle",
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "description": "A symfony bundle to easily define and use user specific configuration",
+  "keywords": ["config", "symfony", "symfony-bundle"],
+  "autoload": {
+    "psr-4": {
+      "Jbtronics\\UserConfigBundle\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Jbtronics\\UserConfigBundle\\Tests\\TestApplication\\": "tests/TestApplication/src/",
+      "Jbtronics\\UserConfigBundle\\Tests\\": "tests/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Jan Böhmer",
+      "email": "mail@jan-boehmer.de"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "ext-json": "*",
+    "symfony/framework-bundle": "^6.4|^7.0",
+    "symfony/translation-contracts": "^2.5|^3.0"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-latest",
+    "symfony/phpunit-bridge": "^6.4|^7.0",
+    "phpunit/phpunit": "^9.5"
+  }
+}

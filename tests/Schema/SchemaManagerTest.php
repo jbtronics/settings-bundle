@@ -27,7 +27,16 @@ class SchemaManagerTest extends TestCase
         $this->assertTrue($this->schemaManager->isConfigClass(SimpleConfig::class));
     }
 
+    public function testGetSchemaInvalidClass(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->schemaManager->getSchema(\DateTime::class);
+    }
+
     public function testGetSchema(): void
     {
+        $schema = $this->schemaManager->getSchema(SimpleConfig::class);
+
+        $this->assertEquals(SimpleConfig::class, $schema->getClassName());
     }
 }

@@ -1,11 +1,13 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\Tests\TestApplication\Schema;
+namespace Jbtronics\UserConfigBundle\Tests\Schema;
 
+use Jbtronics\UserConfigBundle\ConfigEntryTypes\BoolType;
+use Jbtronics\UserConfigBundle\ConfigEntryTypes\IntType;
+use Jbtronics\UserConfigBundle\ConfigEntryTypes\StringType;
 use Jbtronics\UserConfigBundle\Metadata\ConfigClass;
 use Jbtronics\UserConfigBundle\Metadata\ConfigEntry;
 use Jbtronics\UserConfigBundle\Schema\ConfigSchema;
-use Jbtronics\UserConfigBundle\Tests\TestApplication\Config\SimpleConfig;
 use PHPUnit\Framework\TestCase;
 
 class ConfigSchemaTest extends TestCase
@@ -18,9 +20,9 @@ class ConfigSchemaTest extends TestCase
     {
         $this->configClass = new ConfigClass();
         $this->propertyAttributes = [
-            'property1' => new ConfigEntry('testType'),
-            'property2' => new ConfigEntry('testType'),
-            'property3' => new ConfigEntry('testType'),
+            'property1' => new ConfigEntry(IntType::class),
+            'property2' => new ConfigEntry(StringType::class),
+            'property3' => new ConfigEntry(BoolType::class),
         ];
 
         $this->configSchema = new ConfigSchema(

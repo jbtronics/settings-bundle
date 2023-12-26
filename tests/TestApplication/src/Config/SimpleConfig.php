@@ -2,18 +2,21 @@
 
 namespace Jbtronics\UserConfigBundle\Tests\TestApplication\Config;
 
+use Jbtronics\UserConfigBundle\ConfigEntryTypes\BoolType;
+use Jbtronics\UserConfigBundle\ConfigEntryTypes\IntType;
+use Jbtronics\UserConfigBundle\ConfigEntryTypes\StringType;
 use Jbtronics\UserConfigBundle\Metadata\ConfigClass;
 use Jbtronics\UserConfigBundle\Metadata\ConfigEntry;
 
 #[ConfigClass()]
 class SimpleConfig
 {
-    #[ConfigEntry("object")]
+    #[ConfigEntry(StringType::class)]
     private string $value1 = 'default';
 
-    #[ConfigEntry("integer")]
+    #[ConfigEntry(IntType::class)]
     private ?int $value2 = null;
 
-    #[ConfigEntry("boolean")]
+    #[ConfigEntry(BoolType::class)]
     private bool $value3 = false;
 }

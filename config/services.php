@@ -2,6 +2,7 @@
 
 use Jbtronics\UserConfigBundle\Manager\ConfigurationRegistry;
 use Jbtronics\UserConfigBundle\Manager\ConfigurationRegistryInterface;
+use Jbtronics\UserConfigBundle\Profiler\ConfigCollector;
 use Jbtronics\UserConfigBundle\Schema\SchemaManager;
 use Jbtronics\UserConfigBundle\Schema\SchemaManagerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -26,4 +27,11 @@ return static function (ContainerConfigurator $container) {
 
     $services->set('jbtronics.user_config.schema_manager', SchemaManager::class);
     $services->alias(SchemaManagerInterface::class, 'jbtronics.user_config.schema_manager');
+
+    $services->set('jbtronics.user_config.profiler_data_collector', ConfigCollector::class)
+        ->tag('data_collector')
+        ->args([
+            '$configurationRegistry' => service('jbtronics.user_config.configuration_registry'),
+            '$schemaManager' => service('jbtronics.user_config.schema_manager'),
+        ]);
 };

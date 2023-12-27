@@ -1,14 +1,14 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\ConfigEntryTypes;
+namespace Jbtronics\SettingsBundle\ParameterTypes;
 
-use Jbtronics\UserConfigBundle\Schema\ConfigSchema;
+use Jbtronics\SettingsBundle\Schema\SettingsSchema;
 
-class BoolType implements ConfigEntryTypeInterface
+class BoolType implements ParameterTypeInterface
 {
     public function convertPHPToNormalized(
         mixed $value,
-        ConfigSchema $configSchema,
+        SettingsSchema $configSchema,
         string $property
     ): int|string|float|bool|array|null {
         if (!is_bool($value) && !is_null($value)) {
@@ -18,7 +18,7 @@ class BoolType implements ConfigEntryTypeInterface
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        ConfigSchema $configSchema,
+        SettingsSchema $configSchema,
         string $property
     ): ?int {
         if ($value === null) {

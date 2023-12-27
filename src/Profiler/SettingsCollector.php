@@ -1,17 +1,17 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\Profiler;
+namespace Jbtronics\SettingsBundle\Profiler;
 
-use Jbtronics\UserConfigBundle\Manager\ConfigurationRegistryInterface;
-use Jbtronics\UserConfigBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
+use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ConfigCollector extends AbstractDataCollector
+class SettingsCollector extends AbstractDataCollector
 {
     public function __construct(
-        private readonly ConfigurationRegistryInterface $configurationRegistry,
+        private readonly SettingsRegistryInterface $configurationRegistry,
         private readonly SchemaManagerInterface $schemaManager,
     )
     {
@@ -21,7 +21,7 @@ class ConfigCollector extends AbstractDataCollector
     public function collect(Request $request, Response $response, \Throwable $exception = null)
     {
         $this->data = [
-            'config_classes' => $this->configurationRegistry->getConfigClasses(),
+            'settings_classes' => $this->configurationRegistry->getSettingsClasses(),
         ];
     }
 }

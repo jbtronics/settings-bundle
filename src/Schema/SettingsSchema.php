@@ -1,15 +1,15 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\Schema;
+namespace Jbtronics\SettingsBundle\Schema;
 
-use Jbtronics\UserConfigBundle\Metadata\ConfigClass;
-use Jbtronics\UserConfigBundle\Metadata\ConfigEntry;
+use Jbtronics\SettingsBundle\Metadata\Settings;
+use Jbtronics\SettingsBundle\Metadata\SettingsParameter;
 
-class ConfigSchema
+class SettingsSchema
 {
     public function __construct(
         private readonly string $className,
-        private readonly ConfigClass $classAttribute,
+        private readonly Settings $classAttribute,
         private readonly array $configEntryProperties,
     )
     {
@@ -27,9 +27,9 @@ class ConfigSchema
 
     /**
      * Returns the config class attribute associated with this schema.
-     * @return ConfigClass
+     * @return Settings
      */
-    public function getConfigClassAttribute(): ConfigClass
+    public function getConfigClassAttribute(): Settings
     {
         return $this->classAttribute;
     }
@@ -56,9 +56,9 @@ class ConfigSchema
     /**
      * Returns the config entry attribute of the given property name.
      * @param  string  $propertyName
-     * @return ConfigEntry
+     * @return SettingsParameter
      */
-    public function getConfigEntryAttribute(string $propertyName): ConfigEntry
+    public function getConfigEntryAttribute(string $propertyName): SettingsParameter
     {
         if (!isset($this->configEntryProperties[$propertyName])) {
             throw new \InvalidArgumentException(sprintf('The property "%s" is not a config entry of the class "%s"', $propertyName, $this->className));

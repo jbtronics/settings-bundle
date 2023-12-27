@@ -1,1 +1,1 @@
-# ConfigBundle
+# Settings bundle

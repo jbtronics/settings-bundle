@@ -1,9 +1,9 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\Schema;
+namespace Jbtronics\SettingsBundle\Schema;
 
-use Jbtronics\UserConfigBundle\Metadata\ConfigClass;
-use Jbtronics\UserConfigBundle\Metadata\ConfigEntry;
+use Jbtronics\SettingsBundle\Metadata\Settings;
+use Jbtronics\SettingsBundle\Metadata\SettingsParameter;
 
 final class SchemaManager implements SchemaManagerInterface
 {
@@ -16,12 +16,12 @@ final class SchemaManager implements SchemaManagerInterface
         //If yes, return true, otherwise return false.
 
         $reflClass = new \ReflectionClass($className);
-        $attributes = $reflClass->getAttributes(ConfigClass::class);
+        $attributes = $reflClass->getAttributes(Settings::class);
 
         return count($attributes) > 0;
     }
 
-    public function getSchema(string $className): ConfigSchema
+    public function getSchema(string $className): SettingsSchema
     {
         //Check if the schema for the given class is already cached.
         if (isset($this->schemas_cache[$className])) {
@@ -32,7 +32,7 @@ final class SchemaManager implements SchemaManagerInterface
 
         //Retrieve the #[ConfigClass] attribute from the given class.
         $reflClass = new \ReflectionClass($className);
-        $attributes = $reflClass->getAttributes(ConfigClass::class);
+        $attributes = $reflClass->getAttributes(Settings::class);
 
         if (count($attributes) < 1) {
             throw new \LogicException(sprintf('The class "%s" is not a config class. Add the #[ConfigClass] attribute to the class.', $className));
@@ -47,7 +47,7 @@ final class SchemaManager implements SchemaManagerInterface
         //Retrieve all ConfigEntry attributes on the properties of the given class
         $reflProperties = $reflClass->getProperties();
         foreach ($reflProperties as $reflProperty) {
-            $attributes = $reflProperty->getAttributes(ConfigEntry::class);
+            $attributes = $reflProperty->getAttributes(SettingsParameter::class);
             //Skip properties without a ConfigEntry attribute
             if (count ($attributes) < 1) {
                 continue;
@@ -61,7 +61,7 @@ final class SchemaManager implements SchemaManagerInterface
         }
 
         //Now we have all infos required to build our schema
-        $schema = new ConfigSchema($className, $classAttribute, $propertyAttributes);
+        $schema = new SettingsSchema($className, $classAttribute, $propertyAttributes);
         $this->schemas_cache[$className] = $schema;
         return $schema;
     }

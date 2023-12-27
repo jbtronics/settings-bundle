@@ -1,18 +1,18 @@
 {
-  "name": "jbtronics/user-config-bundle",
+  "name": "jbtronics/settings-bundle",
   "type": "symfony-bundle",
   "license": "MIT",
   "description": "A symfony bundle to easily define and use user specific configuration",
-  "keywords": ["config", "symfony", "symfony-bundle"],
+  "keywords": ["settings", "config", "symfony", "symfony-bundle"],
   "autoload": {
     "psr-4": {
-      "Jbtronics\\UserConfigBundle\\": "src/"
+      "Jbtronics\\SettingsBundle\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Jbtronics\\UserConfigBundle\\Tests\\TestApplication\\": "tests/TestApplication/src/",
-      "Jbtronics\\UserConfigBundle\\Tests\\": "tests/"
+      "Jbtronics\\SettingsBundle\\Tests\\TestApplication\\": "tests/TestApplication/src/",
+      "Jbtronics\\SettingsBundle\\Tests\\": "tests/"
     }
   },
   "authors": [

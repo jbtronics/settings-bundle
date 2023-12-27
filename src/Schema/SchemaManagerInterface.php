@@ -1,6 +1,6 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\Schema;
+namespace Jbtronics\SettingsBundle\Schema;
 
 interface SchemaManagerInterface
 {
@@ -14,7 +14,7 @@ interface SchemaManagerInterface
     /**
      * Returns the configuration schema of the given class, which contains all metadata about the configuration class.
      * @param  string  $className
-     * @return ConfigSchema
+     * @return SettingsSchema
      */
-    public function getSchema(string $className): ConfigSchema;
+    public function getSchema(string $className): SettingsSchema;
 }

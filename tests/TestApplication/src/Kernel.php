@@ -1,8 +1,8 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\Tests\TestApplication;
+namespace Jbtronics\SettingsBundle\Tests\TestApplication;
 
-use Jbtronics\UserConfigBundle\UserConfigBundle;
+use Jbtronics\SettingsBundle\UserConfigBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 

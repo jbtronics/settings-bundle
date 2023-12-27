@@ -1,8 +1,8 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\Manager;
+namespace Jbtronics\SettingsBundle\Manager;
 
-use Jbtronics\UserConfigBundle\Metadata\ConfigClass;
+use Jbtronics\SettingsBundle\Metadata\Settings;
 use Spatie\StructureDiscoverer\Discover;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -11,10 +11,10 @@ use Symfony\Contracts\Cache\CacheInterface;
  * This class is responsible for getting all configuration classes, defined in the application.
  * It scans the files in the defined directories for classes with the #[ConfigClass] attribute.
  */
-final class ConfigurationRegistry implements ConfigurationRegistryInterface, CacheWarmerInterface
+final class SettingsRegistry implements SettingsRegistryInterface, CacheWarmerInterface
 {
 
-    private const CACHE_KEY = 'jbtronics.user_config.config_classes';
+    private const CACHE_KEY = 'jbtronics.settings.settings_classes';
 
     /**
      * @param  array  $directories The directories to scan for configuration classes
@@ -29,7 +29,7 @@ final class ConfigurationRegistry implements ConfigurationRegistryInterface, Cac
     {
     }
 
-    public function getConfigClasses(): array
+    public function getSettingsClasses(): array
     {
         if ($this->debug_mode) {
             return $this->searchInPathes($this->directories);
@@ -47,7 +47,7 @@ final class ConfigurationRegistry implements ConfigurationRegistryInterface, Cac
     private function searchInPathes(array $pathes): array
     {
         return Discover::in(...$pathes)
-            ->withAttribute(ConfigClass::class)
+            ->withAttribute(Settings::class)
             ->get()
             ;
     }
@@ -60,7 +60,7 @@ final class ConfigurationRegistry implements ConfigurationRegistryInterface, Cac
     public function warmUp(string $cacheDir, string $buildDir = null): array
     {
         //Call the getter function to warm up the cache
-        $this->getConfigClasses();
+        $this->getSettingsClasses();
         return [];
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\Tests\Schema;
+namespace Jbtronics\SettingsBundle\Tests\Schema;
 
-use Jbtronics\UserConfigBundle\Schema\SchemaManager;
-use Jbtronics\UserConfigBundle\Schema\SchemaManagerInterface;
-use Jbtronics\UserConfigBundle\Tests\TestApplication\Config\SimpleConfig;
+use Jbtronics\SettingsBundle\Schema\SchemaManager;
+use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use PHPUnit\Framework\TestCase;
 
 class SchemaManagerTest extends TestCase
@@ -24,7 +24,7 @@ class SchemaManagerTest extends TestCase
         $this->assertFalse($this->schemaManager->isConfigClass(\stdClass::class));
 
         //But our config class should recognize as such
-        $this->assertTrue($this->schemaManager->isConfigClass(SimpleConfig::class));
+        $this->assertTrue($this->schemaManager->isConfigClass(SimpleSettings::class));
     }
 
     public function testGetSchemaInvalidClass(): void
@@ -35,8 +35,8 @@ class SchemaManagerTest extends TestCase
 
     public function testGetSchema(): void
     {
-        $schema = $this->schemaManager->getSchema(SimpleConfig::class);
+        $schema = $this->schemaManager->getSchema(SimpleSettings::class);
 
-        $this->assertEquals(SimpleConfig::class, $schema->getClassName());
+        $this->assertEquals(SimpleSettings::class, $schema->getClassName());
     }
 }

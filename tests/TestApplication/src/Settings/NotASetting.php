@@ -1,11 +1,11 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\Tests\TestApplication\Config;
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 
 /**
  * This is just a normal class, not a configuration class.
  */
-class NotAConfig
+class NotASetting
 {
 
 }

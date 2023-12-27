@@ -1,31 +1,31 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\Tests\Schema;
+namespace Jbtronics\SettingsBundle\Tests\Schema;
 
-use Jbtronics\UserConfigBundle\ConfigEntryTypes\BoolType;
-use Jbtronics\UserConfigBundle\ConfigEntryTypes\IntType;
-use Jbtronics\UserConfigBundle\ConfigEntryTypes\StringType;
-use Jbtronics\UserConfigBundle\Metadata\ConfigClass;
-use Jbtronics\UserConfigBundle\Metadata\ConfigEntry;
-use Jbtronics\UserConfigBundle\Schema\ConfigSchema;
+use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
+use Jbtronics\SettingsBundle\ParameterTypes\IntType;
+use Jbtronics\SettingsBundle\ParameterTypes\StringType;
+use Jbtronics\SettingsBundle\Metadata\Settings;
+use Jbtronics\SettingsBundle\Metadata\SettingsParameter;
+use Jbtronics\SettingsBundle\Schema\SettingsSchema;
 use PHPUnit\Framework\TestCase;
 
-class ConfigSchemaTest extends TestCase
+class SettingsSchemaTest extends TestCase
 {
-    private ConfigSchema $configSchema;
-    private ConfigClass $configClass;
+    private SettingsSchema $configSchema;
+    private Settings $configClass;
     private array $propertyAttributes = [];
 
     public function setUp(): void
     {
-        $this->configClass = new ConfigClass();
+        $this->configClass = new Settings();
         $this->propertyAttributes = [
-            'property1' => new ConfigEntry(IntType::class),
-            'property2' => new ConfigEntry(StringType::class),
-            'property3' => new ConfigEntry(BoolType::class),
+            'property1' => new SettingsParameter(IntType::class),
+            'property2' => new SettingsParameter(StringType::class),
+            'property3' => new SettingsParameter(BoolType::class),
         ];
 
-        $this->configSchema = new ConfigSchema(
+        $this->configSchema = new SettingsSchema(
             'myClassName',
             $this->configClass,
             $this->propertyAttributes

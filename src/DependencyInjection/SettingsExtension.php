@@ -1,6 +1,6 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\DependencyInjection;
+namespace Jbtronics\SettingsBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Configuration;
 use Symfony\Component\Config\FileLocator;
@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
-class UserConfigExtension extends Extension
+class SettingsExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container)
     {

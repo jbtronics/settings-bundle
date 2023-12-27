@@ -1,15 +1,15 @@
 <?php
 
-namespace Jbtronics\UserConfigBundle\ConfigEntryTypes;
+namespace Jbtronics\SettingsBundle\ParameterTypes;
 
-use Jbtronics\UserConfigBundle\Metadata\ConfigEntry;
-use Jbtronics\UserConfigBundle\Schema\ConfigSchema;
+use Jbtronics\SettingsBundle\Metadata\SettingsParameter;
+use Jbtronics\SettingsBundle\Schema\SettingsSchema;
 
-class StringType implements ConfigEntryTypeInterface
+class StringType implements ParameterTypeInterface
 {
     public function convertPHPToNormalized(
         mixed $value,
-        ConfigSchema $configSchema,
+        SettingsSchema $configSchema,
         string $property
     ): int|string|float|bool|array|null
     {
@@ -22,7 +22,7 @@ class StringType implements ConfigEntryTypeInterface
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        ConfigSchema $configSchema,
+        SettingsSchema $configSchema,
         string $property
     ): ?string
     {

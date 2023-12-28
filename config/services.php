@@ -17,7 +17,7 @@ return static function (ContainerConfigurator $container) {
 
     $services->set('jbtronics.settings.settings_registry', SettingsRegistry::class)
         ->args([
-            '$directories' => ['%kernel.project_dir%/src'],
+            '$directories' => ['%kernel.project_dir%/src/Settings/'],
             '$cache' => service('cache.app'),
             '$debug_mode' => '%kernel.debug%',
         ])

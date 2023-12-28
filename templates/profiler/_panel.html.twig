@@ -1,0 +1,18 @@
+{# @var collector \Jbtronics\SettingsBundle\Profiler\SettingsCollector #}
+{% import "@Settings/profiler/tree.macro.twig" as tree %}
+
+<h2>Settings bundle</h2>
+
+<div id="tree-menu" class="tree">
+    <ul>
+        {% for class, schema in collector.settingsSchemas %}
+            {{ tree.settings_entry(class, schema) }}
+        {% endfor %}
+    </ul>
+</div>
+
+<div id="tree-details-container">
+    {% for class in collector.settingsSchemas %}
+        {{ tree.settings_details(class, schema) }}
+    {% endfor %}
+</div>

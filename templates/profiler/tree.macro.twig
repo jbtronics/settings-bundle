@@ -1,0 +1,33 @@
+{% macro class_key(class) %}class-{{ class|replace({'\\': '_', '/': '_', '.': '_'})|lower }}{% endmacro %}
+
+{% macro settings_entry(class, schema) %}
+    <li>
+        <div class="tree-inner" data-tab-target-id="{{ _self.class_key(class) }}-details" title="{{ class }}">
+            {% if false %} {# Determine if there should be a children #}
+                <button class="toggle-button" data-toggle-target-id="{{ _self.class_key(class) }}-children">
+                    {{ source('@WebProfiler/Icon/chevron-down.svg') }}
+                </button>
+            {% else %}
+                <div class="toggle-icon empty"></div>
+            {% endif %}
+
+            <span>
+                {{ class }}
+            </span>
+        </div>
+
+        {% if false %}
+            <ul id="{{ data.id }}-children" {% if not is_root and not data.has_children_error|default(false) %}class="hidden"{% endif %}>
+                {% for childName, childData in data.children %}
+                    {{ _self.form_tree_entry(childName, childData, false) }}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </li>
+{% endmacro %}
+
+{% macro settings_details(class) %}
+    <div class="tree-details hidden" id="{{ _self.class_key(class) }}-details">
+        <h2>{{ class }}</h2>
+    </div>
+{% endmacro %}

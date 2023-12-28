@@ -1,0 +1,20 @@
+{# @var collector \Jbtronics\SettingsBundle\Profiler\SettingsCollector #}
+
+{% set icon %}
+    {{ include("@Settings/profiler/_toolbar.html.twig") }}
+
+    {# this is the content displayed as a panel in the toolbar #}
+    {{ include("@Settings/profiler/assets/icon.svg") }}
+    <span class="sf-toolbar-value">{{ collector.settingsClasses | length }}</span>
+{% endset %}
+
+{% set text %}
+        <div class="sf-toolbar-info-piece">
+            <b>Number of settings classes</b>
+            <span>{{ collector.settingsClasses | length }}</span>
+        </div>
+{% endset %}
+
+{# the 'link' value set to 'false' means that this panel doesn't
+      show a section in the web profiler #}
+{{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true }) }}

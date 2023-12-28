@@ -5,15 +5,30 @@ namespace Jbtronics\SettingsBundle\Schema;
 use Jbtronics\SettingsBundle\Metadata\Settings;
 use Jbtronics\SettingsBundle\Metadata\SettingsParameter;
 
+/**
+ * This class represents the schema (structure) of a settings class
+ */
 class SettingsSchema
 {
+    private readonly array $parametersByPropertyNames;
+    private readonly array $parametersByName;
+
     public function __construct(
         private readonly string $className,
-        private readonly Settings $classAttribute,
-        private readonly array $configEntryProperties,
+        array $parameterSchemas,
     )
     {
+        //Sort the parameters by their property names and names
+        $byName = [];
+        $byPropertyName = [];
 
+        foreach ($parameterSchemas as $parameterSchema) {
+            $byName[$parameterSchema->getName()] = $parameterSchema;
+            $byPropertyName[$parameterSchema->getPropertyName()] = $parameterSchema;
+        }
+
+        $this->parametersByName = $byName;
+        $this->parametersByPropertyNames = $byPropertyName;
     }
 
     /**
@@ -26,44 +41,61 @@ class SettingsSchema
     }
 
     /**
-     * Returns the config class attribute associated with this schema.
-     * @return Settings
+     * Retrieve all parameter schemas of this settings class in the form of an associative array, where the key is the
+     * parameter name (not necessarily the property name) and the value is the parameter schema.
+     * @return array<string, ParameterSchema>
      */
-    public function getConfigClassAttribute(): Settings
+    public function getParameters(): array
     {
-        return $this->classAttribute;
+        return $this->parametersByName;
     }
 
     /**
-     * Returns an array of all config entry attributes of the configuration class, which is managed by this schema.
-     * The array is indexed by the property names.
-     * @return array
+     * Retrieve the parameter schema of the parameter with the given name (not necessarily the property name)
+     * @param  string  $name
+     * @return ParameterSchema
      */
-    public function getConfigEntryAttributes(): array
+    public function getParameter(string $name): ParameterSchema
     {
-        return $this->configEntryProperties;
+        return $this->parametersByName[$name] ?? throw new \InvalidArgumentException(sprintf('The parameter "%s" does not exist in the settings class "%s"', $name, $this->className));
     }
 
     /**
-     * Return a list of the property names of the configuration class, which is managed by this schema.
-     * @return array
+     * Check if a parameter with the given name (not necessarily the property name) exists in this settings class.
+     * @param  string  $name
+     * @return bool
      */
-    public function getConfigEntryPropertyNames(): array
+    public function hasParameter(string $name): bool
     {
-        return array_keys($this->configEntryProperties);
+        return isset($this->parametersByName[$name]);
     }
 
     /**
-     * Returns the config entry attribute of the given property name.
-     * @param  string  $propertyName
-     * @return SettingsParameter
+     * Retrieve the parameter schema of the parameter with the given property name (not necessarily the name).
+     * @param  string  $name
+     * @return ParameterSchema
      */
-    public function getConfigEntryAttribute(string $propertyName): SettingsParameter
+    public function getParameterByPropertyName(string $name): ParameterSchema
     {
-        if (!isset($this->configEntryProperties[$propertyName])) {
-            throw new \InvalidArgumentException(sprintf('The property "%s" is not a config entry of the class "%s"', $propertyName, $this->className));
-        }
+        return $this->parametersByPropertyNames[$name] ?? throw new \InvalidArgumentException(sprintf('The parameter with the property name "%s" does not exist in the settings class "%s"', $name, $this->className));
+    }
 
-        return $this->configEntryProperties[$propertyName];
+    /**
+     * Check if a parameter with the given property name (not necessarily the name) exists in this settings class.
+     * @param  string  $name
+     * @return bool
+     */
+    public function hasParameterWithPropertyName(string $name): bool
+    {
+        return isset($this->parametersByPropertyNames[$name]);
+    }
+
+    /**
+     * Returns a list of all property names of the parameters in this settings class
+     * @return string[]
+     */
+    public function getPropertyNames(): array
+    {
+        return array_keys($this->parametersByPropertyNames);
     }
 }

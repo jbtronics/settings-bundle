@@ -8,5 +8,10 @@ namespace Jbtronics\SettingsBundle\Metadata;
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class Settings
 {
+    public function __construct(
+        private readonly string|null $name = null,
+    )
+    {
 
+    }
 }

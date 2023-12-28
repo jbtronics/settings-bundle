@@ -7,7 +7,6 @@ use Jbtronics\SettingsBundle\Metadata\SettingsParameter;
 
 final class SchemaManager implements SchemaManagerInterface
 {
-
     private array $schemas_cache = [];
 
     public function isConfigClass(string $className): bool
@@ -42,7 +41,7 @@ final class SchemaManager implements SchemaManagerInterface
         }
 
         $classAttribute = $attributes[0]->newInstance();
-        $propertyAttributes = [];
+        $parameters = [];
 
         //Retrieve all ConfigEntry attributes on the properties of the given class
         $reflProperties = $reflClass->getProperties();
@@ -57,11 +56,20 @@ final class SchemaManager implements SchemaManagerInterface
             }
 
             //Add it to our list
-            $propertyAttributes[$reflProperty->getName()] = $attributes[0]->newInstance();
+            $propertyAttribute = $attributes[0]->newInstance();
+            $parameters[] = new ParameterSchema(
+                className: $className,
+                propertyName: $reflProperty->getName(),
+                type: $propertyAttribute->getType(),
+                name: $propertyAttribute->getName(),
+                label: $propertyAttribute->getLabel(),
+                description: $propertyAttribute->getDescription(),
+                extra_options: $propertyAttribute->getExtraOptions(),
+            );
         }
 
         //Now we have all infos required to build our schema
-        $schema = new SettingsSchema($className, $classAttribute, $propertyAttributes);
+        $schema = new SettingsSchema($className, $parameters);
         $this->schemas_cache[$className] = $schema;
         return $schema;
     }

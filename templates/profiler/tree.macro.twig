@@ -1,9 +1,10 @@
 {% macro class_key(class) %}class-{{ class|replace({'\\': '_', '/': '_', '.': '_'})|lower }}{% endmacro %}
 
 {% macro settings_entry(class, schema) %}
+    {# @var schema \Jbtronics\SettingsBundle\Schema\SettingsSchema #}
     <li>
         <div class="tree-inner" data-tab-target-id="{{ _self.class_key(class) }}-details" title="{{ class }}">
-            {% if false %} {# Determine if there should be a children #}
+            {% if schema.parameters is not empty %} {# Determine if there should be a children #}
                 <button class="toggle-button" data-toggle-target-id="{{ _self.class_key(class) }}-children">
                     {{ source('@WebProfiler/Icon/chevron-down.svg') }}
                 </button>
@@ -16,10 +17,10 @@
             </span>
         </div>
 
-        {% if false %}
-            <ul id="{{ data.id }}-children" {% if not is_root and not data.has_children_error|default(false) %}class="hidden"{% endif %}>
-                {% for childName, childData in data.children %}
-                    {{ _self.form_tree_entry(childName, childData, false) }}
+        {% if schema.parameters is not empty %}
+            <ul id="{{ _self.class_key(class) }}-children">
+                {% for parameterName, parameterSchema in schema.parameters %}
+                    {{ _self.parameter_entry(class, parameterName) }}
                 {% endfor %}
             </ul>
         {% endif %}
@@ -29,5 +30,60 @@
 {% macro settings_details(class) %}
     <div class="tree-details hidden" id="{{ _self.class_key(class) }}-details">
         <h2>{{ class }}</h2>
+    </div>
+{% endmacro %}
+
+{% macro parameter_entry(class, parameterName) %}
+    <li>
+        <div class="tree-inner" data-tab-target-id="{{ _self.class_key(class) }}-{{ parameterName }}-details" title="{{ parameterName }}">
+            <div class="toggle-icon empty"></div>
+
+            <span>
+                {{ parameterName }}
+            </span>
+        </div>
+    </li>
+{% endmacro %}
+
+{% macro parameter_details(class, parameterName, parameterSchema) %}
+    {# @var parameterSchema \Jbtronics\SettingsBundle\Schema\ParameterSchema #}
+    <div class="tree-details hidden" id="{{ _self.class_key(class) }}-{{ parameterName }}-details">
+        <h2>{{ parameterName }}</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+                <td>Name</td>
+                <td>{{ parameterSchema.name }}</td>
+            </tr>
+            <tr>
+                <td>Property name</td>
+                <td>{{ parameterSchema.propertyName }}</td>
+            </tr>
+            <tr>
+                <td>Type</td>
+                <td>{{ parameterSchema.type }}</td>
+            </tr>
+            <tr>
+                <td>Label</td>
+                <td>{{ parameterSchema.label }}</td>
+            </tr>
+            <tr>
+                <td>Description</td>
+                <td>{{ parameterSchema.description }}</td>
+            </tr>
+            <tr>
+                <td>Extra options</td>
+                <td>{{ dump(parameterSchema.extraOptions) }}</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 {% endmacro %}

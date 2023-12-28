@@ -56,15 +56,16 @@ final class SchemaManager implements SchemaManagerInterface
             }
 
             //Add it to our list
+            /** @var SettingsParameter $propertyAttribute */
             $propertyAttribute = $attributes[0]->newInstance();
             $parameters[] = new ParameterSchema(
                 className: $className,
                 propertyName: $reflProperty->getName(),
-                type: $propertyAttribute->getType(),
-                name: $propertyAttribute->getName(),
-                label: $propertyAttribute->getLabel(),
-                description: $propertyAttribute->getDescription(),
-                extra_options: $propertyAttribute->getExtraOptions(),
+                type: $propertyAttribute->type,
+                name: $propertyAttribute->name,
+                label: $propertyAttribute->label,
+                description: $propertyAttribute->description,
+                extra_options: $propertyAttribute->extra_options,
             );
         }
 

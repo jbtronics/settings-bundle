@@ -23,11 +23,11 @@ final class SettingsParameter
      * @param  array  $extra_options An array of extra options, which are passed to the ConfigEntryTypeInterface implementation.
      */
     public function __construct(
-        private readonly string $type,
-        private readonly ?string $name = null,
-        private readonly string|TranslatableInterface|null $label = null,
-        private readonly string|TranslatableInterface|null $description = null,
-        private readonly array $extra_options = [],
+        public readonly string $type,
+        public readonly ?string $name = null,
+        public readonly string|TranslatableInterface|null $label = null,
+        public readonly string|TranslatableInterface|null $description = null,
+        public readonly array $extra_options = [],
     )
     {
     }

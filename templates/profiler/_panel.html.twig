@@ -12,7 +12,10 @@
 </div>
 
 <div id="tree-details-container">
-    {% for class in collector.settingsSchemas %}
+    {% for class, schema in collector.settingsSchemas %}
         {{ tree.settings_details(class, schema) }}
+        {% for parameterName, parameterSchema in schema.parameters %}
+            {{ tree.parameter_details(class, parameterName, parameterSchema) }}
+        {% endfor %}
     {% endfor %}
 </div>

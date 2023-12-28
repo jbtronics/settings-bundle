@@ -25,7 +25,12 @@ return static function (ContainerConfigurator $container) {
     ;
     $services->alias(SettingsRegistryInterface::class, 'jbtronics.settings.settings_registry');
 
-    $services->set('jbtronics.settings.schema_manager', SchemaManager::class);
+    $services->set('jbtronics.settings.schema_manager', SchemaManager::class)
+        ->args([
+            '$cache' => service('cache.app'),
+            '$debug_mode' => '%kernel.debug%',
+        ])
+    ;
     $services->alias(SchemaManagerInterface::class, 'jbtronics.settings.schema_manager');
 
     $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)

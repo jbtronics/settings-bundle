@@ -4,10 +4,17 @@ namespace Jbtronics\SettingsBundle\Schema;
 
 use Jbtronics\SettingsBundle\Metadata\Settings;
 use Jbtronics\SettingsBundle\Metadata\SettingsParameter;
+use Symfony\Contracts\Cache\CacheInterface;
 
 final class SchemaManager implements SchemaManagerInterface
 {
     private array $schemas_cache = [];
+
+    private const CACHE_KEY_PREFIX = 'jbtronics_settings.schema.';
+
+    public function __construct(private readonly CacheInterface $cache, private readonly bool $debug_mode)
+    {
+    }
 
     public function isConfigClass(string $className): bool
     {
@@ -26,6 +33,22 @@ final class SchemaManager implements SchemaManagerInterface
         if (isset($this->schemas_cache[$className])) {
             return $this->schemas_cache[$className];
         }
+
+        if ($this->debug_mode) {
+            $schema = $this->getSchemaUncached($className);
+        } else {
+            $schema = $this->cache->get(self::CACHE_KEY_PREFIX . md5($className) , function () use ($className) {
+                return $this->getSchemaUncached($className);
+            });
+        }
+
+        $this->schemas_cache[$className] = $schema;
+        return $schema;
+    }
+
+    private function getSchemaUncached(string $className): SettingsSchema
+    {
+
 
         //If not, create it and cache it.
 
@@ -70,8 +93,6 @@ final class SchemaManager implements SchemaManagerInterface
         }
 
         //Now we have all infos required to build our schema
-        $schema = new SettingsSchema($className, $parameters);
-        $this->schemas_cache[$className] = $schema;
-        return $schema;
+        return new SettingsSchema($className, $parameters);
     }
 }

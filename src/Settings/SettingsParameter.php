@@ -1,6 +1,6 @@
 <?php
 
-namespace Jbtronics\SettingsBundle\Metadata;
+namespace Jbtronics\SettingsBundle\Settings;
 
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Symfony\Contracts\Translation\TranslatableInterface;

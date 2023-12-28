@@ -5,8 +5,8 @@ namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
-use Jbtronics\SettingsBundle\Metadata\Settings;
-use Jbtronics\SettingsBundle\Metadata\SettingsParameter;
+use Jbtronics\SettingsBundle\Settings\Settings;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 
 #[Settings()]
 class SimpleSettings

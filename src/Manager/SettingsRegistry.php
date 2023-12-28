@@ -2,7 +2,7 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
-use Jbtronics\SettingsBundle\Metadata\Settings;
+use Jbtronics\SettingsBundle\Settings\Settings;
 use Spatie\StructureDiscoverer\Discover;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 use Symfony\Contracts\Cache\CacheInterface;

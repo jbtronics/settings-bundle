@@ -2,8 +2,8 @@
 
 namespace Jbtronics\SettingsBundle\Schema;
 
-use Jbtronics\SettingsBundle\Metadata\Settings;
-use Jbtronics\SettingsBundle\Metadata\SettingsParameter;
+use Jbtronics\SettingsBundle\Settings\Settings;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Symfony\Contracts\Cache\CacheInterface;
 
 final class SchemaManager implements SchemaManagerInterface

@@ -2,7 +2,7 @@
 
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
-use Jbtronics\SettingsBundle\Metadata\SettingsParameter;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Schema\SettingsSchema;
 
 class StringType implements ParameterTypeInterface

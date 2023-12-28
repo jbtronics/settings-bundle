@@ -16,7 +16,7 @@ final class SchemaManager implements SchemaManagerInterface
     {
     }
 
-    public function isConfigClass(string $className): bool
+    public function isSettingsClass(string $className): bool
     {
         //Check if the given class contains a #[ConfigClass] attribute.
         //If yes, return true, otherwise return false.

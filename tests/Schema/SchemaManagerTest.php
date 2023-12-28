@@ -20,11 +20,11 @@ class SchemaManagerTest extends TestCase
     public function testIsConfigClass(): void
     {
         //Basic classes should not be config classes
-        $this->assertFalse($this->schemaManager->isConfigClass(\DateTime::class));
-        $this->assertFalse($this->schemaManager->isConfigClass(\stdClass::class));
+        $this->assertFalse($this->schemaManager->isSettingsClass(\DateTime::class));
+        $this->assertFalse($this->schemaManager->isSettingsClass(\stdClass::class));
 
         //But our config class should recognize as such
-        $this->assertTrue($this->schemaManager->isConfigClass(SimpleSettings::class));
+        $this->assertTrue($this->schemaManager->isSettingsClass(SimpleSettings::class));
     }
 
     public function testGetSchemaInvalidClass(): void

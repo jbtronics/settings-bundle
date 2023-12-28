@@ -9,7 +9,7 @@ interface SchemaManagerInterface
      * @param  string  $className
      * @return bool
      */
-    public function isConfigClass(string $className): bool;
+    public function isSettingsClass(string $className): bool;
 
     /**
      * Returns the configuration schema of the given class, which contains all metadata about the configuration class.

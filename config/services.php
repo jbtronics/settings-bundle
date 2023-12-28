@@ -33,10 +33,19 @@ return static function (ContainerConfigurator $container) {
     ;
     $services->alias(SchemaManagerInterface::class, 'jbtronics.settings.schema_manager');
 
+    $services->set('jbtronics.settings.settings_manager', \Jbtronics\SettingsBundle\Manager\SettingsManager::class)
+        ->args([
+            '$schemaManager' => service('jbtronics.settings.schema_manager'),
+            '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
+        ])
+        ;
+    $services->alias(\Jbtronics\SettingsBundle\Manager\SettingsManagerInterface::class, 'jbtronics.settings.settings_manager');
+
     $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
         ->tag('data_collector')
         ->args([
             '$configurationRegistry' => service('jbtronics.settings.settings_registry'),
             '$schemaManager' => service('jbtronics.settings.schema_manager'),
+            '$settingsManager' => service('jbtronics.settings.settings_manager'),
         ]);
 };

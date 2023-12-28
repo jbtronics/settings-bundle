@@ -27,9 +27,30 @@
     </li>
 {% endmacro %}
 
-{% macro settings_details(class) %}
+{% macro settings_details(class, schema, collector) %}
+    {# @var collector \Jbtronics\SettingsBundle\Profiler\SettingsCollector #}
     <div class="tree-details hidden" id="{{ _self.class_key(class) }}-details">
         <h2>{{ class }}</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+                <td>Class</td>
+                <td>{{ class }}</td>
+            </tr>
+            <tr>
+                <td>Value</td>
+                <td>{{ dump(collector.settingsInstance(class)) }}</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 {% endmacro %}
 
@@ -45,8 +66,9 @@
     </li>
 {% endmacro %}
 
-{% macro parameter_details(class, parameterName, parameterSchema) %}
+{% macro parameter_details(class, parameterName, parameterSchema, collector) %}
     {# @var parameterSchema \Jbtronics\SettingsBundle\Schema\ParameterSchema #}
+    {# @var collector \Jbtronics\SettingsBundle\Profiler\SettingsCollector #}
     <div class="tree-details hidden" id="{{ _self.class_key(class) }}-{{ parameterName }}-details">
         <h2>{{ parameterName }}</h2>
 
@@ -82,6 +104,10 @@
             <tr>
                 <td>Extra options</td>
                 <td>{{ dump(parameterSchema.extraOptions) }}</td>
+            </tr>
+            <tr>
+                <td>Value</td>
+                <td>{{ dump(collector.settingsParameterValue(class, parameterSchema.propertyName)) }}</td>
             </tr>
             </tbody>
         </table>

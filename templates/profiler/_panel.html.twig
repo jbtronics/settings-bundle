@@ -13,9 +13,9 @@
 
 <div id="tree-details-container">
     {% for class, schema in collector.settingsSchemas %}
-        {{ tree.settings_details(class, schema) }}
+        {{ tree.settings_details(class, schema, collector) }}
         {% for parameterName, parameterSchema in schema.parameters %}
-            {{ tree.parameter_details(class, parameterName, parameterSchema) }}
+            {{ tree.parameter_details(class, parameterName, parameterSchema, collector) }}
         {% endfor %}
     {% endfor %}
 </div>

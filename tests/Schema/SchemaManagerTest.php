@@ -6,15 +6,17 @@ use Jbtronics\SettingsBundle\Schema\SchemaManager;
 use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class SchemaManagerTest extends TestCase
+class SchemaManagerTest extends KernelTestCase
 {
 
     private SchemaManagerInterface $schemaManager;
 
     public function setUp(): void
     {
-        $this->schemaManager = new SchemaManager();
+        self::bootKernel();
+        $this->schemaManager = $this->getContainer()->get(SchemaManagerInterface::class);
     }
 
     public function testIsConfigClass(): void

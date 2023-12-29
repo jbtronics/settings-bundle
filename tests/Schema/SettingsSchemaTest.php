@@ -9,6 +9,7 @@ use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Schema\ParameterSchema;
 use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use PhpParser\Node\Param;
 use PHPUnit\Framework\TestCase;
 
@@ -27,8 +28,10 @@ class SettingsSchemaTest extends TestCase
         ];
 
         $this->configSchema = new SettingsSchema(
-            self::class,
-            $this->parameterSchema
+            className: self::class,
+            parameterSchemas:  $this->parameterSchema,
+            storageAdapter: InMemoryStorageAdapter::class,
+            name: 'test',
         );
     }
 

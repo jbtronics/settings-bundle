@@ -5,6 +5,7 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -66,11 +67,31 @@ class SettingsHydratorTest extends WebTestCase
         $this->assertFalse($test->getValue3());
     }
 
-    public function testPersist()
+    public function testPersistAndHydrate(): void
     {
+        $test = new SimpleSettings();
+        //Change the values of the settings object
+        $test->setValue1('test');
+        $test->setValue2(123);
+        $test->setValue3(true);
+
+        $schema = $this->schemaManager->getSchema(SimpleSettings::class);
+        //Ensure that we use the InMemoryStorageAdapter
+        $this->assertEquals(InMemoryStorageAdapter::class, $schema->getStorageAdapter());
+
+        //Persist the settings object
+        $this->service->persist($test, $schema);
+
+        //Create a new settings object
+        $test2 = new SimpleSettings();
+
+        //Hydrate the new settings object
+        $this->service->hydrate($test2, $schema);
+
+        //Assert that the values are the same as in the original settings object
+        $this->assertEquals($test->getValue1(), $test2->getValue1());
+        $this->assertEquals($test->getValue2(), $test2->getValue2());
+        $this->assertEquals($test->getValue3(), $test2->getValue3());
     }
 
-    public function testHydrate()
-    {
-    }
 }

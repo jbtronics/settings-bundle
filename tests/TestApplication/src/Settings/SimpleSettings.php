@@ -7,8 +7,9 @@ use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 
-#[Settings()]
+#[Settings(storageAdapter: InMemoryStorageAdapter::class)]
 class SimpleSettings
 {
     #[SettingsParameter(StringType::class)]

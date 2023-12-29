@@ -97,5 +97,8 @@ return static function (ContainerConfigurator $container) {
      * Storage Adapters
      **********************************************************************************/
     $services->set(\Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter::class);
-
+    $services->set(\Jbtronics\SettingsBundle\Storage\JSONFileStorageAdapter::class)
+        ->args([
+            '$storageDirectory' => '%kernel.project_dir%/var/jbtronics_settings/',
+        ]);
 };

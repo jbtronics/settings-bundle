@@ -13,6 +13,8 @@ class SettingsExtension extends Extension
 {
 
     public const TAG_PARAMETER_TYPE = 'jbtronics.settings.parameter_type';
+    public const TAG_STORAGE_ADAPTER = 'jbtronics.settings.storage_adapter';
+
 
     public function load(array $configs, ContainerBuilder $container): void
     {
@@ -21,5 +23,8 @@ class SettingsExtension extends Extension
 
         $container->registerForAutoconfiguration(ParameterTypeInterface::class)
             ->addTag(self::TAG_PARAMETER_TYPE);
+
+        $container->registerForAutoconfiguration(StorageAdapterInterface::class)
+            ->addTag(self::TAG_STORAGE_ADAPTER);
     }
 }

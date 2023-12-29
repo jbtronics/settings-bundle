@@ -11,6 +11,9 @@ use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Profiler\SettingsCollector;
 use Jbtronics\SettingsBundle\Schema\SchemaManager;
 use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
+use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistry;
+use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -20,6 +23,7 @@ return static function (ContainerConfigurator $container) {
     $services = $container->services()
         ->defaults()->private()
         ->instanceof(ParameterTypeInterface::class)->tag(SettingsExtension::TAG_PARAMETER_TYPE)
+        ->instanceof(StorageAdapterInterface::class)->tag(SettingsExtension::TAG_STORAGE_ADAPTER)
         ;
 
 
@@ -56,6 +60,13 @@ return static function (ContainerConfigurator $container) {
         ;
     $services->alias(ParameterTypeRegistryInterface::class, 'jbtronics.settings.parameter_type_registry');
 
+    $services->set('jbtronics.settings.storage_adapter_registry', StorageAdapterRegistry::class)
+        ->args([
+            '$locator' => tagged_locator(SettingsExtension::TAG_STORAGE_ADAPTER)
+        ])
+        ;
+    $services->alias(StorageAdapterRegistryInterface::class, 'jbtronics.settings.storage_adapter_registry');
+
     $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
         ->tag('data_collector')
         ->args([
@@ -70,4 +81,10 @@ return static function (ContainerConfigurator $container) {
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\IntType::class);
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\StringType::class);
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\BoolType::class);
+
+    /**********************************************************************************
+     * Storage Adapters
+     **********************************************************************************/
+    $services->set(\Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter::class);
+
 };

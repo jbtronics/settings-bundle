@@ -2,17 +2,15 @@
 
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-class ParameterTypeRegistry implements ParameterTypeRegistryInterface
+final class ParameterTypeRegistry implements ParameterTypeRegistryInterface
 {
 
     public function __construct(
         private readonly ServiceLocator $locator
     )
     {
-
     }
 
     /**

@@ -8,7 +8,7 @@ namespace Jbtronics\SettingsBundle\ParameterTypes;
 interface ParameterTypeRegistryInterface
 {
     /**
-     * Returns the parameter type service for the given class name.
+     * Returns the parameter type service with the given class name.
      * @template T of ParameterTypeInterface
      * @param  string  $className
      * @phpstan-param class-string<T> $className

@@ -1,8 +1,6 @@
 {# @var collector \Jbtronics\SettingsBundle\Profiler\SettingsCollector #}
 
 {% set icon %}
-    {{ include("@Settings/profiler/_toolbar.html.twig") }}
-
     {# this is the content displayed as a panel in the toolbar #}
     {{ include("@Settings/profiler/assets/icon.svg") }}
     <span class="sf-toolbar-value">{{ collector.settingsClasses | length }}</span>

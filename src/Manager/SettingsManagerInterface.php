@@ -21,18 +21,18 @@ interface SettingsManagerInterface
     /**
      * Reloads the settings class from memory provider and overwrites the values in memory.
      * The new instance is returned.
-     * @param  string $settingsClass
+     * @param  string|object $settings The settings class or the name of the settings class
      * @template T of object
      * @phpstan-param class-string<T> $settingsClass
      * @phpstan-return T
      */
-    public function reload(string $settingsClass): object;
+    public function reload(object|string $settings): object;
 
     /**
      * Save the configuration class to the storage provider. If no configuration class is given, all configuration
      * classes are saved.
-     * @param  string|null  $settingsClass
+     * @param  string|object|null $settings The settings class or the name of the settings class
      * @return void
      */
-    public function save(?string $settingsClass = null): void;
+    public function save(object|string|null $settings = null): void;
 }

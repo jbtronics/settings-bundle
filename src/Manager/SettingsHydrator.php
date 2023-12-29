@@ -27,6 +27,11 @@ class SettingsHydrator implements SettingsHydratorInterface
         //Retrieve the normalized representation of the settings object from the storage adapter.
         $normalizedRepresentation = $storageAdapter->load($schema->getStorageKey());
 
+        //If the normalized representation is null, the settings object has not been persisted yet, we can return it as is.
+        if ($normalizedRepresentation === null) {
+            return $settings;
+        }
+
         //Apply the normalized representation to the settings object.
         return $this->applyNormalizedRepresentation($normalizedRepresentation, $settings, $schema);
     }

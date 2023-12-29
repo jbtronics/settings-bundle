@@ -20,7 +20,7 @@ final class SchemaManager implements SchemaManagerInterface
 
     }
 
-    public function isSettingsClass(string $className): bool
+    public function isSettingsClass(string|object $className): bool
     {
         //Check if the given class contains a #[ConfigClass] attribute.
         //If yes, return true, otherwise return false.
@@ -31,8 +31,12 @@ final class SchemaManager implements SchemaManagerInterface
         return count($attributes) > 0;
     }
 
-    public function getSchema(string $className): SettingsSchema
+    public function getSchema(string|object $className): SettingsSchema
     {
+        if (is_object($className)) {
+            $className = get_class($className);
+        }
+
         //Check if the schema for the given class is already cached.
         if (isset($this->schemas_cache[$className])) {
             return $this->schemas_cache[$className];

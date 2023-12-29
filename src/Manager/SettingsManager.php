@@ -41,15 +41,21 @@ final class SettingsManager implements SettingsManagerInterface
         return $settings;
     }
 
-    public function reload(?string $settingsClass): object
+    public function reload(string|object $settings): object
     {
-        $settings = $this->get($settingsClass);
+        if (is_string($settings)) {
+            $settings = $this->get($settings);
+        }
         //Reload the settings class from the storage adapter
-        $this->settingsHydrator->hydrate($settings, $this->schemaManager->getSchema($settingsClass));
+        $this->settingsHydrator->hydrate($settings, $this->schemaManager->getSchema($settings));
     }
 
-    public function save(?string $settingsClass = null): void
+    public function save(string|object|null $settingsClass = null): void
     {
+        if (is_object($settingsClass)) {
+            $settingsClass = get_class($settingsClass);
+        }
+
         /* If no settings class is given, save all settings classes
          * It is enough to only save the settings which are currently managed by the SettingsManager, as these are the
          * only ones which could have been changed.
@@ -58,7 +64,7 @@ final class SettingsManager implements SettingsManagerInterface
 
         foreach ($classesToSave as $class) {
             $settings = $this->get($class);
-            $this->settingsHydrator->hydrate($settings, $this->schemaManager->getSchema($class));
+            $this->settingsHydrator->persist($settings, $this->schemaManager->getSchema($class));
         }
     }
 

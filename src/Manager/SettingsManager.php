@@ -12,6 +12,7 @@ final class SettingsManager implements SettingsManagerInterface
     public function __construct(
         private readonly SchemaManagerInterface $schemaManager,
         private readonly SettingsRegistryInterface $settingsRegistry,
+        private readonly SettingsHydratorInterface $settingsHydrator
     )
     {
 
@@ -31,8 +32,9 @@ final class SettingsManager implements SettingsManagerInterface
             throw new \LogicException(sprintf('The class "%s" is not a settings class. Add the #[Settings] attribute to the class.', $settingsClass));
         }
 
-        //If not, load it
-        $settings = $this->reload($settingsClass);
+        //If not create a new instance of the given settings class with the default values
+        $settings = $this->getNewInstance($settingsClass);
+        $this->settingsHydrator->hydrate($settings, $this->schemaManager->getSchema($settingsClass));
 
         //Add it to our memory map
         $this->settings_by_class[$settingsClass] = $settings;
@@ -41,20 +43,23 @@ final class SettingsManager implements SettingsManagerInterface
 
     public function reload(?string $settingsClass): object
     {
-        //TODO: Retrieve the settings class from the storage provider
-
-        //For now we just return a new instance
-        return $this->getNewInstance($settingsClass);
+        $settings = $this->get($settingsClass);
+        //Reload the settings class from the storage adapter
+        $this->settingsHydrator->hydrate($settings, $this->schemaManager->getSchema($settingsClass));
     }
 
     public function save(?string $settingsClass = null): void
     {
-        // TODO: Implement save() method.
-    }
+        /* If no settings class is given, save all settings classes
+         * It is enough to only save the settings which are currently managed by the SettingsManager, as these are the
+         * only ones which could have been changed.
+         */
+        $classesToSave = $settingsClass === null ? $this->settings_by_class : [$settingsClass];
 
-    private function loadSettings(string $settingsClass): object
-    {
-        //F
+        foreach ($classesToSave as $class) {
+            $settings = $this->get($class);
+            $this->settingsHydrator->hydrate($settings, $this->schemaManager->getSchema($class));
+        }
     }
 
     /**

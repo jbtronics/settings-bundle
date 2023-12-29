@@ -14,6 +14,8 @@ class BoolType implements ParameterTypeInterface
         if (!is_bool($value) && !is_null($value)) {
             throw new \LogicException(sprintf('The value of the property "%s" must be a string, but "%s" given.', $parameterName, gettype($value)));
         }
+
+        return $value;
     }
 
     public function convertNormalizedToPHP(

@@ -75,7 +75,7 @@ return static function (ContainerConfigurator $container) {
             '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
         ])
         ;
-    $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator'
+    $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');
 
     $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
         ->tag('data_collector')

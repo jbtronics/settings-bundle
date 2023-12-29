@@ -49,7 +49,7 @@ class PropertyAccessHelper
      * @throws \InvalidArgumentException
      * @throws \LogicException           if the property is not found on the object
      */
-    protected static function getAccessibleReflectionProperty(object|string $objectOrClass, string $propertyName): \ReflectionProperty
+    public static function getAccessibleReflectionProperty(object|string $objectOrClass, string $propertyName): \ReflectionProperty
     {
         $class = $objectOrClass;
         if (!is_string($objectOrClass)) {

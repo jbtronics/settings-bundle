@@ -7,6 +7,8 @@ use Jbtronics\SettingsBundle\Manager\SettingsManager;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
+use Jbtronics\SettingsBundle\Manager\SettingsResetter;
+use Jbtronics\SettingsBundle\Manager\SettingsResetterInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistry;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
@@ -77,6 +79,9 @@ return static function (ContainerConfigurator $container) {
         ])
         ;
     $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');
+
+    $services->set('jbtronics.settings.settings_resetter', SettingsResetter::class);
+    $services->alias(SettingsResetterInterface::class, 'jbtronics.settings.settings_resetter');
 
     $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
         ->tag('data_collector')

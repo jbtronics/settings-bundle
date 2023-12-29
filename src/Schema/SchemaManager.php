@@ -105,7 +105,14 @@ final class SchemaManager implements SchemaManagerInterface
             className: $className,
             parameterSchemas: $parameters,
             storageAdapter: $classAttribute->storageAdapter ?? $this->defaultStorageAdapter,
-            name: $classAttribute->name,
+            name: $classAttribute->name ?? $this->generateNameFromClassName($reflClass),
         );
+    }
+
+    private function generateNameFromClassName(\ReflectionClass $reflectionClass): string
+    {
+        $tmp = $reflectionClass->getShortName();
+        //Remove the "Settings" suffix
+        return strtolower(str_replace('Settings', '', $tmp));
     }
 }

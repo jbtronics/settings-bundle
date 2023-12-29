@@ -4,6 +4,7 @@ namespace Jbtronics\SettingsBundle\Schema;
 
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 
 /**
  * This class represents the schema (structure) of a settings class
@@ -16,7 +17,8 @@ class SettingsSchema
     public function __construct(
         private readonly string $className,
         array $parameterSchemas,
-        private readonly string $storageAdapter
+        private readonly string $storageAdapter,
+        private readonly string|null $name = null,
     )
     {
         //Sort the parameters by their property names and names
@@ -41,10 +43,24 @@ class SettingsSchema
         return $this->className;
     }
 
+    public function getName(): string
+    {
+        return $this->name ?? $this->className;
+    }
+
+    /**
+     * Returns the storage key, which is used to store the settings of this class.
+     * @return string
+     */
+    public function getStorageKey(): string
+    {
+        return $this->getName();
+    }
+
     /**
      * Returns the service id of the storage adapter, which should be used to store the settings of this class.
      * @return string
-     * @phpstan-return class-string<\Jbtronics\SettingsBundle\Storage\StorageAdapterInterface>|string $className
+     * @phpstan-return class-string<StorageAdapterInterface> $className
      */
     public function getStorageAdapter(): string
     {

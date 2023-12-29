@@ -1,6 +1,8 @@
 <?php
 
 use Jbtronics\SettingsBundle\DependencyInjection\SettingsExtension;
+use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
+use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManager;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
@@ -66,6 +68,14 @@ return static function (ContainerConfigurator $container) {
         ])
         ;
     $services->alias(StorageAdapterRegistryInterface::class, 'jbtronics.settings.storage_adapter_registry');
+
+    $services->set('jbtronics.settings.settings_hydrator', SettingsHydrator::class)
+        ->args([
+            '$storageAdapterRegistry' => service('jbtronics.settings.storage_adapter_registry'),
+            '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
+        ])
+        ;
+    $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator'
 
     $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
         ->tag('data_collector')

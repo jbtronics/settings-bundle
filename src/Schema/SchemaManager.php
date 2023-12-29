@@ -2,6 +2,7 @@
 
 namespace Jbtronics\SettingsBundle\Schema;
 
+use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
@@ -70,7 +71,7 @@ final class SchemaManager implements SchemaManagerInterface
         $parameters = [];
 
         //Retrieve all ConfigEntry attributes on the properties of the given class
-        $reflProperties = $reflClass->getProperties();
+        $reflProperties = PropertyAccessHelper::getProperties($className);
         foreach ($reflProperties as $reflProperty) {
             $attributes = $reflProperty->getAttributes(SettingsParameter::class);
             //Skip properties without a ConfigEntry attribute
@@ -100,6 +101,7 @@ final class SchemaManager implements SchemaManagerInterface
             className: $className,
             parameterSchemas: $parameters,
             storageAdapter: $classAttribute->storageAdapter ?? $this->defaultStorageAdapter,
+            name: $classAttribute->name,
         );
     }
 }

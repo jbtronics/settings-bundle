@@ -5,6 +5,7 @@ use Jbtronics\SettingsBundle\Manager\SettingsManager;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
+use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistry;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Profiler\SettingsCollector;
@@ -16,10 +17,11 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_locator;
 
 return static function (ContainerConfigurator $container) {
-    $services = $container
-        ->services()
-        ->defaults()
-        ->private();
+    $services = $container->services()
+        ->defaults()->private()
+        ->instanceof(ParameterTypeInterface::class)->tag(SettingsExtension::TAG_PARAMETER_TYPE)
+        ;
+
 
     $services->set('jbtronics.settings.settings_registry', SettingsRegistry::class)
         ->args([
@@ -61,4 +63,11 @@ return static function (ContainerConfigurator $container) {
             '$schemaManager' => service('jbtronics.settings.schema_manager'),
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
         ]);
+
+    /**********************************************************************************
+     * Parameter Types
+     **********************************************************************************/
+    $services->set(\Jbtronics\SettingsBundle\ParameterTypes\IntType::class);
+    $services->set(\Jbtronics\SettingsBundle\ParameterTypes\StringType::class);
+    $services->set(\Jbtronics\SettingsBundle\ParameterTypes\BoolType::class);
 };

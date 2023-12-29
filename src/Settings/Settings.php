@@ -9,7 +9,8 @@ namespace Jbtronics\SettingsBundle\Settings;
 final class Settings
 {
     public function __construct(
-        private readonly string|null $name = null,
+        public readonly string|null $name = null,
+        public readonly string|null $storageAdapter = null
     )
     {
 

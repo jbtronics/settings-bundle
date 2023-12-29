@@ -4,6 +4,7 @@ namespace Jbtronics\SettingsBundle\Schema;
 
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
 
 final class SchemaManager implements SchemaManagerInterface
@@ -12,8 +13,10 @@ final class SchemaManager implements SchemaManagerInterface
 
     private const CACHE_KEY_PREFIX = 'jbtronics_settings.schema.';
 
-    public function __construct(private readonly CacheInterface $cache, private readonly bool $debug_mode)
+    public function __construct(private readonly CacheInterface $cache, private readonly bool $debug_mode,
+    private readonly string $defaultStorageAdapter = InMemoryStorageAdapter::class)
     {
+
     }
 
     public function isSettingsClass(string $className): bool
@@ -93,6 +96,10 @@ final class SchemaManager implements SchemaManagerInterface
         }
 
         //Now we have all infos required to build our schema
-        return new SettingsSchema($className, $parameters);
+        return new SettingsSchema(
+            className: $className,
+            parameterSchemas: $parameters,
+            storageAdapter: $classAttribute->storageAdapter ?? $this->defaultStorageAdapter,
+        );
     }
 }

@@ -16,6 +16,7 @@ class SettingsSchema
     public function __construct(
         private readonly string $className,
         array $parameterSchemas,
+        private readonly string $storageAdapter
     )
     {
         //Sort the parameters by their property names and names
@@ -38,6 +39,16 @@ class SettingsSchema
     public function getClassName(): string
     {
         return $this->className;
+    }
+
+    /**
+     * Returns the service id of the storage adapter, which should be used to store the settings of this class.
+     * @return string
+     * @phpstan-return class-string<\Jbtronics\SettingsBundle\Storage\StorageAdapterInterface>|string $className
+     */
+    public function getStorageAdapter(): string
+    {
+        return $this->storageAdapter;
     }
 
     /**

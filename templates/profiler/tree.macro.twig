@@ -29,6 +29,7 @@
 
 {% macro settings_details(class, schema, collector) %}
     {# @var collector \Jbtronics\SettingsBundle\Profiler\SettingsCollector #}
+    {# @var schema \Jbtronics\SettingsBundle\Schema\SettingsSchema #}
     <div class="tree-details hidden" id="{{ _self.class_key(class) }}-details">
         <h2>{{ class }}</h2>
 
@@ -44,6 +45,10 @@
             <tr>
                 <td>Class</td>
                 <td>{{ class }}</td>
+            </tr>
+            <tr>
+                <td>Storage adapter</td>
+                <td>{{ schema.storageAdapter }}</td>
             </tr>
             <tr>
                 <td>Value</td>

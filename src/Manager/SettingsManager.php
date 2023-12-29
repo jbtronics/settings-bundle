@@ -3,6 +3,7 @@
 namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 
 /**
  * This service manages all available settings classes and keeps track of them
@@ -11,8 +12,8 @@ final class SettingsManager implements SettingsManagerInterface
 {
     public function __construct(
         private readonly SchemaManagerInterface $schemaManager,
-        private readonly SettingsRegistryInterface $settingsRegistry,
-        private readonly SettingsHydratorInterface $settingsHydrator
+        private readonly SettingsHydratorInterface $settingsHydrator,
+        private readonly SettingsResetterInterface $settingsResetter,
     )
     {
 
@@ -46,6 +47,10 @@ final class SettingsManager implements SettingsManagerInterface
         if (is_string($settings)) {
             $settings = $this->get($settings);
         }
+
+        //Reset the settings class to its default values
+        $this->resetToDefaultValues($settings);
+
         //Reload the settings class from the storage adapter
         $this->settingsHydrator->hydrate($settings, $this->schemaManager->getSchema($settings));
     }
@@ -68,6 +73,16 @@ final class SettingsManager implements SettingsManagerInterface
         }
     }
 
+    public function resetToDefaultValues(object|string $settings): void
+    {
+        if (is_string($settings)) {
+            $settings = $this->get($settings);
+        }
+
+        //Reset the settings class to its default values
+        $this->settingsResetter->resetSettings($settings, $this->schemaManager->getSchema($settings));
+    }
+
     /**
      * Creates a new instance of the given settings class.
      * @param  string  $settingsClass
@@ -78,7 +93,10 @@ final class SettingsManager implements SettingsManagerInterface
         $reflectionClass = new \ReflectionClass($settingsClass);
         $instance = $reflectionClass->newInstanceWithoutConstructor();
 
-        //TODO: Add logic to initialize the instance
+        //If the class is resettable, we call the reset method
+        if (is_a($settingsClass, ResettableSettingsInterface::class)) {
+            $instance->resetToDefaultValues();
+        }
 
         return $instance;
     }

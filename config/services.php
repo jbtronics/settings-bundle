@@ -52,8 +52,8 @@ return static function (ContainerConfigurator $container) {
     $services->set('jbtronics.settings.settings_manager', SettingsManager::class)
         ->args([
             '$schemaManager' => service('jbtronics.settings.schema_manager'),
-            '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$settingsHydrator' => service('jbtronics.settings.settings_hydrator'),
+            '$settingsResetter' => service('jbtronics.settings.settings_resetter'),
         ])
         ;
     $services->alias(SettingsManagerInterface::class, 'jbtronics.settings.settings_manager');

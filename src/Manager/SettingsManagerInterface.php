@@ -35,4 +35,11 @@ interface SettingsManagerInterface
      * @return void
      */
     public function save(object|string|null $settings = null): void;
+
+    /**
+     * Resets the given settings class to their default values.
+     * @param  object|string $settings The settings class or the name of the settings class
+     * @return void
+     */
+    public function resetToDefaultValues(object|string $settings): void;
 }

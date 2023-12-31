@@ -54,6 +54,7 @@ return static function (ContainerConfigurator $container) {
             '$schemaManager' => service('jbtronics.settings.schema_manager'),
             '$settingsHydrator' => service('jbtronics.settings.settings_hydrator'),
             '$settingsResetter' => service('jbtronics.settings.settings_resetter'),
+            '$settingsValidator' => service('jbtronics.settings.settings_validator'),
         ])
         ;
     $services->alias(SettingsManagerInterface::class, 'jbtronics.settings.settings_manager');
@@ -82,6 +83,12 @@ return static function (ContainerConfigurator $container) {
 
     $services->set('jbtronics.settings.settings_resetter', SettingsResetter::class);
     $services->alias(SettingsResetterInterface::class, 'jbtronics.settings.settings_resetter');
+
+    $services->set('jbtronics.settings.settings_validator', \Jbtronics\SettingsBundle\Manager\SettingsValidator::class)
+        ->args([
+            '$validator' => service('validator'),
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Manager\SettingsValidatorInterface::class, 'jbtronics.settings.settings_validator');
 
     $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
         ->tag('data_collector')

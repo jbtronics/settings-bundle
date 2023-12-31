@@ -2,6 +2,7 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
+use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
 use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 
@@ -14,6 +15,7 @@ final class SettingsManager implements SettingsManagerInterface
         private readonly SchemaManagerInterface $schemaManager,
         private readonly SettingsHydratorInterface $settingsHydrator,
         private readonly SettingsResetterInterface $settingsResetter,
+        private readonly SettingsValidatorInterface $settingsValidator,
     )
     {
 
@@ -67,8 +69,27 @@ final class SettingsManager implements SettingsManagerInterface
          */
         $classesToSave = $settingsClass === null ? $this->settings_by_class : [$settingsClass];
 
+        $errors = [];
+
+        //Ensure that the classes are all valid
         foreach ($classesToSave as $class) {
             $settings = $this->get($class);
+
+            $errors_per_property = $this->settingsValidator->validate($settings);
+            if (count($errors_per_property) > 0) {
+                $errors[$class] = $errors_per_property;
+            }
+        }
+
+        //If there are any errors, throw an exception
+        if (count($errors) > 0) {
+            throw new SettingsNotValidException($errors);
+        }
+
+        //Otherwise persist the settings
+        foreach ($classesToSave as $class) {
+            $settings = $this->get($class);
+
             $this->settingsHydrator->persist($settings, $this->schemaManager->getSchema($class));
         }
     }

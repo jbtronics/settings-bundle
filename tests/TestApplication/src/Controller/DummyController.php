@@ -3,6 +3,7 @@
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Controller;
 
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
+use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
@@ -16,7 +17,9 @@ class DummyController
     public function __construct(private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
     private readonly StorageAdapterRegistryInterface $storageAdapterRegistry,
     private readonly SchemaManagerInterface $schemaManager,
-    private readonly SettingsHydratorInterface $settingsHydrator)
+    private readonly SettingsHydratorInterface $settingsHydrator,
+    private readonly SettingsManagerInterface $settingsManager,
+    )
     {
     }
 

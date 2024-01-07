@@ -70,5 +70,5 @@ jobs:
         with:
           env_vars: PHP_VERSION,DB_TYPE
           token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 

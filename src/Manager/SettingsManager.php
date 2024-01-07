@@ -39,6 +39,7 @@ final class SettingsManager implements SettingsManagerInterface
         private readonly SettingsHydratorInterface $settingsHydrator,
         private readonly SettingsResetterInterface $settingsResetter,
         private readonly SettingsValidatorInterface $settingsValidator,
+        private readonly SettingsRegistryInterface $settingsRegistry,
     )
     {
 
@@ -48,6 +49,11 @@ final class SettingsManager implements SettingsManagerInterface
 
     public function get(string $settingsClass): object
     {
+        //If not a class name is given, try to resolve the name via SettingsRegistry
+        if (!class_exists($settingsClass)) {
+            $settingsClass = $this->settingsRegistry->getSettingsClassByName($settingsClass);
+        }
+
         //Check if the settings class is already in memory
         if (isset($this->settings_by_class[$settingsClass])) {
             return $this->settings_by_class[$settingsClass];

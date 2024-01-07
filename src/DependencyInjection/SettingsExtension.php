@@ -26,11 +26,11 @@
 namespace Jbtronics\SettingsBundle\DependencyInjection;
 
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
+use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class SettingsExtension extends Extension
 {

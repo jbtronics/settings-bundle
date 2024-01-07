@@ -45,7 +45,7 @@ class BoolType implements ParameterTypeInterface
         float|int|bool|array|string|null $value,
         SettingsSchema $configSchema,
         string $parameterName
-    ): ?int {
+    ): ?bool {
         if ($value === null) {
             return null;
         }

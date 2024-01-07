@@ -74,7 +74,7 @@ class SettingsNotValidException extends \RuntimeException
         return array_keys($this->errors_per_class[$class] ?? throw new \InvalidArgumentException("Class $class is not invalid"));
     }
 
-    private static function createForSingleClass(object|string $settings, array $errors_per_property): SettingsNotValidException
+    public static function createForSingleClass(object|string $settings, array $errors_per_property): SettingsNotValidException
     {
         $class = is_object($settings) ? get_class($settings) : $settings;
         return new self([$class => $errors_per_property]);

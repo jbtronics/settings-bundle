@@ -46,7 +46,7 @@ interface SettingsManagerInterface
      * The new instance is returned.
      * @param  string|object $settings The settings class or the name of the settings class
      * @template T of object
-     * @phpstan-param class-string<T> $settingsClass
+     * @phpstan-param class-string<T>|object $settings
      * @phpstan-return T
      */
     public function reload(object|string $settings): object;

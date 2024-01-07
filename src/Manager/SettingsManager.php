@@ -78,6 +78,8 @@ final class SettingsManager implements SettingsManagerInterface
 
         //Reload the settings class from the storage adapter
         $this->settingsHydrator->hydrate($settings, $this->schemaManager->getSchema($settings));
+
+        return $settings;
     }
 
     public function save(string|object|null $settingsClass = null): void
@@ -138,7 +140,7 @@ final class SettingsManager implements SettingsManagerInterface
         $instance = $reflectionClass->newInstanceWithoutConstructor();
 
         //If the class is resettable, we call the reset method
-        if (is_a($settingsClass, ResettableSettingsInterface::class)) {
+        if (is_a($settingsClass, ResettableSettingsInterface::class, true)) {
             $instance->resetToDefaultValues();
         }
 

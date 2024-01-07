@@ -1,0 +1,52 @@
+name: Static analysis
+
+on:
+  push:
+    branches:
+      - '*'
+      - "!l10n_*" # Dont test localization branches
+  pull_request:
+    branches:
+      - '*'
+      - "!l10n_*"
+
+jobs:
+  phpstan:
+    name: Static analysis
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          ini-values: xdebug.max_nesting_level=1000
+          extensions: mbstring, intl, gd, xsl, gmp, bcmath, :php-psr
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-  
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Check dependencies for security
+        uses: symfonycorp/security-checker-action@v5
+
+      # Use the -d option to raise the max nesting level
+      #- name: Generate dev container
+      #  run: php -d xdebug.max_nesting_level=1000 ./bin/console cache:clear --env dev
+
+      - name: Run PHPstan
+        run: php vendor/bin/phpstan

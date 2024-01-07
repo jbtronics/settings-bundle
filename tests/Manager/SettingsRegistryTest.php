@@ -27,6 +27,7 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -44,7 +45,8 @@ class SettingsRegistryTest extends TestCase
         );
 
         $this->assertEquals([
-            SimpleSettings::class
+            SimpleSettings::class,
+            ValidatableSettings::class
         ], $configurationRegistry->getSettingsClasses());
     }
 }

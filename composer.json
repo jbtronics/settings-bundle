@@ -33,7 +33,7 @@
     "roave/security-advisories": "dev-latest",
     "symfony/phpunit-bridge": "^6.4|^7.0",
     "phpunit/phpunit": "^9.5",
-    "symfony/security-csrf": "^7.0",
+    "symfony/security-csrf": "^7.0|^6.4",
     "phpstan/phpstan": "^1.10",
     "ekino/phpstan-banned-code": "^1.0",
     "phpstan/phpstan-strict-rules": "^1.5",

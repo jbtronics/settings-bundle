@@ -1,0 +1,74 @@
+name: PHPUnit Tests
+
+on:
+  push:
+    branches:
+      - '*'
+      - "!l10n_*" # Dont test localization branches
+  pull_request:
+    branches:
+      - '*'
+      - "!l10n_*"
+
+jobs:
+  phpunit:
+    name: PHPUnit and coverage Test (PHP ${{ matrix.php-versions }}, ${{ matrix.db-type }})
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        php-versions: [ '8.1', '8.2', '8.3' ]
+      #  db-type: [ 'mysql', 'sqlite' ]
+
+    env:
+      # Note that we set DATABASE URL later based on our db-type matrix value
+      APP_ENV: test
+      SYMFONY_DEPRECATIONS_HELPER: disabled
+      PHP_VERSION: ${{ matrix.php-versions }}
+      #DB_TYPE: ${{ matrix.db-type }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: pcov
+          ini-values: xdebug.max_nesting_level=1000
+          extensions: mbstring, intl, gd, xsl, gmp, bcmath, :php-psr
+
+        #- name: Setup MySQL
+        #  uses: mirromutth/mysql-action@v1.1
+        #  with:
+        #    mysql version: 5.7
+        #    mysql database: 'part-db'
+        #    mysql root password: '1234'
+
+      ## Setup caches
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-  
+
+      - name: Install composer dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run PHPunit and generate coverage
+        run: ./vendor/bin/phpunit --coverage-clover=coverage.xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          env_vars: PHP_VERSION,DB_TYPE
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+

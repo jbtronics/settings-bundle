@@ -59,7 +59,32 @@ final class SettingsRegistry implements SettingsRegistryInterface, CacheWarmerIn
         }
 
         return $this->cache->get(self::CACHE_KEY, function () {
-            return $this->searchInPathes($this->directories);
+            $classes = $this->searchInPathes($this->directories);
+
+            $tmp = [];
+
+            //Determine the short name for each class
+            foreach ($classes as $class) {
+                $reflClass = new \ReflectionClass($class);
+                $attributes = $reflClass->getAttributes(Settings::class);
+
+                if (count($attributes) > 0) {
+                    $attribute = $attributes[0];
+                    /** @var Settings $settings */
+                    $settings = $attribute->newInstance();
+
+                    $name = $settings->name ?? self::generateDefaultNameFromClassName($class);
+
+                    //Ensure that the name is unique
+                    if (isset($tmp[$name])) {
+                        throw new \InvalidArgumentException(sprintf('There is already a class with the name %s (%s)!', $name, $tmp[$name]));
+                    }
+
+                    $tmp[$name] = $class;
+                }
+            }
+
+            return $tmp;
         });
     }
 
@@ -85,5 +110,35 @@ final class SettingsRegistry implements SettingsRegistryInterface, CacheWarmerIn
         //Call the getter function to warm up the cache
         $this->getSettingsClasses();
         return [];
+    }
+
+    /**
+     * Generates a default name for the given class, based on the class name.
+     * This is used, if no name is configured in the #[ConfigClass] attribute.
+     * @param  \ReflectionClass|string  $class The class to generate the name for. Either given as classstring or as ReflectionClass
+     * @phpstan-param \ReflectionClass|class-string $class
+     * @return string
+     */
+    public static function generateDefaultNameFromClassName(\ReflectionClass|string $class): string
+    {
+        if (is_string($class)) {
+            $reflectionClass = new \ReflectionClass($class);
+        } else {
+            $reflectionClass = $class;
+        }
+
+        $tmp = $reflectionClass->getShortName();
+        //Remove the "Settings" suffix
+        return strtolower(str_replace('Settings', '', $tmp));
+    }
+
+    public function getSettingsClassByName(string $name): string
+    {
+        $classes = $this->getSettingsClasses();
+        if (!isset($classes[$name])) {
+            throw new \InvalidArgumentException(sprintf('The settings class with the name "%s" does not exist!', $name));
+        }
+
+        return $classes[$name];
     }
 }

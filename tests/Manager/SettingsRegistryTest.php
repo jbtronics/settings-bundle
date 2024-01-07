@@ -45,8 +45,22 @@ class SettingsRegistryTest extends TestCase
         );
 
         $this->assertEquals([
-            SimpleSettings::class,
-            ValidatableSettings::class
+            'simple' => SimpleSettings::class,
+            'test234' => ValidatableSettings::class
         ], $configurationRegistry->getSettingsClasses());
+    }
+
+    public function testGetSettingsClassByName(): void
+    {
+        $configurationRegistry = new SettingsRegistry(
+            [
+                __DIR__.'/../TestApplication/src/Settings/',
+            ],
+            new NullAdapter(),
+            false,
+        );
+
+        $this->assertEquals(SimpleSettings::class, $configurationRegistry->getSettingsClassByName('simple'));
+        $this->assertEquals(ValidatableSettings::class, $configurationRegistry->getSettingsClassByName('test234'));
     }
 }

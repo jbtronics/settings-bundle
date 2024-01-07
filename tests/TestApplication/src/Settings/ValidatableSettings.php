@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
 
-#[Settings(storageAdapter: InMemoryStorageAdapter::class)]
+#[Settings(name: 'test234', storageAdapter: InMemoryStorageAdapter::class)]
 class ValidatableSettings
 {
     #[SettingsParameter(StringType::class)]

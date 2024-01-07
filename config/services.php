@@ -68,6 +68,7 @@ return static function (ContainerConfigurator $container) {
         ->args([
             '$cache' => service('cache.app'),
             '$debug_mode' => '%kernel.debug%',
+            '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
         ])
     ;
     $services->alias(SchemaManagerInterface::class, 'jbtronics.settings.schema_manager');

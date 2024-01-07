@@ -50,6 +50,9 @@ class SchemaManagerTest extends KernelTestCase
 
         //But our config class should recognize as such
         $this->assertTrue($this->schemaManager->isSettingsClass(SimpleSettings::class));
+
+        //This should also work with short names
+        $this->assertTrue($this->schemaManager->isSettingsClass('simple'));
     }
 
     public function testGetSchemaInvalidClass(): void
@@ -63,5 +66,9 @@ class SchemaManagerTest extends KernelTestCase
         $schema = $this->schemaManager->getSchema(SimpleSettings::class);
 
         $this->assertEquals(SimpleSettings::class, $schema->getClassName());
+
+        //This should also work with the short name of the class
+        $schema2 = $this->schemaManager->getSchema('simple');
+        $this->assertSame($schema, $schema2);
     }
 }

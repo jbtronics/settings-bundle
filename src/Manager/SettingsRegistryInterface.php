@@ -32,8 +32,15 @@ interface SettingsRegistryInterface
 {
     /**
      * Returns all settings classes, defined in the application.
-     * @return string[]
-     * @phpstan-return class-string[]
+     * @return string[] The settings classes in the format [short_name => class_name]
+     * @phpstan-return array<string, class-string>
      */
     public function getSettingsClasses(): array;
+
+    /**
+     * Returns the settings class name for the given settings (short) name.
+     * @param  string  $name The name of the settings class
+     * @return string The settings class for the given short name
+     */
+    public function getSettingsClassByName(string $name): string;
 }

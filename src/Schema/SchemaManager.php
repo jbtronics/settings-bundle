@@ -26,6 +26,8 @@
 namespace Jbtronics\SettingsBundle\Schema;
 
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
+use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
+use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
@@ -37,14 +39,21 @@ final class SchemaManager implements SchemaManagerInterface
 
     private const CACHE_KEY_PREFIX = 'jbtronics_settings.schema.';
 
-    public function __construct(private readonly CacheInterface $cache, private readonly bool $debug_mode,
-    private readonly string $defaultStorageAdapter = InMemoryStorageAdapter::class)
-    {
-
+    public function __construct(
+        private readonly CacheInterface $cache,
+        private readonly bool $debug_mode,
+        private readonly SettingsRegistryInterface $settingsRegistry,
+        private readonly string $defaultStorageAdapter = InMemoryStorageAdapter::class,
+    ) {
     }
 
     public function isSettingsClass(string|object $className): bool
     {
+        //If the given name is not a class name, try to resolve the name via SettingsRegistry
+        if (!class_exists($className)) {
+            $className = $this->settingsRegistry->getSettingsClassByName($className);
+        }
+
         //Check if the given class contains a #[ConfigClass] attribute.
         //If yes, return true, otherwise return false.
 
@@ -58,6 +67,8 @@ final class SchemaManager implements SchemaManagerInterface
     {
         if (is_object($className)) {
             $className = get_class($className);
+        } elseif (!class_exists($className)) { //If the given name is not a class name, try to resolve the name via SettingsRegistry
+            $className = $this->settingsRegistry->getSettingsClassByName($className);
         }
 
         //Check if the schema for the given class is already cached.
@@ -68,7 +79,7 @@ final class SchemaManager implements SchemaManagerInterface
         if ($this->debug_mode) {
             $schema = $this->getSchemaUncached($className);
         } else {
-            $schema = $this->cache->get(self::CACHE_KEY_PREFIX . md5($className) , function () use ($className) {
+            $schema = $this->cache->get(self::CACHE_KEY_PREFIX.md5($className), function () use ($className) {
                 return $this->getSchemaUncached($className);
             });
         }
@@ -79,8 +90,6 @@ final class SchemaManager implements SchemaManagerInterface
 
     private function getSchemaUncached(string $className): SettingsSchema
     {
-
-
         //If not, create it and cache it.
 
         //Retrieve the #[ConfigClass] attribute from the given class.
@@ -88,10 +97,12 @@ final class SchemaManager implements SchemaManagerInterface
         $attributes = $reflClass->getAttributes(Settings::class);
 
         if (count($attributes) < 1) {
-            throw new \LogicException(sprintf('The class "%s" is not a config class. Add the #[ConfigClass] attribute to the class.', $className));
+            throw new \LogicException(sprintf('The class "%s" is not a config class. Add the #[ConfigClass] attribute to the class.',
+                $className));
         }
         if (count($attributes) > 1) {
-            throw new \LogicException(sprintf('The class "%s" has more than one ConfigClass atrributes! Only one is allowed', $className));
+            throw new \LogicException(sprintf('The class "%s" has more than one ConfigClass atrributes! Only one is allowed',
+                $className));
         }
 
         $classAttribute = $attributes[0]->newInstance();
@@ -102,11 +113,12 @@ final class SchemaManager implements SchemaManagerInterface
         foreach ($reflProperties as $reflProperty) {
             $attributes = $reflProperty->getAttributes(SettingsParameter::class);
             //Skip properties without a ConfigEntry attribute
-            if (count ($attributes) < 1) {
+            if (count($attributes) < 1) {
                 continue;
             }
             if (count($attributes) > 1) {
-                throw new \LogicException(sprintf('The property "%s" of the class "%s" has more than one ConfigEntry atrributes! Only one is allowed', $reflProperty->getName(), $className));
+                throw new \LogicException(sprintf('The property "%s" of the class "%s" has more than one ConfigEntry atrributes! Only one is allowed',
+                    $reflProperty->getName(), $className));
             }
 
             //Add it to our list
@@ -128,14 +140,7 @@ final class SchemaManager implements SchemaManagerInterface
             className: $className,
             parameterSchemas: $parameters,
             storageAdapter: $classAttribute->storageAdapter ?? $this->defaultStorageAdapter,
-            name: $classAttribute->name ?? $this->generateNameFromClassName($reflClass),
+            name: $classAttribute->name ?? SettingsRegistry::generateDefaultNameFromClassName($className),
         );
-    }
-
-    private function generateNameFromClassName(\ReflectionClass $reflectionClass): string
-    {
-        $tmp = $reflectionClass->getShortName();
-        //Remove the "Settings" suffix
-        return strtolower(str_replace('Settings', '', $tmp));
     }
 }

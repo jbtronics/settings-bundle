@@ -29,14 +29,14 @@ interface SchemaManagerInterface
 {
     /**
      * Checks if the given class is a config class.
-     * @param  string|object  $className
+     * @param  string|object  $className The configuration class, to check. This can either be a class string, the short name, or an instance of the class.
      * @return bool
      */
     public function isSettingsClass(string|object $className): bool;
 
     /**
      * Returns the configuration schema of the given class, which contains all metadata about the configuration class.
-     * @param  string|object  $className
+     * @param  string|object  $className The configuration class, to get the schema for. This can either be a class string, the short name, or an instance of the class.
      * @return SettingsSchema
      */
     public function getSchema(string|object $className): SettingsSchema;

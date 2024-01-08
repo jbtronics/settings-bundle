@@ -36,7 +36,7 @@ interface SettingsManagerInterface
      * @param  string  $settingsClass The settings class to get the instance for. This can either be a class string, or the short name of the settings class.
      * @return object
      * @template T of object
-     * @phpstan-param class-string<T>|string $settingsClass
+     * @phpstan-param class-string<T> $settingsClass
      * @phpstan-return T
      */
     public function get(string $settingsClass): object;

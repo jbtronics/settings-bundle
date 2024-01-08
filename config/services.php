@@ -123,6 +123,15 @@ return static function (ContainerConfigurator $container) {
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
         ]);
 
+    //Only register the twig extension if twig is available
+    if (interface_exists(\Twig\Extension\ExtensionInterface::class)) {
+        $services->set('jbtronics.settings.twig_extension', \Jbtronics\SettingsBundle\Twig\SettingsExtension::class)
+            ->tag('twig.extension')
+            ->args([
+                '$settingsManager' => service('jbtronics.settings.settings_manager'),
+            ]);
+    }
+
     /**********************************************************************************
      * Parameter Types
      **********************************************************************************/

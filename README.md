@@ -66,6 +66,42 @@ class TestSettings {
 }
 ```
 
+The main way to work with settings is to use the `SettingsManagerInterface` service. It offers a `get()` method, which allows to retrieve the current settings for a given settings class. If not loaded yet, the manager will load the desired settings from the storage backend (or initialize a fresh instance with default values). The instances are cached, so that the manager will always return the same instance for a given settings class. The manager also offers a `save()` method, which allows to save the current settings to the storage backend and persist the changes.
+
+```php
+
+use Jbtronics\SettingsBundle\Settings\SettingsManagerInterface;
+
+class ExampleService {
+    public function __construct(private SettingsManagerInterface $settingsManager) {}
+
+    public function accessAndSaveSettings(): void
+    {
+        /** @var TestSettings $settings This is an instance of our previously defined setting class, containing the stored settings */
+        $settings = $this->settingsManager->get(TestSettings::class);
+
+        //To read the current settings value, just access the property
+        dump('My string is: ' . $settings->myString);
+
+        //To change the settings, just change the property (or call the setter)
+        $settings->myString = 'new value';
+
+        //And save the settings to the storage backend
+        $this->settingsManager->save($settings);
+
+
+        //You can also access the settings via a given name (which is the part before the "Settings" suffix of the class name in lowercase, by default)
+        $settings = $this->settingsManager->get('test');
+
+        //You can set an invalid value to the parameters
+        $settings->myInt = 42;
+
+        //But the bundle will throw an exception, when you try to save the settings
+        $this->settingsManager->save($settings); // Throws an excpetion
+    }
+}
+
+```
 
 ## License
 

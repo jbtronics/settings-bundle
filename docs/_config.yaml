@@ -1,0 +1,52 @@
+title: settings-bundle
+description: A bundle to allow typesafe, user-configurable settings for symfony applications.
+remote_theme: just-the-docs/just-the-docs
+
+#url: "https://docs.part-db.de"
+#baseurl: "/" # the subpath of your site, e.g. /blog
+
+url: "https://jbtronics.github.io"
+baseurl: "/settings-bundle" # the subpath of your site, e.g. /blog
+
+#favicon_ico: "/assets/favicon.ico"
+
+aux_links:
+  Repository: https://github.com/jbtronics/settings-bundle
+  #Demo: https://part-db.herokuapp.com
+
+
+search_enabled: true
+
+enable_copy_code_button: true
+heading_anchors: true
+
+back_to_top: true
+back_to_top_text: "Back to top"
+
+# Footer "Edit this page on GitHub" link text
+gh_edit_link: true # show or hide edit this page link
+gh_edit_link_text: "Edit this page on GitHub."
+gh_edit_repository: "https://github.com/jbtronics/settings-bundle" # the github URL for your repo
+gh_edit_branch: "master" # the branch that your docs is served from
+gh_edit_source: docs # the source that your files originate from
+gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
+
+callouts_level: quiet # or loud
+callouts:
+  highlight:
+    color: yellow
+  important:
+    title: Important
+    color: blue
+  new:
+    title: New
+    color: green
+  note:
+    title: Note
+    color: purple
+  warning:
+    title: Warning
+    color: red
+
+plugins:
+  - jekyll-seo-tag

@@ -31,17 +31,25 @@ interface SettingsHydratorInterface
 {
     /**
      * Hydrate the given settings object with the values from the storage provider.
+     * @template T of object
      * @param  object  $settings The settings object to hydrate
+     * @phpstan-param T $settings
      * @param  SettingsSchema  $schema The schema of the settings object to use
+     * @phpstan-param SettingsSchema<T> $schema
      * @return object The hydrated settings object
+     * @phpstan-return T
      */
     public function hydrate(object $settings, SettingsSchema $schema): object;
 
     /**
      * Persist the given settings object to the storage provider.
+     * @template T of object
      * @param  object  $settings The settings object to persist
+     * @phpstan-param T $settings
      * @param  SettingsSchema  $schema The schema of the settings object to use
+     * @phpstan-param SettingsSchema<T> $schema
      * @return object The persisted settings object
+     * @phpstan-return T
      */
     public function persist(object $settings, SettingsSchema $schema): object;
 }

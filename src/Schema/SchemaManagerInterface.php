@@ -30,14 +30,18 @@ interface SchemaManagerInterface
     /**
      * Checks if the given class is a config class.
      * @param  string|object  $className The configuration class, to check. This can either be a class string, the short name, or an instance of the class.
+     * @phpstan-param class-string|object $className
      * @return bool
      */
     public function isSettingsClass(string|object $className): bool;
 
     /**
      * Returns the configuration schema of the given class, which contains all metadata about the configuration class.
+     * @template T of object
      * @param  string|object  $className The configuration class, to get the schema for. This can either be a class string, the short name, or an instance of the class.
+     * @phpstan-param class-string<T>|T $className
      * @return SettingsSchema
+     * @phpstan-return SettingsSchema<T>
      */
     public function getSchema(string|object $className): SettingsSchema;
 }

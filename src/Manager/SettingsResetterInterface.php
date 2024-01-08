@@ -35,9 +35,13 @@ interface SettingsResetterInterface
     /**
      * Resets the settings instance to their default values.
      * The instance is returned.
+     * @template T of object
      * @param  object  $settings
+     * @phpstan-param T $settings
      * @param SettingsSchema $schema The schema, that should be used to reset the settings
+     * @phpstan-param SettingsSchema<T> $schema
      * @return object
+     * @phpstan-return T
      */
     public function resetSettings(object $settings, SettingsSchema $schema): object;
 }

@@ -31,17 +31,27 @@ use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 
 /**
  * This class represents the schema (structure) of a settings class
+ * @template T of object
  */
 class SettingsSchema
 {
     private readonly array $parametersByPropertyNames;
     private readonly array $parametersByName;
 
+    /**
+     * Create a new settings schema
+     * @param  string  $className The class name of the settings class.
+     * @phpstan-param  class-string<T>  $className
+     * @param  ParameterSchema[]  $parameterSchemas The parameter schemas of the settings class.
+     * @param  string  $storageAdapter The storage adapter, which should be used to store the settings of this class.
+     * @phpstan-param class-string<StorageAdapterInterface> $storageAdapter
+     * @param  string  $name The (short) name of the settings class.
+     */
     public function __construct(
         private readonly string $className,
         array $parameterSchemas,
         private readonly string $storageAdapter,
-        private readonly string|null $name = null,
+        private readonly string $name,
     )
     {
         //Sort the parameters by their property names and names
@@ -60,6 +70,7 @@ class SettingsSchema
     /**
      * Returns the class name of the configuration class, which is managed by this schema.
      * @return string
+     * @phpstan-return class-string<T>
      */
     public function getClassName(): string
     {
@@ -68,7 +79,7 @@ class SettingsSchema
 
     public function getName(): string
     {
-        return $this->name ?? $this->className;
+        return $this->name;
     }
 
     /**

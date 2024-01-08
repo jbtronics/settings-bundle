@@ -22,7 +22,7 @@
     }
   ],
   "suggest": {
-    "symfony/twig-bridge": "Allows to access settings in twig templates",
+    "symfony/twig-bridge": "Allows to access settings in twig templates"
   },
   "require": {
     "php": "^8.1",

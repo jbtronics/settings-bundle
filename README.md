@@ -103,6 +103,17 @@ class ExampleService {
 
 ```
 
+In twig templates you can access the settings via the `settings_instance()` function, which behaves like the `SettingsManagerInterface::get()` function and returns the current settings instance:
+
+```twig
+{# @var settings \App\Settings\TestSettings #}
+{% set settings = settings_instance('test') %}
+{{ dump(settings) }}
+
+{# or directly #}
+{{ settings_instance('test').myString }}
+```
+
 ## License
 
 SettingsBundle is licensed under the MIT License.

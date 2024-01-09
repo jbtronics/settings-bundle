@@ -55,6 +55,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[Settings] // The settings attribute makes a simple class to settings
 class TestSettings {
+    use SettingsTrait; // Disable constructor and __clone methods
 
     //The property is public here for simplicity, but it can also be protected or private
     #[SettingsParameter(type: StringType::class, label: 'My String', description: 'This value is shown as help in forms.')]

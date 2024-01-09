@@ -83,6 +83,14 @@ class ResettableSettings implements ResettableSettings
 }
 ```
 
+## Settings validation
+
+Settings-bundle integrates with `symfony/validator`, so you can use the normal validation constraints at parameter properties to validate the values. The validation is performed, when the settings are saved via the `SettingsManagerInterface::save()` method. If the validation fails, an `SettingsNotValidExcpetion` is thrown and the settings are not saved.
+
+**Attention:** Please note that the validation is only performed, when the settings are saved. That means that you can set an invalid value to a parameter, and other parts of your application might already use this invalid value, before the validation is performed. Therefore you should always validate the settings after changing them in a way, so that they could have become invalid.
+
+You can pass the settings instance to the `validate` method of the `SettingsValidatorInterface` service to check if the settings are valid. If the method returns an empty array the settings are valid, otherwise the array contains the validation errors.
+
 ## Attributes reference
 
 ### #[Settings]

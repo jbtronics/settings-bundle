@@ -82,3 +82,26 @@ class ResettableSettings implements ResettableSettings
     }
 }
 ```
+
+## Attributes reference
+
+### #[Settings]
+
+The `#[Settings]` attribute marks a class as settings class. It is required for all settings classes.
+
+The attribute has the following parameters:
+
+* `name` (optional): A short name for the settings class. This name can be used to retrieve the settings class via the `SettingsManagerInterface::get()` method. If not set, the name will be generated from the class name by removing the `Settings` suffix and converting the class name to lowercase (e.g. `TestSettings` -> `test`).
+* `storageAdapter` (optional): The class name of the storageAdapter service which should be used to store the settings (e.g. `InMemoryStorageAdapter::class`). If none is set, the global configured storage adapter will be used.
+
+### #[SettingsParameter]
+
+The `#[SettingsParameter]` attribute marks a property as settings parameter. It is required for all properties, which should be managed by the settings-bundle.
+
+The attribute has the following parameters:
+
+* `type` (required): The class name of the parameter type, which should be used to handle the parameter (e.g. `StringType::class`).
+* `name` (optional): The name of the parameter, by which it should be identified internally (this will be the key in the normalized data, etc.) If not set, this will default to the name of the property.
+* `label` (optional): A string or translation key, which can be used as user friendly label for the parameter, when showing it to user (e.g. in forms). This should be just a few words maximum.
+* `description` (optional): A string or translation key, which can be used as user friendly description for the parameter, when showing it to user (e.g. in forms). Unlike the label this can be a longer text giving more information about the parameter.
+* `extra_options` (optional): An array of extra options, which is passed to the parameter type. The available options depend on the parameter type. See the documentation of the parameter type for more information.

@@ -48,3 +48,37 @@ The only useful way to retrieve an instance of a settings class is via the Setti
 
 ## Defining default values for parameters
 
+The default values for parameters can be set directly in the property declaration in most cases (by directly assigning the value in the declaration e.g. `private int $property = 4;`).
+
+If you require more complex initialization, which can not be done directly in the declaration (e.g. create an object), your settings class can implement the `ResettableSettingsInterface` interface and the `resetToDefaultValues()` method. This method will be called by the settings-bundle everytime a new instance of the settings class is created or the settings are reset to default values. It is called after all properties have been initialized/reset to the default values.
+
+```php
+<?php
+// src/Settings/ResettableSettings.php
+
+namespace App\Settings;
+
+use Jbtronics\SettingsBundle\Settings\Settings;
+use Jbtronics\SettingsBundle\Settings\SettingsTrait;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\ParameterTypes\StringType;
+use Jbtronics\SettingsBundle\ParameterTypes\IntType;
+use Symfony\Component\Validator\Constraints as Assert;
+use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
+
+
+#[Settings] // The settings attribute makes a simple class to settings
+class ResettableSettings implements ResettableSettings
+{
+    use SettingsTrait; 
+
+    #[SettingsParameter(type: StringType::class, label: 'My String', description: 'This value is shown as help in forms.')]
+    public string $myString; // We set the default value later
+
+    public function resetToDefaultValues(): void
+    {
+        //Reset all properties without default values:
+        $this->myString = 'default value';
+    }
+}
+```

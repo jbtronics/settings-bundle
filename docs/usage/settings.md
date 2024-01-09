@@ -1,5 +1,5 @@
 ---
-title: Keybindings
+title: Defining settings
 layout: default
 parent: Usage
 ---

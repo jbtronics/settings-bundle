@@ -28,6 +28,8 @@ namespace Jbtronics\SettingsBundle\Schema;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
+use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
+use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
@@ -43,6 +45,7 @@ final class SchemaManager implements SchemaManagerInterface
         private readonly CacheInterface $cache,
         private readonly bool $debug_mode,
         private readonly SettingsRegistryInterface $settingsRegistry,
+        private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
         private readonly string $defaultStorageAdapter = InMemoryStorageAdapter::class,
     ) {
     }
@@ -124,15 +127,7 @@ final class SchemaManager implements SchemaManagerInterface
             //Add it to our list
             /** @var SettingsParameter $propertyAttribute */
             $propertyAttribute = $attributes[0]->newInstance();
-            $parameters[] = new ParameterSchema(
-                className: $className,
-                propertyName: $reflProperty->getName(),
-                type: $propertyAttribute->type,
-                name: $propertyAttribute->name,
-                label: $propertyAttribute->label,
-                description: $propertyAttribute->description,
-                extra_options: $propertyAttribute->extra_options,
-            );
+            $parameters[] = ParameterSchema::createFromAttribute($className, $reflProperty->getName(), $propertyAttribute);
         }
 
         //Now we have all infos required to build our schema

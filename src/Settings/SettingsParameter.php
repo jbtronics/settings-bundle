@@ -26,6 +26,7 @@
 namespace Jbtronics\SettingsBundle\Settings;
 
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
@@ -44,6 +45,9 @@ final class SettingsParameter
      * @param  string|TranslatableInterface|null  $label A user friendly label for this configuration entry, which is shown in the UI.
      * @param  string|TranslatableInterface|null  $description A small descrpiton for this configuration entry, which is shown in the UI.
      * @param  array  $extra_options An array of extra options, which are passed to the ConfigEntryTypeInterface implementation.
+     * @param  string|null $formType The form type to use for this configuration entry. If not set, the form type is guessed from the parameter type.
+     * @phpstan-param class-string<AbstractType>|null $formType
+     * @param  array  $formOptions An array of extra options, which are passed to the form type.
      */
     public function __construct(
         public readonly string $type,
@@ -51,6 +55,8 @@ final class SettingsParameter
         public readonly string|TranslatableInterface|null $label = null,
         public readonly string|TranslatableInterface|null $description = null,
         public readonly array $extra_options = [],
+        public readonly ?string $formType = null,
+        public readonly array $formOptions = [],
     )
     {
     }

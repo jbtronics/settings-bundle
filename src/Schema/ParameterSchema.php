@@ -26,6 +26,9 @@
 namespace Jbtronics\SettingsBundle\Schema;
 
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
@@ -34,14 +37,17 @@ use Symfony\Contracts\Translation\TranslatableInterface;
 class ParameterSchema
 {
     /**
-     * @param class-string  $className The class name of the settings class, which contains this parameter.
-     * @param string  $propertyName The name of the property, which is marked as a settings parameter.
-     * @param  string  $type The type of this configuration entry. This must be a class string of a service implementing ConfigEntryTypeInterface
+     * @param  class-string  $className  The class name of the settings class, which contains this parameter.
+     * @param  string  $propertyName  The name of the property, which is marked as a settings parameter.
+     * @param  string  $type  The type of this configuration entry. This must be a class string of a service implementing ConfigEntryTypeInterface
      * @phpstan-param class-string<ParameterTypeInterface> $type
-     * @param  string|null  $name The optional name of this configuration entry. If not set, the name of the property is used.
-     * @param  string|TranslatableInterface|null  $label A user friendly label for this configuration entry, which is shown in the UI.
-     * @param  string|TranslatableInterface|null  $description A small descrpiton for this configuration entry, which is shown in the UI.
-     * @param  array  $extra_options An array of extra options, which are passed to the ConfigEntryTypeInterface implementation.
+     * @param  string|null  $name  The optional name of this configuration entry. If not set, the name of the property is used.
+     * @param  string|TranslatableInterface|null  $label  A user friendly label for this configuration entry, which is shown in the UI.
+     * @param  string|TranslatableInterface|null  $description  A small descrpiton for this configuration entry, which is shown in the UI.
+     * @param  array  $extra_options  An array of extra options, which are passed to the ConfigEntryTypeInterface implementation.
+     * @param  string|null  $formType  The form type to use for this configuration entry. If not set, the form type is guessed from the parameter type.
+     * @phpstan-param class-string<AbstractType>|null $formType
+     * @param  array  $formOptions  An array of extra options, which are passed to the form type. This will override the values from the parameterType
      */
     public function __construct(
         private readonly string $className,
@@ -51,8 +57,9 @@ class ParameterSchema
         private readonly string|TranslatableInterface|null $label = null,
         private readonly string|TranslatableInterface|null $description = null,
         private readonly array $extra_options = [],
-    )
-    {
+        public readonly ?string $formType = null,
+        public readonly array $formOptions = [],
+    ) {
     }
 
     public function getClassName(): string
@@ -89,4 +96,38 @@ class ParameterSchema
     {
         return $this->extra_options;
     }
+
+    public function getFormType(): ?string
+    {
+        return $this->formType;
+    }
+
+    public function getFormOptions(): array
+    {
+        return $this->formOptions;
+    }
+
+
+    /**
+     * Create a new ParameterSchema from a SettingsParameter attribute.
+     * @param  string  $className
+     * @param  string  $propertyName
+     * @param  SettingsParameter  $attribute
+     * @return self
+     */
+    public static function createFromAttribute(string $className, string $propertyName, SettingsParameter $attribute): self
+    {
+        return new ParameterSchema(
+            className: $className,
+            propertyName: $propertyName,
+            type: $attribute->type,
+            name: $attribute->name,
+            label: $attribute->label,
+            description: $attribute->description,
+            extra_options: $attribute->extra_options,
+            formType: $attribute->formType,
+            formOptions: $attribute->formOptions,
+        );
+    }
+
 }

@@ -29,26 +29,72 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
 use Jbtronics\SettingsBundle\Schema\ParameterSchema;
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-enum EnumType implements ParameterTypeInterface
+class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
 {
 
     public function convertPHPToNormalized(
         mixed $value,
         ParameterSchema $parameterSchema,
     ): int|string|float|bool|array|null {
-        // TODO: Implement convertPHPToNormalized() method.
+        //Null values get directly returned
+        if ($value === null) {
+            return null;
+        }
 
-        throw new \RuntimeException('Not implemented');
+        //Extract the class name from the parameter schema
+        /** @phpstan-var class-string<\BackedEnum> $class */
+        $class = $parameterSchema->getExtraOptions()['class'] ?? null ?? throw new \LogicException('Missing class option for enum type!');
+
+        //Check if the value is an instance of the class
+        if (!is_a($value, $class)) {
+            throw new \LogicException(sprintf('The value of the property "%s" must be an instance of enum "%s", but "%s" given.', $parameterSchema->getName(), $class, gettype($value)));
+        }
+
+        //Ensure that the value is a backed enum
+        if (!is_a($value, \BackedEnum::class)) {
+            throw new \LogicException(sprintf('The enum "%s" must be a backed enum!', $class));
+        }
+
+        //Convert the value to a normalized value
+        return $value->value;
     }
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
         ParameterSchema $parameterSchema,
     ): mixed {
-        // TODO: Implement convertNormalizedToPHP() method.
 
-        throw new \RuntimeException('Not implemented');
+        //Null values get directly returned
+        if ($value === null) {
+            return null;
+        }
+
+        //Extract the class name from the parameter schema
+        /** @phpstan-var class-string<\BackedEnum> $class */
+        $class = $parameterSchema->getExtraOptions()['class'] ?? null ?? throw new \LogicException('Missing class option for enum type!');
+
+        //Ensure that the value is a backed enum
+        if (!is_a($class, \BackedEnum::class, true)) {
+            throw new \LogicException(sprintf('The enum "%s" must be a backed enum!', $class));
+        }
+
+        //Convert the value to a backed enum
+        return $class::from($value);
+    }
+
+    public function getFormType(ParameterSchema $parameterSchema): string
+    {
+        return \Symfony\Component\Form\Extension\Core\Type\EnumType::class;
+    }
+
+    public function configureFormOptions(OptionsResolver $resolver, ParameterSchema $parameterSchema): void
+    {
+        $resolver->setDefaults(
+            [
+                'class' => $parameterSchema->getExtraOptions()['class'] ?? throw new \LogicException('Missing class option for enum type!'),
+            ]
+        );
     }
 }

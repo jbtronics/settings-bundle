@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
+use Jbtronics\SettingsBundle\Schema\ParameterSchema;
 use Jbtronics\SettingsBundle\Schema\SettingsSchema;
 
 enum EnumType implements ParameterTypeInterface
@@ -35,8 +36,7 @@ enum EnumType implements ParameterTypeInterface
 
     public function convertPHPToNormalized(
         mixed $value,
-        SettingsSchema $configSchema,
-        string $parameterName
+        ParameterSchema $parameterSchema,
     ): int|string|float|bool|array|null {
         // TODO: Implement convertPHPToNormalized() method.
 
@@ -45,8 +45,7 @@ enum EnumType implements ParameterTypeInterface
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        SettingsSchema $configSchema,
-        string $parameterName
+        ParameterSchema $parameterSchema,
     ): mixed {
         // TODO: Implement convertNormalizedToPHP() method.
 

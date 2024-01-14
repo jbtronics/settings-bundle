@@ -34,11 +34,10 @@ class BoolType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
 {
     public function convertPHPToNormalized(
         mixed $value,
-        SettingsSchema $configSchema,
-        string $parameterName
+        ParameterSchema $parameterSchema,
     ): int|string|float|bool|array|null {
         if (!is_bool($value) && !is_null($value)) {
-            throw new \LogicException(sprintf('The value of the property "%s" must be a string, but "%s" given.', $parameterName, gettype($value)));
+            throw new \LogicException(sprintf('The value of the property "%s" must be a bool, but "%s" given.', $parameterSchema->getName(), gettype($value)));
         }
 
         return $value;
@@ -46,8 +45,7 @@ class BoolType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        SettingsSchema $configSchema,
-        string $parameterName
+        ParameterSchema $parameterSchema,
     ): ?bool {
         if ($value === null) {
             return null;

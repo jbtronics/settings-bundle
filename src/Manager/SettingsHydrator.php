@@ -98,7 +98,7 @@ class SettingsHydrator implements SettingsHydratorInterface
             /** @var ParameterTypeInterface $converter */
             $converter = $this->parameterTypeRegistry->getParameterType($parameterSchema->getType());
 
-            $normalizedRepresentation[$parameterName] = $converter->convertPHPToNormalized($value, $schema, $parameterName);
+            $normalizedRepresentation[$parameterName] = $converter->convertPHPToNormalized($value, $parameterSchema);
         }
 
         return $normalizedRepresentation;
@@ -131,7 +131,7 @@ class SettingsHydrator implements SettingsHydratorInterface
             /** @var ParameterTypeInterface $converter */
             $converter = $this->parameterTypeRegistry->getParameterType($parameterSchema->getType());
 
-            $value = $converter->convertNormalizedToPHP($normalized, $schema, $parameterName);
+            $value = $converter->convertNormalizedToPHP($normalized, $parameterSchema);
 
             PropertyAccessHelper::setProperty($settings, $parameterSchema->getPropertyName(), $value);
         }

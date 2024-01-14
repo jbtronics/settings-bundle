@@ -25,9 +25,12 @@
 
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
+use Jbtronics\SettingsBundle\Schema\ParameterSchema;
 use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class BoolType implements ParameterTypeInterface
+class BoolType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
 {
     public function convertPHPToNormalized(
         mixed $value,
@@ -51,5 +54,18 @@ class BoolType implements ParameterTypeInterface
         }
 
         return (bool) $value;
+    }
+
+    public function getFormType(ParameterSchema $parameterSchema): string
+    {
+        return CheckboxType::class;
+    }
+
+    public function configureFormOptions(OptionsResolver $resolver, ParameterSchema $parameterSchema): void
+    {
+        //The checkbox should be allowed to be false
+        $resolver->setDefaults([
+            'required' => false,
+        ]);
     }
 }

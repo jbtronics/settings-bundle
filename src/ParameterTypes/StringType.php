@@ -25,10 +25,13 @@
 
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
+use Jbtronics\SettingsBundle\Schema\ParameterSchema;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class StringType implements ParameterTypeInterface
+class StringType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
 {
     public function convertPHPToNormalized(
         mixed $value,
@@ -54,5 +57,15 @@ class StringType implements ParameterTypeInterface
         }
 
         return (string) $value;
+    }
+
+    public function getFormType(ParameterSchema $parameterSchema): string
+    {
+        return TextType::class;
+    }
+
+    public function configureFormOptions(OptionsResolver $resolver, ParameterSchema $parameterSchema): void
+    {
+        //No options required
     }
 }

@@ -25,9 +25,12 @@
 
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
+use Jbtronics\SettingsBundle\Schema\ParameterSchema;
 use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class IntType implements ParameterTypeInterface
+class IntType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
 {
     public function convertPHPToNormalized(
         mixed $value,
@@ -51,5 +54,15 @@ class IntType implements ParameterTypeInterface
         }
 
         return (int) $value;
+    }
+
+    public function getFormType(ParameterSchema $parameterSchema): string
+    {
+        return NumberType::class;
+    }
+
+    public function configureFormOptions(OptionsResolver $resolver, ParameterSchema $parameterSchema): void
+    {
+        //No options required
     }
 }

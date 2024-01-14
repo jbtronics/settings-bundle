@@ -162,6 +162,7 @@ return static function (ContainerConfigurator $container) {
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\IntType::class);
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\StringType::class);
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\BoolType::class);
+    $services->set(\Jbtronics\SettingsBundle\ParameterTypes\FloatType::class);
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\EnumType::class);
 
     /**********************************************************************************

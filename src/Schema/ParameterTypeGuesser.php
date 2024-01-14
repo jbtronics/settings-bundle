@@ -30,6 +30,7 @@ namespace Jbtronics\SettingsBundle\Schema;
 
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
+use Jbtronics\SettingsBundle\ParameterTypes\FloatType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 
@@ -51,6 +52,9 @@ class ParameterTypeGuesser implements ParameterTypeGuesserInterface
                 }
                 if ($typeName === 'string') {
                     return StringType::class;
+                }
+                if ($typeName === 'float') {
+                    return FloatType::class;
                 }
 
                 if (is_a($typeName, \UnitEnum::class, true)) {

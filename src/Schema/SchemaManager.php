@@ -45,7 +45,7 @@ final class SchemaManager implements SchemaManagerInterface
         private readonly CacheInterface $cache,
         private readonly bool $debug_mode,
         private readonly SettingsRegistryInterface $settingsRegistry,
-        private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
+        private readonly ParameterTypeGuesserInterface $parameterTypeGuesser,
         private readonly string $defaultStorageAdapter = InMemoryStorageAdapter::class,
     ) {
     }
@@ -126,8 +126,29 @@ final class SchemaManager implements SchemaManagerInterface
 
             //Add it to our list
             /** @var SettingsParameter $propertyAttribute */
-            $propertyAttribute = $attributes[0]->newInstance();
-            $parameters[] = ParameterSchema::createFromAttribute($className, $reflProperty->getName(), $propertyAttribute);
+            $attribute = $attributes[0]->newInstance();
+
+            //Try to guess type
+            $type = $attribute->type ?? $this->parameterTypeGuesser->guessParameterType($reflProperty);
+            if ($type === null) {
+                throw new \LogicException(sprintf('The property "%s" of the class "%s" has no type set and the type could not be guessed. Please set the type explicitly!',
+                    $reflProperty->getName(), $className));
+            }
+
+            //Try to guess extra options
+            $extra_options = array_merge($this->parameterTypeGuesser->guessExtraOptions($reflProperty) ?? [], $attribute->extra_options);
+
+            $parameters[] = new ParameterSchema(
+                className: $className,
+                propertyName: $reflProperty->getName(),
+                type: $attribute->type ?? $type,
+                name: $attribute->name,
+                label: $attribute->label,
+                description: $attribute->description,
+                extra_options: $extra_options,
+                formType: $attribute->formType,
+                formOptions: $attribute->formOptions,
+            );
         }
 
         //Now we have all infos required to build our schema

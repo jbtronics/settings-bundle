@@ -39,7 +39,7 @@ use Symfony\Contracts\Translation\TranslatableInterface;
 final class SettingsParameter
 {
     /**
-     * @param  string  $type The type of this configuration entry. This must be a class string of a service implementing ConfigEntryTypeInterface
+     * @param  string|null  $type The type of this configuration entry. This must be a class string of a service implementing ConfigEntryTypeInterface. If it is not set, the type is guessed from the property type.
      * @phpstan-param class-string<ParameterTypeInterface> $type
      * @param  string|null  $name The optional name of this configuration entry. If not set, the name of the property is used.
      * @param  string|TranslatableInterface|null  $label A user friendly label for this configuration entry, which is shown in the UI.
@@ -50,7 +50,7 @@ final class SettingsParameter
      * @param  array  $formOptions An array of extra options, which are passed to the form type.
      */
     public function __construct(
-        public readonly string $type,
+        public readonly ?string $type = null,
         public readonly ?string $name = null,
         public readonly string|TranslatableInterface|null $label = null,
         public readonly string|TranslatableInterface|null $description = null,

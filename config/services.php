@@ -69,6 +69,7 @@ return static function (ContainerConfigurator $container) {
             '$cache' => service('cache.app'),
             '$debug_mode' => '%kernel.debug%',
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
+            '$parameterTypeGuesser' => service('jbtronics.settings.parameter_type_guesser'),
         ])
     ;
     $services->alias(SchemaManagerInterface::class, 'jbtronics.settings.schema_manager');
@@ -114,6 +115,10 @@ return static function (ContainerConfigurator $container) {
             '$validator' => service('validator'),
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Manager\SettingsValidatorInterface::class, 'jbtronics.settings.settings_validator');
+
+    $services->set('jbtronics.settings.parameter_type_guesser', \Jbtronics\SettingsBundle\Schema\ParameterTypeGuesser::class)
+        ;
+    $services->alias(\Jbtronics\SettingsBundle\Schema\ParameterTypeGuesserInterface::class, 'jbtronics.settings.parameter_type_guesser');
 
     $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
         ->tag('data_collector')

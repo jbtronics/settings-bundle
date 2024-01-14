@@ -25,10 +25,12 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Schema;
 
-use Jbtronics\SettingsBundle\Schema\SchemaManager;
+use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
+use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SchemaManagerTest extends KernelTestCase
@@ -70,5 +72,18 @@ class SchemaManagerTest extends KernelTestCase
         //This should also work with the short name of the class
         $schema2 = $this->schemaManager->getSchema('simple');
         $this->assertSame($schema, $schema2);
+    }
+
+    public function testGetSchemaGuessable(): void
+    {
+        //Test that schema generation works with guessable types
+        $schema = $this->schemaManager->getSchema(GuessableSettings::class);
+
+        $int_schema = $schema->getParameter('int');
+        $this->assertEquals(IntType::class, $int_schema->getType());
+
+        $enum_schema = $schema->getParameter('enum');
+        $this->assertEquals(EnumType::class, $enum_schema->getType());
+        $this->assertEquals(TestEnum::class, $enum_schema->getExtraOptions()['class']);
     }
 }

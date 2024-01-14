@@ -85,10 +85,6 @@ class PropertyAccessHelper
 
         $property = $refl->getProperty($propertyName);
 
-        if (!$property->isStatic() && !is_object($objectOrClass)) {
-            throw new \LogicException('Can not access non-static property without an object.');
-        }
-
         return $property;
     }
 

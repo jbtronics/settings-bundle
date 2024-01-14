@@ -27,6 +27,7 @@ namespace Jbtronics\SettingsBundle\ParameterTypes;
 
 use Jbtronics\SettingsBundle\Schema\ParameterSchema;
 use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -56,7 +57,7 @@ class IntType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsIn
 
     public function getFormType(ParameterSchema $parameterSchema): string
     {
-        return NumberType::class;
+        return IntegerType::class;
     }
 
     public function configureFormOptions(OptionsResolver $resolver, ParameterSchema $parameterSchema): void

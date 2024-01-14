@@ -28,7 +28,10 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Form;
 
+use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Symfony\Component\Form\FormBuilderInterface;
+
 interface SettingsFormBuilderInterface
 {
-
+    public function buildSettingsForm(FormBuilderInterface $builder, SettingsSchema $settingsSchema, ?array $options = null): void;
 }

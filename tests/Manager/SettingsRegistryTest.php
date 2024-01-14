@@ -26,6 +26,7 @@
 namespace Jbtronics\SettingsBundle\Tests\Manager;
 
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use PHPUnit\Framework\TestCase;
@@ -46,7 +47,8 @@ class SettingsRegistryTest extends TestCase
 
         $this->assertEquals([
             'simple' => SimpleSettings::class,
-            'test234' => ValidatableSettings::class
+            'test234' => ValidatableSettings::class,
+            'guessable' => GuessableSettings::class,
         ], $configurationRegistry->getSettingsClasses());
     }
 

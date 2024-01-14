@@ -125,7 +125,7 @@ final class SchemaManager implements SchemaManagerInterface
             }
 
             //Add it to our list
-            /** @var SettingsParameter $propertyAttribute */
+            /** @var SettingsParameter $attribute */
             $attribute = $attributes[0]->newInstance();
 
             //Try to guess type

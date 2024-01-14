@@ -39,6 +39,8 @@ enum EnumType implements ParameterTypeInterface
         string $parameterName
     ): int|string|float|bool|array|null {
         // TODO: Implement convertPHPToNormalized() method.
+
+        throw new \RuntimeException('Not implemented');
     }
 
     public function convertNormalizedToPHP(
@@ -47,5 +49,7 @@ enum EnumType implements ParameterTypeInterface
         string $parameterName
     ): mixed {
         // TODO: Implement convertNormalizedToPHP() method.
+
+        throw new \RuntimeException('Not implemented');
     }
 }

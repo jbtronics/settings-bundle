@@ -31,7 +31,7 @@
     "symfony/translation-contracts": "^2.5|^3.0",
     "spatie/php-structure-discoverer": "^2.0",
     "symfony/validator": "^6.4|^7.0",
-    "symfony/form": "^7.0"
+    "symfony/form": "^6.4|^7.0"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest",

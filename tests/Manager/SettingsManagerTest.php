@@ -87,6 +87,9 @@ class SettingsManagerTest extends KernelTestCase
         //Save the settings
         $this->service->save($settings);
 
+        //Save all must also work flawlessly
+        $this->service->save();
+
         //Change the value again
         $settings->setValue1('changed again');
 

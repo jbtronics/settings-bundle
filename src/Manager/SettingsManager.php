@@ -98,7 +98,7 @@ final class SettingsManager implements SettingsManagerInterface
          * It is enough to only save the settings which are currently managed by the SettingsManager, as these are the
          * only ones which could have been changed.
          */
-        $classesToSave = $settingsClass === null ? $this->settings_by_class : [$settingsClass];
+        $classesToSave = $settingsClass === null ? array_keys($this->settings_by_class) : [$settingsClass];
 
         $errors = [];
 

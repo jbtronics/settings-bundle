@@ -42,14 +42,14 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
     {
     }
 
-    public function buildSettingsForm(FormBuilderInterface $builder, SettingsSchema $settingsSchema, ?array $options = null): void
+    public function buildSettingsForm(FormBuilderInterface $builder, SettingsSchema $settingsSchema, array $options = []): void
     {
         foreach ($settingsSchema->getParameters() as $parameterSchema) {
             $this->buildSettingsParameter($builder, $parameterSchema, $options);
         }
     }
 
-    public function buildSettingsParameter(FormBuilderInterface $builder, ParameterSchema $parameter, ?array $options = null): void
+    public function buildSettingsParameter(FormBuilderInterface $builder, ParameterSchema $parameter, array $options = []): void
     {
         $builder->add($parameter->getPropertyName(), $this->getFormTypeForParameter($parameter), $this->getFormOptions($parameter, $options));
     }
@@ -105,6 +105,6 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
 
 
         //Finally resolve the options
-        return $optionsResolver->resolve($options);
+        return $optionsResolver->resolve($options ?? []);
     }
 }

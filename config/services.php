@@ -137,6 +137,25 @@ return static function (ContainerConfigurator $container) {
             ]);
     }
 
+    /*********************************************************************************
+     * Form subsystem
+     *********************************************************************************/
+
+    $services->set('jbtronics.settings.settings_form_builder', \Jbtronics\SettingsBundle\Form\SettingsFormBuilder::class)
+        ->args([
+            '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Form\SettingsFormBuilderInterface::class, 'jbtronics.settings.settings_form_builder');
+
+    $services->set('jbtronics.settings.settings_form_factory', \Jbtronics\SettingsBundle\Form\SettingsFormFactory::class)
+        ->args([
+            '$settingsManager' => service('jbtronics.settings.settings_manager'),
+            '$schemaManager' => service('jbtronics.settings.schema_manager'),
+            '$settingsFormBuilder' => service('jbtronics.settings.settings_form_builder'),
+            '$formFactory' => service('form.factory'),
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Form\SettingsFormFactoryInterface::class, 'jbtronics.settings.settings_form_factory');
+
     /**********************************************************************************
      * Parameter Types
      **********************************************************************************/

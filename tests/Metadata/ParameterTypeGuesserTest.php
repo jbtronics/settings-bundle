@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-namespace Jbtronics\SettingsBundle\Tests\Schema;
+namespace Jbtronics\SettingsBundle\Tests\Metadata;
 
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;

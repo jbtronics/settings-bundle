@@ -51,7 +51,7 @@ class SettingsHydratorTest extends WebTestCase
         $test->setValue2(123);
         $test->setValue3(true);
 
-        $schema = $this->schemaManager->getSchema(SimpleSettings::class);
+        $schema = $this->schemaManager->getSettingsMetadata(SimpleSettings::class);
         $normalized = $this->service->toNormalizedRepresentation($test, $schema);
 
         $this->assertIsArray($normalized);
@@ -79,7 +79,7 @@ class SettingsHydratorTest extends WebTestCase
                 //'value3' => true,
         ];
 
-        $schema = $this->schemaManager->getSchema(SimpleSettings::class);
+        $schema = $this->schemaManager->getSettingsMetadata(SimpleSettings::class);
 
         $this->service->applyNormalizedRepresentation($data, $test, $schema);
 
@@ -98,7 +98,7 @@ class SettingsHydratorTest extends WebTestCase
         $test->setValue2(123);
         $test->setValue3(true);
 
-        $schema = $this->schemaManager->getSchema(SimpleSettings::class);
+        $schema = $this->schemaManager->getSettingsMetadata(SimpleSettings::class);
         //Ensure that we use the InMemoryStorageAdapter
         $this->assertEquals(InMemoryStorageAdapter::class, $schema->getStorageAdapter());
 

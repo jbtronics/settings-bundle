@@ -25,9 +25,9 @@
 
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
-use Jbtronics\SettingsBundle\Schema\ParameterSchema;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -35,7 +35,7 @@ class StringType implements ParameterTypeInterface, ParameterTypeWithFormDefault
 {
     public function convertPHPToNormalized(
         mixed $value,
-        ParameterSchema $parameterSchema,
+        ParameterMetadata $parameterSchema,
     ): int|string|float|bool|array|null
     {
         if (!is_string($value) && !is_null($value)) {
@@ -47,7 +47,7 @@ class StringType implements ParameterTypeInterface, ParameterTypeWithFormDefault
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        ParameterSchema $parameterSchema,
+        ParameterMetadata $parameterSchema,
     ): ?string
     {
         if ($value === null) {
@@ -57,12 +57,12 @@ class StringType implements ParameterTypeInterface, ParameterTypeWithFormDefault
         return (string) $value;
     }
 
-    public function getFormType(ParameterSchema $parameterSchema): string
+    public function getFormType(ParameterMetadata $parameterSchema): string
     {
         return TextType::class;
     }
 
-    public function configureFormOptions(OptionsResolver $resolver, ParameterSchema $parameterSchema): void
+    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterSchema): void
     {
         //No options required
     }

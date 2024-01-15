@@ -25,8 +25,8 @@
 
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
-use Jbtronics\SettingsBundle\Schema\ParameterSchema;
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -34,7 +34,7 @@ class BoolType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
 {
     public function convertPHPToNormalized(
         mixed $value,
-        ParameterSchema $parameterSchema,
+        ParameterMetadata $parameterSchema,
     ): int|string|float|bool|array|null {
         if (!is_bool($value) && !is_null($value)) {
             throw new \LogicException(sprintf('The value of the property "%s" must be a bool, but "%s" given.', $parameterSchema->getName(), gettype($value)));
@@ -45,7 +45,7 @@ class BoolType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        ParameterSchema $parameterSchema,
+        ParameterMetadata $parameterSchema,
     ): ?bool {
         if ($value === null) {
             return null;
@@ -54,12 +54,12 @@ class BoolType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
         return (bool) $value;
     }
 
-    public function getFormType(ParameterSchema $parameterSchema): string
+    public function getFormType(ParameterMetadata $parameterSchema): string
     {
         return CheckboxType::class;
     }
 
-    public function configureFormOptions(OptionsResolver $resolver, ParameterSchema $parameterSchema): void
+    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterSchema): void
     {
         //The checkbox should be allowed to be false
         $resolver->setDefaults([

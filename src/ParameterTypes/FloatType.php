@@ -25,8 +25,8 @@
 
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
-use Jbtronics\SettingsBundle\Schema\ParameterSchema;
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -35,7 +35,7 @@ class FloatType implements ParameterTypeInterface, ParameterTypeWithFormDefaults
 {
     public function convertPHPToNormalized(
         mixed $value,
-        ParameterSchema $parameterSchema,
+        ParameterMetadata $parameterSchema,
     ): int|string|float|bool|array|null {
         if (!is_float($value) && !is_null($value)) {
             throw new \LogicException(sprintf('The value of the property "%s" must be a float or null, but "%s" given.', $parameterSchema->getName(), gettype($value)));
@@ -46,7 +46,7 @@ class FloatType implements ParameterTypeInterface, ParameterTypeWithFormDefaults
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        ParameterSchema $parameterSchema,
+        ParameterMetadata $parameterSchema,
     ): ?float {
         if ($value === null) {
             return null;
@@ -55,12 +55,12 @@ class FloatType implements ParameterTypeInterface, ParameterTypeWithFormDefaults
         return (float) $value;
     }
 
-    public function getFormType(ParameterSchema $parameterSchema): string
+    public function getFormType(ParameterMetadata $parameterSchema): string
     {
         return NumberType::class;
     }
 
-    public function configureFormOptions(OptionsResolver $resolver, ParameterSchema $parameterSchema): void
+    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterSchema): void
     {
         //No options required
     }

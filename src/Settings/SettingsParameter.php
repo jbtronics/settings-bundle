@@ -39,12 +39,12 @@ use Symfony\Contracts\Translation\TranslatableInterface;
 final class SettingsParameter
 {
     /**
-     * @param  string|null  $type The type of this configuration entry. This must be a class string of a service implementing ConfigEntryTypeInterface. If it is not set, the type is guessed from the property type.
+     * @param  string|null  $type The type of this configuration entry. This must be a class string of a service implementing ParameterTypeInterface. If it is not set, the type is guessed from the property type.
      * @phpstan-param class-string<ParameterTypeInterface> $type
      * @param  string|null  $name The optional name of this configuration entry. If not set, the name of the property is used.
      * @param  string|TranslatableInterface|null  $label A user friendly label for this configuration entry, which is shown in the UI.
-     * @param  string|TranslatableInterface|null  $description A small descrpiton for this configuration entry, which is shown in the UI.
-     * @param  array  $extra_options An array of extra options, which are passed to the ConfigEntryTypeInterface implementation.
+     * @param  string|TranslatableInterface|null  $description A small description for this configuration entry, which is shown in the UI.
+     * @param  array  $options An array of extra options, which can detail configure the behavior of the ParameterType.
      * @param  string|null $formType The form type to use for this configuration entry. If not set, the form type is guessed from the parameter type.
      * @phpstan-param class-string<AbstractType>|null $formType
      * @param  array  $formOptions An array of extra options, which are passed to the form type.
@@ -54,7 +54,7 @@ final class SettingsParameter
         public readonly ?string $name = null,
         public readonly string|TranslatableInterface|null $label = null,
         public readonly string|TranslatableInterface|null $description = null,
-        public readonly array $extra_options = [],
+        public readonly array $options = [],
         public readonly ?string $formType = null,
         public readonly array $formOptions = [],
     )

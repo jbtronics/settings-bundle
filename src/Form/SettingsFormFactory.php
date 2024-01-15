@@ -29,7 +29,7 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\Form;
 
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
-use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -39,7 +39,7 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
 {
     public function __construct(
         private readonly SettingsManagerInterface $settingsManager,
-        private readonly SchemaManagerInterface $schemaManager,
+        private readonly MetadataManagerInterface $schemaManager,
         private readonly SettingsFormBuilderInterface $settingsFormBuilder,
         private readonly FormFactoryInterface $formFactory,
     ) {
@@ -52,7 +52,7 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
 
     public function createSettingsFormBuilder(string $settingsName): FormBuilderInterface
     {
-        $settingsSchema = $this->schemaManager->getSchema($settingsName);
+        $settingsSchema = $this->schemaManager->getSettingsMetadata($settingsName);
         $formBuilder = $this->formFactory->createBuilder(data: $this->settingsManager->get($settingsName));
         $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsSchema);
 

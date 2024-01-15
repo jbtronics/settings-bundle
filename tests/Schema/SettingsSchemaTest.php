@@ -30,29 +30,29 @@ use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
-use Jbtronics\SettingsBundle\Schema\ParameterSchema;
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use PhpParser\Node\Param;
 use PHPUnit\Framework\TestCase;
 
 class SettingsSchemaTest extends TestCase
 {
-    private SettingsSchema $configSchema;
+    private SettingsMetadata $configSchema;
     private Settings $configClass;
     private array $parameterSchema = [];
 
     public function setUp(): void
     {
         $this->parameterSchema = [
-            new ParameterSchema(self::class, 'property1', IntType::class),
-            new ParameterSchema(self::class, 'property2', StringType::class, 'name2'),
-            new ParameterSchema(self::class, 'property3', BoolType::class, 'name3', 'label3', 'description3'),
+            new ParameterMetadata(self::class, 'property1', IntType::class),
+            new ParameterMetadata(self::class, 'property2', StringType::class, 'name2'),
+            new ParameterMetadata(self::class, 'property3', BoolType::class, 'name3', 'label3', 'description3'),
         ];
 
-        $this->configSchema = new SettingsSchema(
+        $this->configSchema = new SettingsMetadata(
             className: self::class,
-            parameterSchemas:  $this->parameterSchema,
+            parameterMetadata:  $this->parameterSchema,
             storageAdapter: InMemoryStorageAdapter::class,
             name: 'test',
         );

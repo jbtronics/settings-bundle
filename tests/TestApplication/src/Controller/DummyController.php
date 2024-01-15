@@ -28,7 +28,7 @@ namespace Jbtronics\SettingsBundle\Tests\TestApplication\Controller;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
-use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -39,7 +39,7 @@ class DummyController
     //them in the tests
     public function __construct(private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
     private readonly StorageAdapterRegistryInterface $storageAdapterRegistry,
-    private readonly SchemaManagerInterface $schemaManager,
+    private readonly MetadataManagerInterface $schemaManager,
     private readonly SettingsHydratorInterface $settingsHydrator,
     private readonly SettingsManagerInterface $settingsManager,
     )

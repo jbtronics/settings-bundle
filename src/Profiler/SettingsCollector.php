@@ -27,8 +27,8 @@ namespace Jbtronics\SettingsBundle\Profiler;
 
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
-use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,7 +37,7 @@ class SettingsCollector extends AbstractDataCollector
 {
     public function __construct(
         private readonly SettingsRegistryInterface $configurationRegistry,
-        private readonly SchemaManagerInterface $schemaManager,
+        private readonly MetadataManagerInterface $schemaManager,
         private readonly SettingsManagerInterface $settingsManager,
     )
     {
@@ -49,7 +49,7 @@ class SettingsCollector extends AbstractDataCollector
         $settings_classes = $this->configurationRegistry->getSettingsClasses();
         $schemas = [];
         foreach ($settings_classes as $settings_class) {
-            $schemas[$settings_class] = $this->schemaManager->getSchema($settings_class);
+            $schemas[$settings_class] = $this->schemaManager->getSettingsMetadata($settings_class);
         }
 
         //Retrieve the settings objects from the settings manager
@@ -76,7 +76,7 @@ class SettingsCollector extends AbstractDataCollector
     }
 
     /**
-     * @return array<string, SettingsSchema>
+     * @return array<string, SettingsMetadata>
      */
     public function getSettingsSchemas(): array
     {

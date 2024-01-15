@@ -26,12 +26,12 @@
 namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 
 class SettingsResetter implements SettingsResetterInterface
 {
-    public function resetSettings(object $settings, SettingsSchema $schema): object
+    public function resetSettings(object $settings, SettingsMetadata $schema): object
     {
         //Ensure that the schema is for the given settings class
         if (is_a($settings, $schema->getClassName()) === false) {

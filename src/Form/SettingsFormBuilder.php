@@ -30,8 +30,8 @@ namespace Jbtronics\SettingsBundle\Form;
 
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeWithFormDefaultsInterface;
-use Jbtronics\SettingsBundle\Schema\ParameterSchema;
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -42,25 +42,25 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
     {
     }
 
-    public function buildSettingsForm(FormBuilderInterface $builder, SettingsSchema $settingsSchema, array $options = []): void
+    public function buildSettingsForm(FormBuilderInterface $builder, SettingsMetadata $settingsSchema, array $options = []): void
     {
         foreach ($settingsSchema->getParameters() as $parameterSchema) {
             $this->buildSettingsParameter($builder, $parameterSchema, $options);
         }
     }
 
-    public function buildSettingsParameter(FormBuilderInterface $builder, ParameterSchema $parameter, array $options = []): void
+    public function buildSettingsParameter(FormBuilderInterface $builder, ParameterMetadata $parameter, array $options = []): void
     {
         $builder->add($parameter->getPropertyName(), $this->getFormTypeForParameter($parameter), $this->getFormOptions($parameter, $options));
     }
 
     /**
      * Gets the form type for the given parameter schema.
-     * @param  ParameterSchema  $parameterSchema
+     * @param  ParameterMetadata  $parameterSchema
      * @return string
      * @phpstan-return class-string<AbstractType>
      */
-    public function getFormTypeForParameter(ParameterSchema $parameterSchema): string
+    public function getFormTypeForParameter(ParameterMetadata $parameterSchema): string
     {
         //Check if an explicit form type is set, then it has priority
         if ($parameterSchema->getFormType() !== null) {
@@ -80,11 +80,11 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
 
     /**
      * Gets the form options for the given parameter schema.
-     * @param  ParameterSchema  $parameterSchema
+     * @param  ParameterMetadata  $parameterSchema
      * @param  array  $options
      * @return array
      */
-    public function getFormOptions(ParameterSchema $parameterSchema, array $options = []): array
+    public function getFormOptions(ParameterMetadata $parameterSchema, array $options = []): array
     {
         $optionsResolver = new OptionsResolver();
 

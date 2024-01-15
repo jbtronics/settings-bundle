@@ -26,7 +26,7 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Schema;
+namespace Jbtronics\SettingsBundle\Metadata;
 
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
@@ -67,7 +67,7 @@ class ParameterTypeGuesser implements ParameterTypeGuesserInterface
         return null;
     }
 
-    public function guessExtraOptions(\ReflectionProperty $property): ?array
+    public function guessOptions(\ReflectionProperty $property): ?array
     {
         if ($property->hasType()) {
             $type = $property->getType();

@@ -27,7 +27,7 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 
 use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
-use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -35,13 +35,13 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 class SettingsHydratorTest extends WebTestCase
 {
     private SettingsHydrator $service;
-    private SchemaManagerInterface $schemaManager;
+    private MetadataManagerInterface $schemaManager;
 
     public function setUp(): void
     {
         self::bootKernel();
         $this->service = self::getContainer()->get(SettingsHydratorInterface::class);
-        $this->schemaManager = self::getContainer()->get(SchemaManagerInterface::class);
+        $this->schemaManager = self::getContainer()->get(MetadataManagerInterface::class);
     }
 
     public function testToNormalizedRepresentation(): void

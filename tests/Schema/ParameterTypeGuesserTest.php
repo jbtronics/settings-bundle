@@ -30,8 +30,8 @@ use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
-use Jbtronics\SettingsBundle\Schema\ParameterTypeGuesser;
-use Jbtronics\SettingsBundle\Schema\ParameterTypeGuesserInterface;
+use Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesser;
+use Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesserInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use PHPUnit\Framework\TestCase;
@@ -76,19 +76,19 @@ class ParameterTypeGuesserTest extends TestCase
     public function testGuessExtraOptions(): void
     {
         //For non-guessable types, null should be returned
-        $this->assertNull($this->parameterTypeGuesser->guessExtraOptions(
+        $this->assertNull($this->parameterTypeGuesser->guessOptions(
             PropertyAccessHelper::getAccessibleReflectionProperty(new GuessableSettings(), 'complexType')
         ));
 
         //For most types, which has no extra options, null should be returned
-        $this->assertNull($this->parameterTypeGuesser->guessExtraOptions(
+        $this->assertNull($this->parameterTypeGuesser->guessOptions(
             PropertyAccessHelper::getAccessibleReflectionProperty(new GuessableSettings(), 'bool')
         ));
 
         //For enum types, the class name should be returned
         $this->assertEquals([
             'class' => TestEnum::class,
-        ], $this->parameterTypeGuesser->guessExtraOptions(
+        ], $this->parameterTypeGuesser->guessOptions(
             PropertyAccessHelper::getAccessibleReflectionProperty(new GuessableSettings(), 'enum')
         ));
     }

@@ -36,8 +36,8 @@ use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistry;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Profiler\SettingsCollector;
-use Jbtronics\SettingsBundle\Schema\SchemaManager;
-use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Metadata\MetadataManager;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistry;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
@@ -64,7 +64,7 @@ return static function (ContainerConfigurator $container) {
     ;
     $services->alias(SettingsRegistryInterface::class, 'jbtronics.settings.settings_registry');
 
-    $services->set('jbtronics.settings.schema_manager', SchemaManager::class)
+    $services->set('jbtronics.settings.metadata_manager', MetadataManager::class)
         ->args([
             '$cache' => service('cache.app'),
             '$debug_mode' => '%kernel.debug%',
@@ -72,11 +72,11 @@ return static function (ContainerConfigurator $container) {
             '$parameterTypeGuesser' => service('jbtronics.settings.parameter_type_guesser'),
         ])
     ;
-    $services->alias(SchemaManagerInterface::class, 'jbtronics.settings.schema_manager');
+    $services->alias(MetadataManagerInterface::class, 'jbtronics.settings.metadata_manager');
 
     $services->set('jbtronics.settings.settings_manager', SettingsManager::class)
         ->args([
-            '$schemaManager' => service('jbtronics.settings.schema_manager'),
+            '$schemaManager' => service('jbtronics.settings.metadata_manager'),
             '$settingsHydrator' => service('jbtronics.settings.settings_hydrator'),
             '$settingsResetter' => service('jbtronics.settings.settings_resetter'),
             '$settingsValidator' => service('jbtronics.settings.settings_validator'),
@@ -116,15 +116,15 @@ return static function (ContainerConfigurator $container) {
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Manager\SettingsValidatorInterface::class, 'jbtronics.settings.settings_validator');
 
-    $services->set('jbtronics.settings.parameter_type_guesser', \Jbtronics\SettingsBundle\Schema\ParameterTypeGuesser::class)
+    $services->set('jbtronics.settings.parameter_type_guesser', \Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesser::class)
         ;
-    $services->alias(\Jbtronics\SettingsBundle\Schema\ParameterTypeGuesserInterface::class, 'jbtronics.settings.parameter_type_guesser');
+    $services->alias(\Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesserInterface::class, 'jbtronics.settings.parameter_type_guesser');
 
     $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
         ->tag('data_collector')
         ->args([
             '$configurationRegistry' => service('jbtronics.settings.settings_registry'),
-            '$schemaManager' => service('jbtronics.settings.schema_manager'),
+            '$schemaManager' => service('jbtronics.settings.metadata_manager'),
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
         ]);
 
@@ -150,7 +150,7 @@ return static function (ContainerConfigurator $container) {
     $services->set('jbtronics.settings.settings_form_factory', \Jbtronics\SettingsBundle\Form\SettingsFormFactory::class)
         ->args([
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
-            '$schemaManager' => service('jbtronics.settings.schema_manager'),
+            '$schemaManager' => service('jbtronics.settings.metadata_manager'),
             '$settingsFormBuilder' => service('jbtronics.settings.settings_form_builder'),
             '$formFactory' => service('form.factory'),
         ]);

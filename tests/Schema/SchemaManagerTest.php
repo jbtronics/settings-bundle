@@ -27,7 +27,7 @@ namespace Jbtronics\SettingsBundle\Tests\Schema;
 
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
-use Jbtronics\SettingsBundle\Schema\SchemaManagerInterface;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
@@ -36,12 +36,12 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class SchemaManagerTest extends KernelTestCase
 {
 
-    private SchemaManagerInterface $schemaManager;
+    private MetadataManagerInterface $schemaManager;
 
     public function setUp(): void
     {
         self::bootKernel();
-        $this->schemaManager = $this->getContainer()->get(SchemaManagerInterface::class);
+        $this->schemaManager = $this->getContainer()->get(MetadataManagerInterface::class);
     }
 
     public function testIsConfigClass(): void

@@ -28,7 +28,7 @@ namespace Jbtronics\SettingsBundle\Manager;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
 
@@ -41,7 +41,7 @@ class SettingsHydrator implements SettingsHydratorInterface
 
     }
 
-    public function hydrate(object $settings, SettingsSchema $schema): object
+    public function hydrate(object $settings, SettingsMetadata $schema): object
     {
         //Retrieve the storage adapter for the given settings object.
         /** @var StorageAdapterInterface $storageAdapter */
@@ -59,7 +59,7 @@ class SettingsHydrator implements SettingsHydratorInterface
         return $this->applyNormalizedRepresentation($normalizedRepresentation, $settings, $schema);
     }
 
-    public function persist(object $settings, SettingsSchema $schema): object
+    public function persist(object $settings, SettingsMetadata $schema): object
     {
         //Retrieve the storage adapter for the given settings object.
         /** @var StorageAdapterInterface $storageAdapter */
@@ -78,10 +78,10 @@ class SettingsHydrator implements SettingsHydratorInterface
     /**
      * Converts the given settings object to a normalized representation using the metadata from the given schema.
      * @param  object  $settings
-     * @param  SettingsSchema  $schema
+     * @param  SettingsMetadata  $schema
      * @return array
      */
-    public function toNormalizedRepresentation(object $settings, SettingsSchema $schema): array
+    public function toNormalizedRepresentation(object $settings, SettingsMetadata $schema): array
     {
         //Ensure that the schema is compatible with the given settings object.
         if (!is_a($settings, $schema->getClassName())) {
@@ -108,10 +108,10 @@ class SettingsHydrator implements SettingsHydratorInterface
      * Apply the given normalized representation to the given settings object using the metadata from the given schema.
      * @param  array  $normalizedRepresentation
      * @param  object  $settings
-     * @param  SettingsSchema  $schema
+     * @param  SettingsMetadata  $schema
      * @return object
      */
-    public function applyNormalizedRepresentation(array $normalizedRepresentation, object $settings, SettingsSchema $schema): object
+    public function applyNormalizedRepresentation(array $normalizedRepresentation, object $settings, SettingsMetadata $schema): object
     {
         //Ensure that the schema is compatible with the given settings object.
         if (!is_a($settings, $schema->getClassName())) {

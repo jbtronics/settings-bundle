@@ -25,7 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 
 /**
  * This interface is used to reset a settings instance to their default values.
@@ -38,10 +38,10 @@ interface SettingsResetterInterface
      * @template T of object
      * @param  object  $settings
      * @phpstan-param T $settings
-     * @param SettingsSchema $schema The schema, that should be used to reset the settings
-     * @phpstan-param SettingsSchema<T> $schema
+     * @param SettingsMetadata $schema The schema, that should be used to reset the settings
+     * @phpstan-param SettingsMetadata<T> $schema
      * @return object
      * @phpstan-return T
      */
-    public function resetSettings(object $settings, SettingsSchema $schema): object;
+    public function resetSettings(object $settings, SettingsMetadata $schema): object;
 }

@@ -26,30 +26,27 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\ParameterTypes;
+namespace Jbtronics\SettingsBundle\Metadata;
 
-use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 
 /**
- * If a parameter type implements this interface, it defines default values for form rendering.
+ * The service implementing this interface is responsible for guessing the parameter type of a given settings property.
  */
-interface ParameterTypeWithFormDefaultsInterface
+interface ParameterTypeGuesserInterface
 {
     /**
-     * Returns the default form type for this parameter type.
-     * @param  ParameterMetadata  $parameterSchema The parameter schema of the parameter to configure
-     * @return string The form type class name
-     * @phpstan-return class-string<AbstractType>
+     * Returns the guessed parameter type for the given property.
+     * @param  \ReflectionProperty  $property
+     * @return string|null The parameter type class name or null if no type could be guessed
+     * @phpstan-return class-string<ParameterTypeInterface>|null
      */
-    public function getFormType(ParameterMetadata $parameterSchema): string;
+    public function guessParameterType(\ReflectionProperty $property): ?string;
 
     /**
-     * Configure the defaults form type for this parameter type.
-     * @param  OptionsResolver  $resolver The options resolver for the form type
-     * @param  ParameterMetadata  $parameterSchema The parameter schema of the parameter to configure
-     * @return void
+     * Tries to guess the options for the given property, for configuring the parameter schema.
+     * @param  \ReflectionProperty  $property
+     * @return array|null The extra options or null if no extra options could be guessed
      */
-    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterSchema): void;
+    public function guessOptions(\ReflectionProperty $property): ?array;
 }

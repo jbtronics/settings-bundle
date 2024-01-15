@@ -28,7 +28,7 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
-use Jbtronics\SettingsBundle\Schema\ParameterSchema;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
@@ -36,7 +36,7 @@ class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
 
     public function convertPHPToNormalized(
         mixed $value,
-        ParameterSchema $parameterSchema,
+        ParameterMetadata $parameterSchema,
     ): int|string|float|bool|array|null {
         //Null values get directly returned
         if ($value === null) {
@@ -45,7 +45,7 @@ class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
 
         //Extract the class name from the parameter schema
         /** @phpstan-var class-string<\BackedEnum> $class */
-        $class = $parameterSchema->getExtraOptions()['class'] ?? null ?? throw new \LogicException('Missing class option for enum type!');
+        $class = $parameterSchema->getOptions()['class'] ?? null ?? throw new \LogicException('Missing class option for enum type!');
 
         //Check if the value is an instance of the class
         if (!is_a($value, $class)) {
@@ -63,7 +63,7 @@ class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        ParameterSchema $parameterSchema,
+        ParameterMetadata $parameterSchema,
     ): mixed {
 
         //Null values get directly returned
@@ -73,7 +73,7 @@ class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
 
         //Extract the class name from the parameter schema
         /** @phpstan-var class-string<\BackedEnum> $class */
-        $class = $parameterSchema->getExtraOptions()['class'] ?? null ?? throw new \LogicException('Missing class option for enum type!');
+        $class = $parameterSchema->getOptions()['class'] ?? null ?? throw new \LogicException('Missing class option for enum type!');
 
         //Ensure that the value is a backed enum
         if (!is_a($class, \BackedEnum::class, true)) {
@@ -84,16 +84,16 @@ class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
         return $class::from($value);
     }
 
-    public function getFormType(ParameterSchema $parameterSchema): string
+    public function getFormType(ParameterMetadata $parameterSchema): string
     {
         return \Symfony\Component\Form\Extension\Core\Type\EnumType::class;
     }
 
-    public function configureFormOptions(OptionsResolver $resolver, ParameterSchema $parameterSchema): void
+    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterSchema): void
     {
         $resolver->setDefaults(
             [
-                'class' => $parameterSchema->getExtraOptions()['class'] ?? throw new \LogicException('Missing class option for enum type!'),
+                'class' => $parameterSchema->getOptions()['class'] ?? throw new \LogicException('Missing class option for enum type!'),
             ]
         );
     }

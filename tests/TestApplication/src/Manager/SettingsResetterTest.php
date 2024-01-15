@@ -30,8 +30,8 @@ use Jbtronics\SettingsBundle\Manager\SettingsResetterInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
-use Jbtronics\SettingsBundle\Schema\ParameterSchema;
-use Jbtronics\SettingsBundle\Schema\SettingsSchema;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
@@ -57,11 +57,11 @@ class SettingsResetterTest extends TestCase
         $settings->setValue3(true);
 
         //Create a schema with all properties
-        $schema = new SettingsSchema(
+        $schema = new SettingsMetadata(
             className: get_class($settings),
-            parameterSchemas: [
-                new ParameterSchema(className: get_class($settings), propertyName: 'value1', type: StringType::class),
-                new ParameterSchema(className: get_class($settings), propertyName: 'value2', type: IntType::class),
+            parameterMetadata: [
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value1', type: StringType::class),
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value2', type: IntType::class),
                 //This property is deliberately left out, and it should not be resetted
                 //new ParameterSchema(className: get_class($settings), propertyName: 'value3', type: BoolType::class),
             ],
@@ -105,12 +105,12 @@ class SettingsResetterTest extends TestCase
         $settings->value3 = true;
 
         //Create a schema with all properties
-        $schema = new SettingsSchema(
+        $schema = new SettingsMetadata(
             className: get_class($settings),
-            parameterSchemas: [
-                new ParameterSchema(className: get_class($settings), propertyName: 'value1', type: StringType::class),
-                new ParameterSchema(className: get_class($settings), propertyName: 'value2', type: IntType::class),
-                new ParameterSchema(className: get_class($settings), propertyName: 'value3', type: BoolType::class),
+            parameterMetadata: [
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value1', type: StringType::class),
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value2', type: IntType::class),
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value3', type: BoolType::class),
             ],
             storageAdapter: InMemoryStorageAdapter::class,
             name: 'test'
@@ -146,10 +146,10 @@ class SettingsResetterTest extends TestCase
             }
         };
 
-        $schema = new SettingsSchema(
+        $schema = new SettingsMetadata(
             className: get_class($settings),
-            parameterSchemas: [
-                new ParameterSchema(className: get_class($settings), propertyName: 'value1', type: StringType::class),
+            parameterMetadata: [
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value1', type: StringType::class),
             ],
             storageAdapter: InMemoryStorageAdapter::class,
             name: 'test'

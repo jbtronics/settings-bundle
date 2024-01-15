@@ -1,7 +1,7 @@
 <?php
+
+
 /*
- * This file is part of jbtronics/settings-bundle (https://github.com/jbtronics/settings-bundle).
- *
  * Copyright (c) 2024 Jan Böhmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,30 +23,25 @@
  * SOFTWARE.
  */
 
-declare(strict_types=1);
+namespace Jbtronics\SettingsBundle\Metadata;
 
-
-namespace Jbtronics\SettingsBundle\Schema;
-
-use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
-
-/**
- * The service implementing this interface is responsible for guessing the parameter type of a given settings property.
- */
-interface ParameterTypeGuesserInterface
+interface MetadataManagerInterface
 {
     /**
-     * Returns the guessed parameter type for the given property.
-     * @param  \ReflectionProperty  $property
-     * @return string|null The parameter type class name or null if no type could be guessed
-     * @phpstan-return class-string<ParameterTypeInterface>|null
+     * Checks if the given class is a config class.
+     * @param  string|object  $className The configuration class, to check. This can either be a class string, the short name, or an instance of the class.
+     * @phpstan-param class-string|object $className
+     * @return bool
      */
-    public function guessParameterType(\ReflectionProperty $property): ?string;
+    public function isSettingsClass(string|object $className): bool;
 
     /**
-     * Tries to guess extra options for the given property, for configuring the parameter schema.
-     * @param  \ReflectionProperty  $property
-     * @return array|null The extra options or null if no extra options could be guessed
+     * Returns the metadata of the given settings class, which contains all info about the configuration class.
+     * @template T of object
+     * @param  string|object  $className The configuration class, to get the metadata for. This can either be a class string, the short name, or an instance of the class.
+     * @phpstan-param class-string<T>|T $className
+     * @return SettingsMetadata
+     * @phpstan-return SettingsMetadata<T>
      */
-    public function guessExtraOptions(\ReflectionProperty $property): ?array;
+    public function getSettingsMetadata(string|object $className): SettingsMetadata;
 }

@@ -44,14 +44,14 @@ You can create your own parameter types by creating a new service implementing t
 The interface requires two methods, which converts the value from the PHP object to a normalized format for the storage adapter and vice versa. As a second parameter you get the Metadata of the parameter, which is currently converted, so you can access its options and depend the behavior of the parameter type on them.
 
 ```php
-use Jbtronics\SettingsBundle\Schema\ParameterSchema;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 
 class MyType implements ParameterTypeInterface
 {
 
     public function convertPHPToNormalized(
         mixed $value,
-        ParameterSchema $parameterSchema,
+        ParameterMetadata $parameterSchema,
     ): int|string|float|bool|array|null {
         //Convert the value in the PHP object to the normalized format for the storage adapter
 
@@ -60,7 +60,7 @@ class MyType implements ParameterTypeInterface
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        ParameterSchema $parameterSchema,
+        ParameterMetadata $parameterSchema,
     ): ?bool {
         //Convert the value from the normalized format for the storage adapter to the PHP object
 

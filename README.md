@@ -57,11 +57,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 class TestSettings {
     use SettingsTrait; // Disable constructor and __clone methods
 
-    //The property is public here for simplicity, but it can also be protected or private
-    #[SettingsParameter(type: StringType::class, label: 'My String', description: 'This value is shown as help in forms.')]
+     //The properties are public here for simplicity, but it can also be protected or private
+
+    //In many cases this attribute with zero config is enough, the type mapper is then derived from the declared type of the property
+    #[SettingsParameter()]
     public string $myString = 'default value'; // The default value can be set right here in most cases
 
-    #[SettingsParameter(type: IntType::class, label: 'My Integer', description: 'This value is shown as help in forms.')]
+    //Or you can explicitly set the type mapper and some options
+    #[SettingsParameter(type: IntType::class, label: 'My Integer', description: 'This value is shown as help in forms.')] 
     #[Assert\Range(min: 5, max: 10,)] // You can use symfony/validator to restrict possible values
     public ?int $myInt = null;
 }

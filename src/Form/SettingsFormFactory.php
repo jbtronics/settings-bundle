@@ -47,14 +47,14 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
 
     public function createSettingsForm(string $settingsName): FormInterface
     {
-        return $this->createSettingsFormBuilder()->getForm();
+        return $this->createSettingsFormBuilder($settingsName)->getForm();
     }
 
     public function createSettingsFormBuilder(string $settingsName): FormBuilderInterface
     {
         $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
         $formBuilder = $this->formFactory->createBuilder(data: $this->settingsManager->get($settingsName));
-        $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsMetadata);
+        $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsMetadata, []);
 
         return $formBuilder;
     }

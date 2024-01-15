@@ -45,7 +45,7 @@ class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
 
         //Extract the class name from the parameter metadata
         /** @phpstan-var class-string<\BackedEnum> $class */
-        $class = $parameterMetadata->getOptions()['class'] ?? null ?? throw new \LogicException('Missing class option for enum type!');
+        $class = $parameterMetadata->getOptions()['class'] ?? throw new \LogicException('Missing class option for enum type!');
 
         //Check if the value is an instance of the class
         if (!is_a($value, $class)) {
@@ -73,7 +73,7 @@ class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsI
 
         //Extract the class name from the parameter metadata
         /** @phpstan-var class-string<\BackedEnum> $class */
-        $class = $parameterMetadata->getOptions()['class'] ?? null ?? throw new \LogicException('Missing class option for enum type!');
+        $class = $parameterMetadata->getOptions()['class'] ?? throw new \LogicException('Missing class option for enum type!');
 
         //Ensure that the value is a backed enum
         if (!is_a($class, \BackedEnum::class, true)) {

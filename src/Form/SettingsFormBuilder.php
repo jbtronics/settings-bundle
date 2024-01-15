@@ -107,6 +107,6 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
 
 
         //Finally resolve the options
-        return $optionsResolver->resolve($options ?? []);
+        return $optionsResolver->resolve($options);
     }
 }

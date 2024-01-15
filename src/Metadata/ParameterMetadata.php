@@ -42,6 +42,7 @@ class ParameterMetadata
      * @param  string  $propertyName  The name of the property, which is marked as a settings parameter.
      * @param  string  $type  The type of this configuration entry. This must be a class string of a service implementing ConfigEntryTypeInterface
      * @phpstan-param class-string<ParameterTypeInterface> $type
+     * @param  bool  $nullable  Whether the value of the property can be null.
      * @param  string|null  $name  The optional name of this configuration entry. If not set, the name of the property is used.
      * @param  string|TranslatableInterface|null  $label  A user friendly label for this configuration entry, which is shown in the UI.
      * @param  string|TranslatableInterface|null  $description  A small descrpiton for this configuration entry, which is shown in the UI.
@@ -54,6 +55,7 @@ class ParameterMetadata
         private readonly string $className,
         private readonly string $propertyName,
         private readonly string $type,
+        private readonly bool $nullable,
         private readonly ?string $name = null,
         private readonly string|TranslatableInterface|null $label = null,
         private readonly string|TranslatableInterface|null $description = null,
@@ -108,27 +110,12 @@ class ParameterMetadata
         return $this->formOptions;
     }
 
-
     /**
-     * Create new ParameterMetadata from a SettingsParameter attribute.
-     * @param  string  $className
-     * @param  string  $propertyName
-     * @param  SettingsParameter  $attribute
-     * @return self
+     * Checks whether the value of this parameter can be null.
+     * @return bool
      */
-    public static function createFromAttribute(string $className, string $propertyName, SettingsParameter $attribute): self
+    public function isNullable(): bool
     {
-        return new ParameterMetadata(
-            className: $className,
-            propertyName: $propertyName,
-            type: $attribute->type,
-            name: $attribute->name,
-            label: $attribute->label,
-            description: $attribute->description,
-            options: $attribute->options,
-            formType: $attribute->formType,
-            formOptions: $attribute->formOptions,
-        );
+        return $this->nullable;
     }
-
 }

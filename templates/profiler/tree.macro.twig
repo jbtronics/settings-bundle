@@ -1,7 +1,7 @@
 {% macro class_key(class) %}class-{{ class|replace({'\\': '_', '/': '_', '.': '_'})|lower }}{% endmacro %}
 
 {% macro settings_entry(class, schema) %}
-    {# @var schema \Jbtronics\SettingsBundle\Schema\SettingsSchema #}
+    {# @var schema \Jbtronics\SettingsBundle\Metadata\SettingsMetadata #}
     <li>
         <div class="tree-inner" data-tab-target-id="{{ _self.class_key(class) }}-details" title="{{ class }}">
             {% if schema.parameters is not empty %} {# Determine if there should be a children #}
@@ -29,7 +29,7 @@
 
 {% macro settings_details(class, schema, collector) %}
     {# @var collector \Jbtronics\SettingsBundle\Profiler\SettingsCollector #}
-    {# @var schema \Jbtronics\SettingsBundle\Schema\SettingsSchema #}
+    {# @var schema \Jbtronics\SettingsBundle\Metadata\SettingsMetadata #}
     <div class="tree-details hidden" id="{{ _self.class_key(class) }}-details">
         <h2>{{ class }}</h2>
 
@@ -80,7 +80,7 @@
 {% endmacro %}
 
 {% macro parameter_details(class, parameterName, parameterSchema, collector) %}
-    {# @var parameterSchema \Jbtronics\SettingsBundle\Schema\ParameterSchema #}
+    {# @var parameterSchema \Jbtronics\SettingsBundle\Metadata\ParameterMetadata #}
     {# @var collector \Jbtronics\SettingsBundle\Profiler\SettingsCollector #}
     <div class="tree-details hidden" id="{{ _self.class_key(class) }}-{{ parameterName }}-details">
         <h2>{{ parameterName }}</h2>
@@ -107,6 +107,10 @@
                 <td>{{ parameterSchema.type }}</td>
             </tr>
             <tr>
+                <td>Nullable</td>
+                <td>{{ dump(parameterSchema.nullable) }}</td>
+            </tr>
+            <tr>
                 <td>Label</td>
                 <td>{{ parameterSchema.label }}</td>
             </tr>
@@ -116,7 +120,15 @@
             </tr>
             <tr>
                 <td>Extra options</td>
-                <td>{{ dump(parameterSchema.extraOptions) }}</td>
+                <td>{{ dump(parameterSchema.options) }}</td>
+            </tr>
+            <tr>
+                <td>Form type</td>
+                <td>{{ dump(parameterSchema.formType) }}</td>
+            </tr>
+            <tr>
+                <td>Form options</td>
+                <td>{{ dump(parameterSchema.formOptions) }}</td>
             </tr>
             <tr>
                 <td>Value</td>

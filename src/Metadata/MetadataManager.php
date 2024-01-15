@@ -138,10 +138,23 @@ final class MetadataManager implements MetadataManagerInterface
             //Try to guess extra options
             $options = array_merge($this->parameterTypeGuesser->guessOptions($reflProperty) ?? [], $attribute->options);
 
+            //Try to determine whether the property is nullable
+            $nullable = $attribute->nullable;
+            if ($nullable === null) {
+                //Check if the type is nullable
+                $nullable = $reflProperty->getType()?->allowsNull();
+                //If the type is not declared then nullable is still null. Throw an exception then
+                if ($nullable === null) {
+                    throw new \LogicException(sprintf('The property "%s" of the class "%s" has no type declaration and the nullable flag could not be guessed. Please set the nullable flag explicitly!',
+                        $reflProperty->getName(), $className));
+                }
+            }
+
             $parameters[] = new ParameterMetadata(
                 className: $className,
                 propertyName: $reflProperty->getName(),
                 type: $attribute->type ?? $type,
+                nullable: $nullable,
                 name: $attribute->name,
                 label: $attribute->label,
                 description: $attribute->description,

@@ -48,6 +48,7 @@ final class SettingsParameter
      * @param  string|null $formType The form type to use for this configuration entry. If not set, the form type is guessed from the parameter type.
      * @phpstan-param class-string<AbstractType>|null $formType
      * @param  array  $formOptions An array of extra options, which are passed to the form type.
+     * @param  bool|null  $nullable Whether the value of the property can be null. If not set, the value is guessed from the property type.
      */
     public function __construct(
         public readonly ?string $type = null,
@@ -57,6 +58,7 @@ final class SettingsParameter
         public readonly array $options = [],
         public readonly ?string $formType = null,
         public readonly array $formOptions = [],
+        public readonly ?bool $nullable = null,
     )
     {
     }

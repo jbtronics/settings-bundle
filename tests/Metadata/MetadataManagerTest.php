@@ -28,6 +28,7 @@ namespace Jbtronics\SettingsBundle\Tests\Metadata;
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
+use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
@@ -72,6 +73,24 @@ class MetadataManagerTest extends KernelTestCase
         //This should also work with the short name of the class
         $schema2 = $this->metadataManager->getSettingsMetadata('simple');
         $this->assertSame($schema, $schema2);
+
+        //Check that the schema contains the correct parameters
+        $paramMetadata = $schema->getParameter('value1');
+        $this->assertEquals(StringType::class, $paramMetadata->getType());
+        $this->assertEquals('value1', $paramMetadata->getName());
+        $this->assertEquals('value1', $paramMetadata->getPropertyName());
+        $this->assertFalse($paramMetadata->isNullable());
+
+        $paramMetadata = $schema->getParameter('property2');
+        $this->assertEquals(IntType::class, $paramMetadata->getType());
+        $this->assertEquals('property2', $paramMetadata->getName());
+        $this->assertEquals('value2', $paramMetadata->getPropertyName());
+        $this->assertTrue($paramMetadata->isNullable());
+
+        $paramMetadata = $schema->getParameter('value3');
+        $this->assertEquals('value3', $paramMetadata->getName());
+        $this->assertEquals('value3', $paramMetadata->getPropertyName());
+        $this->assertFalse($paramMetadata->isNullable());
     }
 
     public function testGetSchemaGuessable(): void

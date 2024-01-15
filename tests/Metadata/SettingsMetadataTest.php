@@ -45,9 +45,9 @@ class SettingsMetadataTest extends TestCase
     public function setUp(): void
     {
         $this->parameterMetadata = [
-            new ParameterMetadata(self::class, 'property1', IntType::class),
-            new ParameterMetadata(self::class, 'property2', StringType::class, 'name2'),
-            new ParameterMetadata(self::class, 'property3', BoolType::class, 'name3', 'label3', 'description3'),
+            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true),
+            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2'),
+            new ParameterMetadata(self::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3'),
         ];
 
         $this->configSchema = new SettingsMetadata(

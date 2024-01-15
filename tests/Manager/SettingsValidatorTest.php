@@ -2,6 +2,8 @@
 
 
 /*
+ * This file is part of jbtronics/settings-bundle (https://github.com/jbtronics/settings-bundle).
+ *
  * Copyright (c) 2024 Jan Böhmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,12 +25,10 @@
  * SOFTWARE.
  */
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Manager;
+namespace Jbtronics\SettingsBundle\Tests\Manager;
 
-use Jbtronics\SettingsBundle\Manager\SettingsValidator;
 use Jbtronics\SettingsBundle\Manager\SettingsValidatorInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SettingsValidatorTest extends KernelTestCase

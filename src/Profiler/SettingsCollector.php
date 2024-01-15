@@ -37,7 +37,7 @@ class SettingsCollector extends AbstractDataCollector
 {
     public function __construct(
         private readonly SettingsRegistryInterface $configurationRegistry,
-        private readonly MetadataManagerInterface $schemaManager,
+        private readonly MetadataManagerInterface $metadataManager,
         private readonly SettingsManagerInterface $settingsManager,
     )
     {
@@ -47,9 +47,9 @@ class SettingsCollector extends AbstractDataCollector
     public function collect(Request $request, Response $response, \Throwable $exception = null)
     {
         $settings_classes = $this->configurationRegistry->getSettingsClasses();
-        $schemas = [];
+        $metadata = [];
         foreach ($settings_classes as $settings_class) {
-            $schemas[$settings_class] = $this->schemaManager->getSettingsMetadata($settings_class);
+            $metadata[$settings_class] = $this->metadataManager->getSettingsMetadata($settings_class);
         }
 
         //Retrieve the settings objects from the settings manager
@@ -60,7 +60,7 @@ class SettingsCollector extends AbstractDataCollector
 
         $this->data = [
             'settings_classes' => $this->configurationRegistry->getSettingsClasses(),
-            'schemas' => $schemas,
+            'metadata' => $metadata,
             'settings' => $settings,
         ];
     }
@@ -78,9 +78,9 @@ class SettingsCollector extends AbstractDataCollector
     /**
      * @return array<string, SettingsMetadata>
      */
-    public function getSettingsSchemas(): array
+    public function getSettingsMetadata(): array
     {
-        return $this->data['schemas'];
+        return $this->data['metadata'];
     }
 
     /**

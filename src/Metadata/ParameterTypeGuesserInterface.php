@@ -44,7 +44,7 @@ interface ParameterTypeGuesserInterface
     public function guessParameterType(\ReflectionProperty $property): ?string;
 
     /**
-     * Tries to guess the options for the given property, for configuring the parameter schema.
+     * Tries to guess the options for the given property, for configuring the parameter metadata.
      * @param  \ReflectionProperty  $property
      * @return array|null The extra options or null if no extra options could be guessed
      */

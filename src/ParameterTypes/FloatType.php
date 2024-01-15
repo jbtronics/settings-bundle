@@ -35,10 +35,10 @@ class FloatType implements ParameterTypeInterface, ParameterTypeWithFormDefaults
 {
     public function convertPHPToNormalized(
         mixed $value,
-        ParameterMetadata $parameterSchema,
+        ParameterMetadata $parameterMetadata,
     ): int|string|float|bool|array|null {
         if (!is_float($value) && !is_null($value)) {
-            throw new \LogicException(sprintf('The value of the property "%s" must be a float or null, but "%s" given.', $parameterSchema->getName(), gettype($value)));
+            throw new \LogicException(sprintf('The value of the property "%s" must be a float or null, but "%s" given.', $parameterMetadata->getName(), gettype($value)));
         }
 
         return $value;
@@ -46,7 +46,7 @@ class FloatType implements ParameterTypeInterface, ParameterTypeWithFormDefaults
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        ParameterMetadata $parameterSchema,
+        ParameterMetadata $parameterMetadata,
     ): ?float {
         if ($value === null) {
             return null;
@@ -55,12 +55,12 @@ class FloatType implements ParameterTypeInterface, ParameterTypeWithFormDefaults
         return (float) $value;
     }
 
-    public function getFormType(ParameterMetadata $parameterSchema): string
+    public function getFormType(ParameterMetadata $parameterMetadata): string
     {
         return NumberType::class;
     }
 
-    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterSchema): void
+    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterMetadata): void
     {
         //No options required
     }

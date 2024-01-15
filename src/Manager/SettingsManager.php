@@ -35,7 +35,7 @@ use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 final class SettingsManager implements SettingsManagerInterface
 {
     public function __construct(
-        private readonly MetadataManagerInterface $schemaManager,
+        private readonly MetadataManagerInterface $metadataManager,
         private readonly SettingsHydratorInterface $settingsHydrator,
         private readonly SettingsResetterInterface $settingsResetter,
         private readonly SettingsValidatorInterface $settingsValidator,
@@ -60,13 +60,13 @@ final class SettingsManager implements SettingsManagerInterface
         }
 
         //Ensure that the given class is a settings class
-        if (!$this->schemaManager->isSettingsClass($settingsClass)) {
+        if (!$this->metadataManager->isSettingsClass($settingsClass)) {
             throw new \LogicException(sprintf('The class "%s" is not a settings class. Add the #[Settings] attribute to the class.', $settingsClass));
         }
 
         //If not create a new instance of the given settings class with the default values
         $settings = $this->getNewInstance($settingsClass);
-        $this->settingsHydrator->hydrate($settings, $this->schemaManager->getSettingsMetadata($settingsClass));
+        $this->settingsHydrator->hydrate($settings, $this->metadataManager->getSettingsMetadata($settingsClass));
 
         //Add it to our memory map
         $this->settings_by_class[$settingsClass] = $settings;
@@ -83,7 +83,7 @@ final class SettingsManager implements SettingsManagerInterface
         $this->resetToDefaultValues($settings);
 
         //Reload the settings class from the storage adapter
-        $this->settingsHydrator->hydrate($settings, $this->schemaManager->getSettingsMetadata($settings));
+        $this->settingsHydrator->hydrate($settings, $this->metadataManager->getSettingsMetadata($settings));
 
         return $settings;
     }
@@ -121,7 +121,7 @@ final class SettingsManager implements SettingsManagerInterface
         foreach ($classesToSave as $class) {
             $settings = $this->get($class);
 
-            $this->settingsHydrator->persist($settings, $this->schemaManager->getSettingsMetadata($class));
+            $this->settingsHydrator->persist($settings, $this->metadataManager->getSettingsMetadata($class));
         }
     }
 
@@ -132,7 +132,7 @@ final class SettingsManager implements SettingsManagerInterface
         }
 
         //Reset the settings class to its default values
-        $this->settingsResetter->resetSettings($settings, $this->schemaManager->getSettingsMetadata($settings));
+        $this->settingsResetter->resetSettings($settings, $this->metadataManager->getSettingsMetadata($settings));
     }
 
     /**

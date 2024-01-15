@@ -39,17 +39,17 @@ interface ParameterTypeWithFormDefaultsInterface
 {
     /**
      * Returns the default form type for this parameter type.
-     * @param  ParameterMetadata  $parameterSchema The parameter schema of the parameter to configure
+     * @param  ParameterMetadata  $parameterMetadata The parameter metadata of the parameter to configure
      * @return string The form type class name
      * @phpstan-return class-string<AbstractType>
      */
-    public function getFormType(ParameterMetadata $parameterSchema): string;
+    public function getFormType(ParameterMetadata $parameterMetadata): string;
 
     /**
      * Configure the defaults form type for this parameter type.
      * @param  OptionsResolver  $resolver The options resolver for the form type
-     * @param  ParameterMetadata  $parameterSchema The parameter schema of the parameter to configure
+     * @param  ParameterMetadata  $parameterMetadata The parameter metadata of the parameter to configure
      * @return void
      */
-    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterSchema): void;
+    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterMetadata): void;
 }

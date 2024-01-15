@@ -33,5 +33,5 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 interface SettingsFormBuilderInterface
 {
-    public function buildSettingsForm(FormBuilderInterface $builder, SettingsMetadata $settingsSchema, array $options): void;
+    public function buildSettingsForm(FormBuilderInterface $builder, SettingsMetadata $metadata, array $options): void;
 }

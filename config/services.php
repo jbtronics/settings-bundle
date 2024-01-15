@@ -76,7 +76,7 @@ return static function (ContainerConfigurator $container) {
 
     $services->set('jbtronics.settings.settings_manager', SettingsManager::class)
         ->args([
-            '$schemaManager' => service('jbtronics.settings.metadata_manager'),
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
             '$settingsHydrator' => service('jbtronics.settings.settings_hydrator'),
             '$settingsResetter' => service('jbtronics.settings.settings_resetter'),
             '$settingsValidator' => service('jbtronics.settings.settings_validator'),
@@ -124,7 +124,7 @@ return static function (ContainerConfigurator $container) {
         ->tag('data_collector')
         ->args([
             '$configurationRegistry' => service('jbtronics.settings.settings_registry'),
-            '$schemaManager' => service('jbtronics.settings.metadata_manager'),
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
         ]);
 
@@ -150,7 +150,7 @@ return static function (ContainerConfigurator $container) {
     $services->set('jbtronics.settings.settings_form_factory', \Jbtronics\SettingsBundle\Form\SettingsFormFactory::class)
         ->args([
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
-            '$schemaManager' => service('jbtronics.settings.metadata_manager'),
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
             '$settingsFormBuilder' => service('jbtronics.settings.settings_form_builder'),
             '$formFactory' => service('form.factory'),
         ]);

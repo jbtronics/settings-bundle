@@ -31,20 +31,20 @@ use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 
 class SettingsResetter implements SettingsResetterInterface
 {
-    public function resetSettings(object $settings, SettingsMetadata $schema): object
+    public function resetSettings(object $settings, SettingsMetadata $metadata): object
     {
-        //Ensure that the schema is for the given settings class
-        if (is_a($settings, $schema->getClassName()) === false) {
+        //Ensure that the given metadata is for the given settings class
+        if (is_a($settings, $metadata->getClassName()) === false) {
             throw new \InvalidArgumentException(
-                sprintf('The given settings class "%s" is not the same as the class "%s" of the given schema!', get_class($settings), $schema->getClassName())
+                sprintf('The given settings class "%s" is not the same as the class "%s" of the given metadata!', get_class($settings), $metadata->getClassName())
             );
         }
 
         //First we reset the properties of the settings to their declared default values
 
         //For this we iterate over all declared parameters of the settings class and reset them
-        foreach ($schema->getParameters() as $propertySchema) {
-            $this->resetProperty($settings, $propertySchema->getPropertyName());
+        foreach ($metadata->getParameters() as $parameterMetadata) {
+            $this->resetProperty($settings, $parameterMetadata->getPropertyName());
         }
 
         //Afterward we call the handler in the class if it implements the ResettableSettingsInterface

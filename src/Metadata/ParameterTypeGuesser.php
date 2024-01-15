@@ -74,7 +74,7 @@ class ParameterTypeGuesser implements ParameterTypeGuesserInterface
             if ($type instanceof \ReflectionNamedType) {
                 $typeName = $type->getName();
 
-                //Check if type is an enum class, then pass the class name to the schema
+                //Check if type is an enum class, then pass the class name to the metadata
                 if (is_a($typeName, \UnitEnum::class, true)) {
                     return [
                         'class' => $type->getName(),

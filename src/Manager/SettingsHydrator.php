@@ -41,14 +41,14 @@ class SettingsHydrator implements SettingsHydratorInterface
 
     }
 
-    public function hydrate(object $settings, SettingsMetadata $schema): object
+    public function hydrate(object $settings, SettingsMetadata $metadata): object
     {
         //Retrieve the storage adapter for the given settings object.
         /** @var StorageAdapterInterface $storageAdapter */
-        $storageAdapter = $this->storageAdapterRegistry->getStorageAdapter($schema->getStorageAdapter());
+        $storageAdapter = $this->storageAdapterRegistry->getStorageAdapter($metadata->getStorageAdapter());
 
         //Retrieve the normalized representation of the settings object from the storage adapter.
-        $normalizedRepresentation = $storageAdapter->load($schema->getStorageKey());
+        $normalizedRepresentation = $storageAdapter->load($metadata->getStorageKey());
 
         //If the normalized representation is null, the settings object has not been persisted yet, we can return it as is.
         if ($normalizedRepresentation === null) {
@@ -56,70 +56,70 @@ class SettingsHydrator implements SettingsHydratorInterface
         }
 
         //Apply the normalized representation to the settings object.
-        return $this->applyNormalizedRepresentation($normalizedRepresentation, $settings, $schema);
+        return $this->applyNormalizedRepresentation($normalizedRepresentation, $settings, $metadata);
     }
 
-    public function persist(object $settings, SettingsMetadata $schema): object
+    public function persist(object $settings, SettingsMetadata $metadata): object
     {
         //Retrieve the storage adapter for the given settings object.
         /** @var StorageAdapterInterface $storageAdapter */
-        $storageAdapter = $this->storageAdapterRegistry->getStorageAdapter($schema->getStorageAdapter());
+        $storageAdapter = $this->storageAdapterRegistry->getStorageAdapter($metadata->getStorageAdapter());
 
         //Generate a normalized representation of the settings object.
-        $normalizedRepresentation = $this->toNormalizedRepresentation($settings, $schema);
+        $normalizedRepresentation = $this->toNormalizedRepresentation($settings, $metadata);
 
         //Persist the normalized representation to the storage adapter.
-        $storageAdapter->save($schema->getStorageKey(), $normalizedRepresentation);
+        $storageAdapter->save($metadata->getStorageKey(), $normalizedRepresentation);
 
         //Return the settings object.
         return $settings;
     }
 
     /**
-     * Converts the given settings object to a normalized representation using the metadata from the given schema.
+     * Converts the given settings object to a normalized representation using the metadata from the given metadata.
      * @param  object  $settings
-     * @param  SettingsMetadata  $schema
+     * @param  SettingsMetadata  $metadata
      * @return array
      */
-    public function toNormalizedRepresentation(object $settings, SettingsMetadata $schema): array
+    public function toNormalizedRepresentation(object $settings, SettingsMetadata $metadata): array
     {
-        //Ensure that the schema is compatible with the given settings object.
-        if (!is_a($settings, $schema->getClassName())) {
-            throw new \LogicException(sprintf('The given settings object is not compatible with the schema. Expected "%s", got "%s"', $schema->getClassName(), get_class($settings)));
+        //Ensure that the metadata is compatible with the given settings object.
+        if (!is_a($settings, $metadata->getClassName())) {
+            throw new \LogicException(sprintf('The given settings object is not compatible with the metadata. Expected "%s", got "%s"', $metadata->getClassName(), get_class($settings)));
         }
 
         $normalizedRepresentation = [];
 
-        foreach ($schema->getParameters() as $parameterSchema) {
-            $parameterName = $parameterSchema->getName();
+        foreach ($metadata->getParameters() as $parameterMetadata) {
+            $parameterName = $parameterMetadata->getName();
 
-            $value = PropertyAccessHelper::getProperty($settings, $parameterSchema->getPropertyName());
+            $value = PropertyAccessHelper::getProperty($settings, $parameterMetadata->getPropertyName());
 
             /** @var ParameterTypeInterface $converter */
-            $converter = $this->parameterTypeRegistry->getParameterType($parameterSchema->getType());
+            $converter = $this->parameterTypeRegistry->getParameterType($parameterMetadata->getType());
 
-            $normalizedRepresentation[$parameterName] = $converter->convertPHPToNormalized($value, $parameterSchema);
+            $normalizedRepresentation[$parameterName] = $converter->convertPHPToNormalized($value, $parameterMetadata);
         }
 
         return $normalizedRepresentation;
     }
 
     /**
-     * Apply the given normalized representation to the given settings object using the metadata from the given schema.
+     * Apply the given normalized representation to the given settings object using the given metadata .
      * @param  array  $normalizedRepresentation
      * @param  object  $settings
-     * @param  SettingsMetadata  $schema
+     * @param  SettingsMetadata  $metadata
      * @return object
      */
-    public function applyNormalizedRepresentation(array $normalizedRepresentation, object $settings, SettingsMetadata $schema): object
+    public function applyNormalizedRepresentation(array $normalizedRepresentation, object $settings, SettingsMetadata $metadata): object
     {
-        //Ensure that the schema is compatible with the given settings object.
-        if (!is_a($settings, $schema->getClassName())) {
-            throw new \LogicException(sprintf('The given settings object is not compatible with the schema. Expected "%s", got "%s"', $schema->getClassName(), get_class($settings)));
+        //Ensure that the metadata is compatible with the given settings object.
+        if (!is_a($settings, $metadata->getClassName())) {
+            throw new \LogicException(sprintf('The given settings object is not compatible with the metadata. Expected "%s", got "%s"', $metadata->getClassName(), get_class($settings)));
         }
 
-        foreach ($schema->getParameters() as $parameterSchema) {
-            $parameterName = $parameterSchema->getName();
+        foreach ($metadata->getParameters() as $parameterMetadata) {
+            $parameterName = $parameterMetadata->getName();
 
             //Skip parameters which are not present in the normalized representation.
             if (!isset($normalizedRepresentation[$parameterName])) {
@@ -129,11 +129,11 @@ class SettingsHydrator implements SettingsHydratorInterface
             $normalized = $normalizedRepresentation[$parameterName];
 
             /** @var ParameterTypeInterface $converter */
-            $converter = $this->parameterTypeRegistry->getParameterType($parameterSchema->getType());
+            $converter = $this->parameterTypeRegistry->getParameterType($parameterMetadata->getType());
 
-            $value = $converter->convertNormalizedToPHP($normalized, $parameterSchema);
+            $value = $converter->convertNormalizedToPHP($normalized, $parameterMetadata);
 
-            PropertyAccessHelper::setProperty($settings, $parameterSchema->getPropertyName(), $value);
+            PropertyAccessHelper::setProperty($settings, $parameterMetadata->getPropertyName(), $value);
         }
 
         return $settings;

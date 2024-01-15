@@ -38,10 +38,10 @@ interface SettingsResetterInterface
      * @template T of object
      * @param  object  $settings
      * @phpstan-param T $settings
-     * @param SettingsMetadata $schema The schema, that should be used to reset the settings
-     * @phpstan-param SettingsMetadata<T> $schema
+     * @param SettingsMetadata $metadata The metadata, that should be used to reset the settings
+     * @phpstan-param SettingsMetadata<T> $metadata
      * @return object
      * @phpstan-return T
      */
-    public function resetSettings(object $settings, SettingsMetadata $schema): object;
+    public function resetSettings(object $settings, SettingsMetadata $metadata): object;
 }

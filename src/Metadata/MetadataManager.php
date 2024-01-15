@@ -37,7 +37,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 final class MetadataManager implements MetadataManagerInterface
 {
-    private array $schemas_cache = [];
+    private array $metadata_cache = [];
 
     private const CACHE_KEY_PREFIX = 'jbtronics_settings.metadata.';
 
@@ -74,21 +74,21 @@ final class MetadataManager implements MetadataManagerInterface
             $className = $this->settingsRegistry->getSettingsClassByName($className);
         }
 
-        //Check if the schema for the given class is already cached.
-        if (isset($this->schemas_cache[$className])) {
-            return $this->schemas_cache[$className];
+        //Check if the metadata for the given class is already cached.
+        if (isset($this->metadata_cache[$className])) {
+            return $this->metadata_cache[$className];
         }
 
         if ($this->debug_mode) {
-            $schema = $this->getMetadataUncached($className);
+            $metadata = $this->getMetadataUncached($className);
         } else {
-            $schema = $this->cache->get(self::CACHE_KEY_PREFIX.md5($className), function () use ($className) {
+            $metadata = $this->cache->get(self::CACHE_KEY_PREFIX.md5($className), function () use ($className) {
                 return $this->getMetadataUncached($className);
             });
         }
 
-        $this->schemas_cache[$className] = $schema;
-        return $schema;
+        $this->metadata_cache[$className] = $metadata;
+        return $metadata;
     }
 
     private function getMetadataUncached(string $className): SettingsMetadata

@@ -42,10 +42,10 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
     {
     }
 
-    public function buildSettingsForm(FormBuilderInterface $builder, SettingsMetadata $settingsSchema, array $options = []): void
+    public function buildSettingsForm(FormBuilderInterface $builder, SettingsMetadata $metadata, array $options = []): void
     {
-        foreach ($settingsSchema->getParameters() as $parameterSchema) {
-            $this->buildSettingsParameter($builder, $parameterSchema, $options);
+        foreach ($metadata->getParameters() as $parameterMetadata) {
+            $this->buildSettingsParameter($builder, $parameterMetadata, $options);
         }
     }
 
@@ -55,53 +55,53 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
     }
 
     /**
-     * Gets the form type for the given parameter schema.
-     * @param  ParameterMetadata  $parameterSchema
+     * Gets the form type for the given parameter metadata.
+     * @param  ParameterMetadata  $parameterMetadata
      * @return string
      * @phpstan-return class-string<AbstractType>
      */
-    public function getFormTypeForParameter(ParameterMetadata $parameterSchema): string
+    public function getFormTypeForParameter(ParameterMetadata $parameterMetadata): string
     {
         //Check if an explicit form type is set, then it has priority
-        if ($parameterSchema->getFormType() !== null) {
-            return $parameterSchema->getFormType();
+        if ($parameterMetadata->getFormType() !== null) {
+            return $parameterMetadata->getFormType();
         }
 
         //Check if the parameter type has a default form type
-        $parameterType = $this->parameterTypeRegistry->getParameterType($parameterSchema->getType());
+        $parameterType = $this->parameterTypeRegistry->getParameterType($parameterMetadata->getType());
         if ($parameterType instanceof ParameterTypeWithFormDefaultsInterface) {
-            return $parameterType->getFormType($parameterSchema);
+            return $parameterType->getFormType($parameterMetadata);
         }
 
         //If no form type is set, throw an exception
         throw new \RuntimeException(sprintf('No form type set for parameter "%s" in class "%s". You either have to explicitly define on on the property or use a parameter type defining a default one!',
-            $parameterSchema->getName(), $parameterSchema->getClassName()));
+            $parameterMetadata->getName(), $parameterMetadata->getClassName()));
     }
 
     /**
-     * Gets the form options for the given parameter schema.
-     * @param  ParameterMetadata  $parameterSchema
+     * Gets the form options for the given parameter metadata.
+     * @param  ParameterMetadata  $parameterMetadata
      * @param  array  $options
      * @return array
      */
-    public function getFormOptions(ParameterMetadata $parameterSchema, array $options = []): array
+    public function getFormOptions(ParameterMetadata $parameterMetadata, array $options = []): array
     {
         $optionsResolver = new OptionsResolver();
 
         //Add the basic defaults
         $optionsResolver->setDefaults([
-            'label' => $parameterSchema->getLabel(),
-            'help' => $parameterSchema->getDescription(),
+            'label' => $parameterMetadata->getLabel(),
+            'help' => $parameterMetadata->getDescription(),
         ]);
 
         //Then add the defaults from the parameter type (if any)
-        $parameterType = $this->parameterTypeRegistry->getParameterType($parameterSchema->getType());
+        $parameterType = $this->parameterTypeRegistry->getParameterType($parameterMetadata->getType());
         if ($parameterType instanceof ParameterTypeWithFormDefaultsInterface) {
-            $parameterType->configureFormOptions($optionsResolver, $parameterSchema);
+            $parameterType->configureFormOptions($optionsResolver, $parameterMetadata);
         }
 
-        //Then add the defaults from the parameter schema
-        $optionsResolver->setDefaults($parameterSchema->getFormOptions());
+        //Then add the defaults from the parameter metadata
+        $optionsResolver->setDefaults($parameterMetadata->getFormOptions());
 
 
         //Finally resolve the options

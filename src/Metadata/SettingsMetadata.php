@@ -30,7 +30,7 @@ use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 
 /**
- * This class represents the schema (structure) of a settings class
+ * This class represents the metadata (structure) of a settings class
  * @template T of object
  */
 class SettingsMetadata
@@ -39,7 +39,7 @@ class SettingsMetadata
     private readonly array $parametersByName;
 
     /**
-     * Create a new settings schema
+     * Create a new settings metadata instance
      * @param  string  $className The class name of the settings class.
      * @phpstan-param  class-string<T>  $className
      * @param  ParameterMetadata[]  $parameterMetadata The parameter metadata of the settings class.
@@ -58,9 +58,9 @@ class SettingsMetadata
         $byName = [];
         $byPropertyName = [];
 
-        foreach ($parameterMetadata as $parameterSchema) {
-            $byName[$parameterSchema->getName()] = $parameterSchema;
-            $byPropertyName[$parameterSchema->getPropertyName()] = $parameterSchema;
+        foreach ($parameterMetadata as $parameterMetadatum) {
+            $byName[$parameterMetadatum->getName()] = $parameterMetadatum;
+            $byPropertyName[$parameterMetadatum->getPropertyName()] = $parameterMetadatum;
         }
 
         $this->parametersByName = $byName;
@@ -68,7 +68,7 @@ class SettingsMetadata
     }
 
     /**
-     * Returns the class name of the configuration class, which is managed by this schema.
+     * Returns the class name of the configuration class, which is managed by this metadata.
      * @return string
      * @phpstan-return class-string<T>
      */
@@ -102,8 +102,8 @@ class SettingsMetadata
     }
 
     /**
-     * Retrieve all parameter schemas of this settings class in the form of an associative array, where the key is the
-     * parameter name (not necessarily the property name) and the value is the parameter schema.
+     * Retrieve all parameter metadata of this settings class in the form of an associative array, where the key is the
+     * parameter name (not necessarily the property name) and the value is the parameter metadata.
      * @return array<string, ParameterMetadata>
      */
     public function getParameters(): array

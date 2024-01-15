@@ -35,11 +35,11 @@ class StringType implements ParameterTypeInterface, ParameterTypeWithFormDefault
 {
     public function convertPHPToNormalized(
         mixed $value,
-        ParameterMetadata $parameterSchema,
+        ParameterMetadata $parameterMetadata,
     ): int|string|float|bool|array|null
     {
         if (!is_string($value) && !is_null($value)) {
-            throw new \LogicException(sprintf('The value of the property "%s" must be a string, but "%s" given.', $parameterSchema->getName(), gettype($value)));
+            throw new \LogicException(sprintf('The value of the property "%s" must be a string, but "%s" given.', $parameterMetadata->getName(), gettype($value)));
         }
 
         return $value;
@@ -47,7 +47,7 @@ class StringType implements ParameterTypeInterface, ParameterTypeWithFormDefault
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        ParameterMetadata $parameterSchema,
+        ParameterMetadata $parameterMetadata,
     ): ?string
     {
         if ($value === null) {
@@ -57,12 +57,12 @@ class StringType implements ParameterTypeInterface, ParameterTypeWithFormDefault
         return (string) $value;
     }
 
-    public function getFormType(ParameterMetadata $parameterSchema): string
+    public function getFormType(ParameterMetadata $parameterMetadata): string
     {
         return TextType::class;
     }
 
-    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterSchema): void
+    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterMetadata): void
     {
         //No options required
     }

@@ -39,7 +39,7 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
 {
     public function __construct(
         private readonly SettingsManagerInterface $settingsManager,
-        private readonly MetadataManagerInterface $schemaManager,
+        private readonly MetadataManagerInterface $metadataManager,
         private readonly SettingsFormBuilderInterface $settingsFormBuilder,
         private readonly FormFactoryInterface $formFactory,
     ) {
@@ -52,9 +52,9 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
 
     public function createSettingsFormBuilder(string $settingsName): FormBuilderInterface
     {
-        $settingsSchema = $this->schemaManager->getSettingsMetadata($settingsName);
+        $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
         $formBuilder = $this->formFactory->createBuilder(data: $this->settingsManager->get($settingsName));
-        $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsSchema);
+        $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsMetadata);
 
         return $formBuilder;
     }

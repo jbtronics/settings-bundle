@@ -5,14 +5,14 @@
 
 <div id="tree-menu" class="tree">
     <ul>
-        {% for class, schema in collector.settingsSchemas %}
+        {% for class, schema in collector.settingsMetadata %}
             {{ tree.settings_entry(class, schema) }}
         {% endfor %}
     </ul>
 </div>
 
 <div id="tree-details-container">
-    {% for class, schema in collector.settingsSchemas %}
+    {% for class, schema in collector.settingsMetadata %}
         {{ tree.settings_details(class, schema, collector) }}
         {% for parameterName, parameterSchema in schema.parameters %}
             {{ tree.parameter_details(class, parameterName, parameterSchema, collector) }}

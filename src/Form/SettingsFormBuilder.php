@@ -92,6 +92,8 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
         $optionsResolver->setDefaults([
             'label' => $parameterMetadata->getLabel(),
             'help' => $parameterMetadata->getDescription(),
+            //By default, the parameter is required if the property is not nullable
+            'required' => !$parameterMetadata->isNullable(),
         ]);
 
         //Then add the defaults from the parameter type (if any)

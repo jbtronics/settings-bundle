@@ -32,7 +32,9 @@ use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Form\Guess\Guess;
 
 class MetadataManagerTest extends KernelTestCase
 {
@@ -104,5 +106,26 @@ class MetadataManagerTest extends KernelTestCase
         $enum_schema = $schema->getParameter('enum');
         $this->assertEquals(EnumType::class, $enum_schema->getType());
         $this->assertEquals(TestEnum::class, $enum_schema->getOptions()['class']);
+    }
+
+    public function testGroups(): void
+    {
+        $schema = $this->metadataManager->getSettingsMetadata(ValidatableSettings::class);
+
+        //The default groups should be set correctly
+        $this->assertEquals(['default'], $schema->getDefaultGroups());
+
+        //value1 must inherit the default groups
+        $paramMetadata = $schema->getParameterByPropertyName('value1');
+        $this->assertEquals(['default'], $paramMetadata->getGroups());
+        //And it should show up in the default group
+        $this->assertSame($paramMetadata, $schema->getParametersByGroup('default')[0]);
+
+        //value2 must have the defined groups
+        $paramMetadata = $schema->getParameterByPropertyName('value2');
+        $this->assertEquals(['group1', 'group2'], $paramMetadata->getGroups());
+        $this->assertSame($paramMetadata, $schema->getParametersByGroup('group1')[0]);
+        $this->assertSame($paramMetadata, $schema->getParametersByGroup('group2')[0]);
+
     }
 }

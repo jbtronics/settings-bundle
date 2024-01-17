@@ -35,8 +35,23 @@ use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
  */
 class SettingsMetadata
 {
+    /**
+     * @var ParameterMetadata[]
+     * @phpstan-var array<string, ParameterMetadata>
+     */
     private readonly array $parametersByPropertyNames;
+
+    /**
+     * @var ParameterMetadata[]
+     * @phpstan-var array<string, ParameterMetadata>
+     */
     private readonly array $parametersByName;
+
+    /**
+     * @var ParameterMetadata[][]
+     * @phpstan-var array<string, ParameterMetadata[]>
+     */
+    private readonly array $parametersByGroups;
 
     /**
      * Create a new settings metadata instance
@@ -46,25 +61,34 @@ class SettingsMetadata
      * @param  string  $storageAdapter The storage adapter, which should be used to store the settings of this class.
      * @phpstan-param class-string<StorageAdapterInterface> $storageAdapter
      * @param  string  $name The (short) name of the settings class.
+     * @param  string[]  $defaultGroups The default groups, which the parameters of this settings class should belong too, if they are not explicitly set.
      */
     public function __construct(
         private readonly string $className,
         array $parameterMetadata,
         private readonly string $storageAdapter,
         private readonly string $name,
+        private readonly ?array $defaultGroups = null,
     )
     {
         //Sort the parameters by their property names and names
         $byName = [];
         $byPropertyName = [];
+        $byGroups = [];
 
         foreach ($parameterMetadata as $parameterMetadatum) {
             $byName[$parameterMetadatum->getName()] = $parameterMetadatum;
             $byPropertyName[$parameterMetadatum->getPropertyName()] = $parameterMetadatum;
+
+            //Add the parameter to the groups it belongs to
+            foreach ($parameterMetadatum->getGroups() as $group) {
+                $byGroups[$group][] = $parameterMetadatum;
+            }
         }
 
         $this->parametersByName = $byName;
         $this->parametersByPropertyNames = $byPropertyName;
+        $this->parametersByGroups = $byGroups;
     }
 
     /**
@@ -158,5 +182,34 @@ class SettingsMetadata
     public function getPropertyNames(): array
     {
         return array_keys($this->parametersByPropertyNames);
+    }
+
+    /**
+     * Returns a list of all parameter names (not necessarily the property names) of the parameters in this settings class
+     * @return string[]|null
+     */
+    public function getDefaultGroups(): ?array
+    {
+        return $this->defaultGroups;
+    }
+
+    /**
+     * Returns a list of all groups, which are defined on parameters in this settings class
+     * @return string[]
+     */
+    public function getDefinedGroups(): array
+    {
+        return array_keys($this->parametersByGroups);
+    }
+
+    /**
+     * Returns a list of all parameters, which belong to the given group.
+     * If the group does not exist, an empty array is returned.
+     * @param  string  $group
+     * @return ParameterMetadata[]
+     */
+    public function getParametersByGroup(string $group): array
+    {
+        return $this->parametersByGroups[$group] ?? [];
     }
 }

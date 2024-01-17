@@ -31,9 +31,15 @@ namespace Jbtronics\SettingsBundle\Settings;
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class Settings
 {
+    /**
+     * @param  string|null  $name The (short) name of the settings class. If not set, the lower case class name without the "Settings" suffix is used.
+     * @param  string|null  $storageAdapter The storage adapter to use for this settings class. If not set, the default storage adapter is used.
+     * @param  string[]|null  $groups An array of groups, which the parameters of this settings class should belong too, if they are not explicitly set.
+     */
     public function __construct(
         public readonly string|null $name = null,
-        public readonly string|null $storageAdapter = null
+        public readonly string|null $storageAdapter = null,
+        public readonly array|null $groups = null,
     )
     {
 

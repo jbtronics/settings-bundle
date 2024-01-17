@@ -161,6 +161,7 @@ final class MetadataManager implements MetadataManagerInterface
                 options: $options,
                 formType: $attribute->formType,
                 formOptions: $attribute->formOptions,
+                groups: $attribute->groups ?? $classAttribute->groups ?? [],
             );
         }
 
@@ -170,6 +171,7 @@ final class MetadataManager implements MetadataManagerInterface
             parameterMetadata: $parameters,
             storageAdapter: $classAttribute->storageAdapter ?? $this->defaultStorageAdapter,
             name: $classAttribute->name ?? SettingsRegistry::generateDefaultNameFromClassName($className),
+            defaultGroups: $classAttribute->groups,
         );
     }
 }

@@ -50,6 +50,7 @@ class ParameterMetadata
      * @param  string|null  $formType  The form type to use for this configuration entry. If not set, the form type is guessed from the parameter type.
      * @phpstan-param class-string<AbstractType>|null $formType
      * @param  array  $formOptions  An array of extra options, which are passed to the form type. This will override the values from the parameterType
+     * @param  string[] $groups The groups, which this parameter should belong to. Groups can be used to only render subsets of the configuration entries in the UI.
      */
     public function __construct(
         private readonly string $className,
@@ -62,6 +63,7 @@ class ParameterMetadata
         private readonly array $options = [],
         public readonly ?string $formType = null,
         public readonly array $formOptions = [],
+        public readonly array $groups = [],
     ) {
     }
 
@@ -117,5 +119,14 @@ class ParameterMetadata
     public function isNullable(): bool
     {
         return $this->nullable;
+    }
+
+    /**
+     * Returns the groups, which this parameter belongs to.
+     * @return string[]
+     */
+    public function getGroups(): array
+    {
+        return $this->groups;
     }
 }

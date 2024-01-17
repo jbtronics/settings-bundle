@@ -34,14 +34,14 @@ use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
 
-#[Settings(name: 'test234', storageAdapter: InMemoryStorageAdapter::class)]
+#[Settings(name: 'test234', storageAdapter: InMemoryStorageAdapter::class, groups: ['default'])]
 class ValidatableSettings
 {
     #[SettingsParameter(StringType::class)]
     #[NotBlank(message: 'Value must not be blank')]
     public string $value1 = 'default';
 
-    #[SettingsParameter(IntType::class, name: 'property2')]
+    #[SettingsParameter(IntType::class, name: 'property2', groups: ['group1', 'group2'])]
     #[Positive(message: 'Value must be greater than 0')]
     public ?int $value2 = 5;
 }

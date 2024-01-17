@@ -45,9 +45,9 @@ class SettingsMetadataTest extends TestCase
     public function setUp(): void
     {
         $this->parameterMetadata = [
-            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true),
-            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2'),
-            new ParameterMetadata(self::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3'),
+            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true, groups: ['group1']),
+            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2']),
+            new ParameterMetadata(self::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
         ];
 
         $this->configSchema = new SettingsMetadata(
@@ -55,6 +55,7 @@ class SettingsMetadataTest extends TestCase
             parameterMetadata:  $this->parameterMetadata,
             storageAdapter: InMemoryStorageAdapter::class,
             name: 'test',
+            defaultGroups: ['group1', 'group2'],
         );
     }
 
@@ -121,5 +122,45 @@ class SettingsMetadataTest extends TestCase
             'property2',
             'property3',
         ], $this->configSchema->getPropertyNames());
+    }
+
+    public function testGetStorageAdapter(): void
+    {
+        $this->assertEquals(InMemoryStorageAdapter::class, $this->configSchema->getStorageAdapter());
+    }
+
+    public function testGetDefaultGroups(): void
+    {
+        $this->assertEquals(['group1', 'group2'], $this->configSchema->getDefaultGroups());
+    }
+
+    public function testGetDefinedGroups(): void
+    {
+        $this->assertEquals(['group1', 'group2', 'group3'], $this->configSchema->getDefinedGroups());
+    }
+
+    public function testGetParametersByGroup(): void
+    {
+        //Check group 1
+        $params = $this->configSchema->getParametersByGroup('group1');
+        $this->assertEquals(2, count($params));
+        $this->assertContains($this->parameterMetadata[0], $params);
+        $this->assertContains($this->parameterMetadata[1], $params);
+
+        //Check group 2
+        $params = $this->configSchema->getParametersByGroup('group2');
+        $this->assertEquals(2, count($params));
+        $this->assertContains($this->parameterMetadata[1], $params);
+        $this->assertContains($this->parameterMetadata[2], $params);
+
+        //Check group 3
+        $params = $this->configSchema->getParametersByGroup('group3');
+        $this->assertEquals(1, count($params));
+        $this->assertContains($this->parameterMetadata[2], $params);
+
+        //Check invalid group: Must return an empty array
+        $params = $this->configSchema->getParametersByGroup('group4');
+        $this->assertIsArray($params);
+        $this->assertEmpty($params);
     }
 }

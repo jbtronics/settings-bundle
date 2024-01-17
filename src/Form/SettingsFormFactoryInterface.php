@@ -36,4 +36,6 @@ interface SettingsFormFactoryInterface
     public function createSettingsFormBuilder(string $settingsName): FormBuilderInterface;
 
     public function createSettingsForm(string $settingsName): FormInterface;
+
+    public function createMultiSettingsFormBuilder(array $settingsNames): FormBuilderInterface;
 }

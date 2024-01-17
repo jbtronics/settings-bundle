@@ -58,4 +58,25 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
 
         return $formBuilder;
     }
+
+    public function createMultiSettingsFormBuilder(array $settingsNames): FormBuilderInterface
+    {
+        $formBuilder = $this->formFactory->createBuilder();
+        //The form is a compound form, so we need to set this to true
+        $formBuilder->setCompound(true);
+        foreach ($settingsNames as $settingsName) {
+            $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
+
+            //Create sub form builder for the settings with the name of the settings class
+            $subBuilder = $this->formFactory->createNamedBuilder($settingsMetadata->getName(), data: $this->settingsManager->get($settingsName));
+
+            //Configure the sub form builder
+            $this->settingsFormBuilder->buildSettingsForm($subBuilder, $settingsMetadata, []);
+
+            //And add it to the main form builder
+            $formBuilder->add($subBuilder);
+        }
+
+        return $formBuilder;
+    }
 }

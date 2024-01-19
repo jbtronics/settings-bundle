@@ -42,8 +42,16 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
     {
     }
 
-    public function buildSettingsForm(FormBuilderInterface $builder, SettingsMetadata $metadata, array $options = []): void
+    public function buildSettingsForm(
+        FormBuilderInterface $builder,
+        SettingsMetadata $metadata,
+        array $options = [],
+        ?array $groups = null
+    ): void
     {
+        //Either use all parameters or only the ones in the given groups
+        $parametersToRender = $groups === null ? $metadata->getParameters() : $metadata->getParametersWithOneOfGroups($groups);
+
         foreach ($metadata->getParameters() as $parameterMetadata) {
             $this->buildSettingsParameter($builder, $parameterMetadata, $options);
         }

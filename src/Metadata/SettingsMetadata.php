@@ -212,4 +212,25 @@ class SettingsMetadata
     {
         return $this->parametersByGroups[$group] ?? [];
     }
+
+    /**
+     * Returns a list of all parameters, which belong to one of the given groups.
+     * The keys of the returned array, are the parameter names (not necessarily the property names).
+     * The list is distinct, so no parameter is returned twice.
+     * @param  array  $group
+     * @return ParameterMetadata[]
+     * @phpstan-return array<string, ParameterMetadata>
+     */
+    public function getParametersWithOneOfGroups(array $group): array
+    {
+        $tmp = [];
+        foreach ($group as $g) {
+            $params = $this->getParametersByGroup($g);
+            foreach ($params as $param) {
+                $tmp[$param->getName()] = $param;
+            }
+        }
+
+        return $tmp;
+    }
 }

@@ -50,16 +50,16 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
         return $this->createSettingsFormBuilder($settingsName)->getForm();
     }
 
-    public function createSettingsFormBuilder(string $settingsName): FormBuilderInterface
+    public function createSettingsFormBuilder(string $settingsName, ?array $groups = null): FormBuilderInterface
     {
         $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
         $formBuilder = $this->formFactory->createBuilder(data: $this->settingsManager->get($settingsName));
-        $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsMetadata, []);
+        $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsMetadata, [], groups: $groups);
 
         return $formBuilder;
     }
 
-    public function createMultiSettingsFormBuilder(array $settingsNames): FormBuilderInterface
+    public function createMultiSettingsFormBuilder(array $settingsNames, ?array $groups = null): FormBuilderInterface
     {
         $formBuilder = $this->formFactory->createBuilder();
         //The form is a compound form, so we need to set this to true
@@ -71,7 +71,7 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
             $subBuilder = $this->formFactory->createNamedBuilder($settingsMetadata->getName(), data: $this->settingsManager->get($settingsName));
 
             //Configure the sub form builder
-            $this->settingsFormBuilder->buildSettingsForm($subBuilder, $settingsMetadata, []);
+            $this->settingsFormBuilder->buildSettingsForm($subBuilder, $settingsMetadata, [], groups: $groups);
 
             //And add it to the main form builder
             $formBuilder->add($subBuilder);

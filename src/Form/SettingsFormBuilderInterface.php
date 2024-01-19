@@ -28,10 +28,13 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Form;
 
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\FormBuilderInterface;
 
 interface SettingsFormBuilderInterface
 {
-    public function buildSettingsForm(FormBuilderInterface $builder, SettingsMetadata $metadata, array $options): void;
+    public function buildSettingsParameter(FormBuilderInterface $builder, ParameterMetadata $parameter, array $options = []): void;
+
+    public function buildSettingsForm(FormBuilderInterface $builder, SettingsMetadata $metadata, array $options = [], ?array $groups = null): void;
 }

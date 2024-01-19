@@ -33,9 +33,9 @@ use Symfony\Component\Form\FormInterface;
 
 interface SettingsFormFactoryInterface
 {
-    public function createSettingsFormBuilder(string $settingsName): FormBuilderInterface;
+    public function createSettingsFormBuilder(string $settingsName, ?array $groups = null): FormBuilderInterface;
 
     public function createSettingsForm(string $settingsName): FormInterface;
 
-    public function createMultiSettingsFormBuilder(array $settingsNames): FormBuilderInterface;
+    public function createMultiSettingsFormBuilder(array $settingsNames, ?array $groups = null): FormBuilderInterface;
 }

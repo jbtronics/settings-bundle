@@ -163,4 +163,38 @@ class SettingsMetadataTest extends TestCase
         $this->assertIsArray($params);
         $this->assertEmpty($params);
     }
+
+    public function testGetParametersWithOneOfGroups(): void
+    {
+        $params = $this->configSchema->getParametersWithOneOfGroups(['group1']);
+        $this->assertEquals(2, count($params));
+        $this->assertContains($this->parameterMetadata[0], $params);
+        $this->assertContains($this->parameterMetadata[1], $params);
+
+        $params = $this->configSchema->getParametersWithOneOfGroups(['group2']);
+        $this->assertEquals(2, count($params));
+        $this->assertContains($this->parameterMetadata[1], $params);
+        $this->assertContains($this->parameterMetadata[2], $params);
+
+        $params = $this->configSchema->getParametersWithOneOfGroups(['group3']);
+        $this->assertEquals(1, count($params));
+        $this->assertContains($this->parameterMetadata[2], $params);
+
+        $params = $this->configSchema->getParametersWithOneOfGroups(['group2', 'group3']);
+        $this->assertEquals(2, count($params));
+        $this->assertContains($this->parameterMetadata[1], $params);
+        $this->assertContains($this->parameterMetadata[2], $params);
+
+        $params = $this->configSchema->getParametersWithOneOfGroups(['group1', 'group3']);
+        $this->assertEquals(3, count($params));
+        $this->assertContains($this->parameterMetadata[0], $params);
+        $this->assertContains($this->parameterMetadata[1], $params);
+        $this->assertContains($this->parameterMetadata[2], $params);
+
+        $params = $this->configSchema->getParametersWithOneOfGroups(['group1', 'group2', 'group3']);
+        $this->assertEquals(3, count($params));
+        $this->assertContains($this->parameterMetadata[0], $params);
+        $this->assertContains($this->parameterMetadata[1], $params);
+        $this->assertContains($this->parameterMetadata[2], $params);
+    }
 }

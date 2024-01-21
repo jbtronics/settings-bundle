@@ -50,16 +50,16 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
         return $this->createSettingsFormBuilder($settingsName)->getForm();
     }
 
-    public function createSettingsFormBuilder(string $settingsName, ?array $groups = null): FormBuilderInterface
+    public function createSettingsFormBuilder(string $settingsName, ?array $groups = null, array $formOptions = []): FormBuilderInterface
     {
         $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
-        $formBuilder = $this->formFactory->createBuilder(data: $this->settingsManager->get($settingsName));
+        $formBuilder = $this->formFactory->createBuilder(data: $this->settingsManager->get($settingsName), options: $formOptions);
         $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsMetadata, [], groups: $groups);
 
         return $formBuilder;
     }
 
-    public function createMultiSettingsFormBuilder(array $settingsNames, ?array $groups = null): FormBuilderInterface
+    public function createMultiSettingsFormBuilder(array $settingsNames, ?array $groups = null, array $formOptions = []): FormBuilderInterface
     {
         $formBuilder = $this->formFactory->createBuilder();
         //The form is a compound form, so we need to set this to true
@@ -68,7 +68,7 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
             $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
 
             //Create sub form builder for the settings with the name of the settings class
-            $subBuilder = $this->formFactory->createNamedBuilder($settingsMetadata->getName(), data: $this->settingsManager->get($settingsName));
+            $subBuilder = $this->formFactory->createNamedBuilder($settingsMetadata->getName(), data: $this->settingsManager->get($settingsName), options: $formOptions);
 
             //Configure the sub form builder
             $this->settingsFormBuilder->buildSettingsForm($subBuilder, $settingsMetadata, [], groups: $groups);

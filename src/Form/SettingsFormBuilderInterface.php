@@ -32,9 +32,30 @@ use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\FormBuilderInterface;
 
+/**
+ * This service builds settings forms based on form metadata.
+ */
 interface SettingsFormBuilderInterface
 {
-    public function buildSettingsParameter(FormBuilderInterface $builder, ParameterMetadata $parameter, array $options = []): void;
+    /**
+     * Adds the form field for the given parameter to the form builder.
+     * The parameter is described by its metadata.
+     * @param  FormBuilderInterface  $builder The form builder to add the form field to
+     * @param  ParameterMetadata  $parameter The parameter to add to the form
+     * @param  array  $options The options to pass to the form field, allows to override the default options
+     * @return void
+     */
+    public function addSettingsParameter(FormBuilderInterface $builder, ParameterMetadata $parameter, array $options = []): void;
 
+    /**
+     * Builds the form for the given settings. It adds all parmeters of the settings to the given form builder.
+     * The settings are described by their metadata. It is possible to only add parameters, with certain groups by passing
+     * an array of groups to the $groups parameter.
+     * @param  FormBuilderInterface  $builder The form builder to add the form fields to
+     * @param  SettingsMetadata  $metadata The metadata of the settings to add to the form
+     * @param  array  $options The options to pass to the form fields, allows to override the default options
+     * @param  array|null  $groups The groups to add to the form, if null all parameters are added
+     * @return void
+     */
     public function buildSettingsForm(FormBuilderInterface $builder, SettingsMetadata $metadata, array $options = [], ?array $groups = null): void;
 }

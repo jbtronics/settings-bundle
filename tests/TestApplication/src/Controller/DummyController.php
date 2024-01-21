@@ -25,6 +25,8 @@
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Controller;
 
+use Jbtronics\SettingsBundle\Form\SettingsFormFactory;
+use Jbtronics\SettingsBundle\Form\SettingsFormFactoryInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
@@ -42,6 +44,7 @@ class DummyController
     private readonly MetadataManagerInterface $schemaManager,
     private readonly SettingsHydratorInterface $settingsHydrator,
     private readonly SettingsManagerInterface $settingsManager,
+    private readonly SettingsFormFactoryInterface $formFactory,
     )
     {
     }

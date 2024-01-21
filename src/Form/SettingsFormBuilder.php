@@ -52,12 +52,12 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
         //Either use all parameters or only the ones in the given groups
         $parametersToRender = $groups === null ? $metadata->getParameters() : $metadata->getParametersWithOneOfGroups($groups);
 
-        foreach ($metadata->getParameters() as $parameterMetadata) {
-            $this->buildSettingsParameter($builder, $parameterMetadata, $options);
+        foreach ($parametersToRender as $parameterMetadata) {
+            $this->addSettingsParameter($builder, $parameterMetadata, $options);
         }
     }
 
-    public function buildSettingsParameter(FormBuilderInterface $builder, ParameterMetadata $parameter, array $options = []): void
+    public function addSettingsParameter(FormBuilderInterface $builder, ParameterMetadata $parameter, array $options = []): void
     {
         $builder->add($parameter->getPropertyName(), $this->getFormTypeForParameter($parameter), $this->getFormOptions($parameter, $options));
     }
@@ -89,8 +89,8 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
     /**
      * Gets the form options for the given parameter metadata.
      * @param  ParameterMetadata  $parameterMetadata
-     * @param  array  $options
-     * @return array
+     * @param  array  $options The parameters passed to the options resolver
+     * @return array The resolved options
      */
     public function getFormOptions(ParameterMetadata $parameterMetadata, array $options = []): array
     {

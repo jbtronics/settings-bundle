@@ -21,11 +21,11 @@ in form of attributes. This allows to make all necessary changes in a single fil
 
 Parameters are properties inside a settings class, whose values are managed by the settings-bundle. The metadata of the parameters are used to determine how to handle the parameters (e.g. which parameter type to use, how to render them in forms, etc.).
 
-## Schemas
+## Metadata
 
-The Settings and ParameterSchemas are a representation of the metadata of settings classes. They dont contain any data, but describe the structure of settings, their configuration and behavior. The schemas are used in other parts of the bundle to determine what to do.
+The SettingsMetadata and ParameterMetadata are a representation of the metadata of settings classes. They dont contain any data, but describe the structure of settings, their configuration and behavior. The metadata is used in other parts of the bundle to determine what to do.
 
-The schemas for specific settings classes can be retrieved by the `SchemaManagerInterface` service.
+The metadata for specific settings classes can be retrieved via the `MetadataManagerInterface` service.
 
 ## Storage adapters
 The settings-bundle is designed to be storage backend. That means that almost all functionality is implemented independently of a concrete storage backend. Therefore you can use all kind of different storage backends (files, database, etc.) and even implement your own storage backend without changing other parts of the bundle.

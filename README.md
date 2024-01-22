@@ -1,4 +1,4 @@
-**[Documentation](https://docs.part-db.de/)**
+**[Documentation](https://jbtronics.github.io/settings-bundle/)**
 
 # Settings bundle
 

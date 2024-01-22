@@ -55,37 +55,41 @@ final class SettingsRegistry implements SettingsRegistryInterface, CacheWarmerIn
     public function getSettingsClasses(): array
     {
         if ($this->debug_mode) {
-            return $this->searchInPathes($this->directories);
+            return $this->getSettingsClassUncached();
         }
 
         return $this->cache->get(self::CACHE_KEY, function () {
-            $classes = $this->searchInPathes($this->directories);
-
-            $tmp = [];
-
-            //Determine the short name for each class
-            foreach ($classes as $class) {
-                $reflClass = new \ReflectionClass($class);
-                $attributes = $reflClass->getAttributes(Settings::class);
-
-                if (count($attributes) > 0) {
-                    $attribute = $attributes[0];
-                    /** @var Settings $settings */
-                    $settings = $attribute->newInstance();
-
-                    $name = $settings->name ?? self::generateDefaultNameFromClassName($class);
-
-                    //Ensure that the name is unique
-                    if (isset($tmp[$name])) {
-                        throw new \InvalidArgumentException(sprintf('There is already a class with the name %s (%s)!', $name, $tmp[$name]));
-                    }
-
-                    $tmp[$name] = $class;
-                }
-            }
-
-            return $tmp;
+            return $this->getSettingsClassUncached();
         });
+    }
+    private function getSettingsClassUncached(): array
+    {
+        $classes = $this->searchInPathes($this->directories);
+
+        $tmp = [];
+
+        //Determine the short name for each class
+        foreach ($classes as $class) {
+            $reflClass = new \ReflectionClass($class);
+            $attributes = $reflClass->getAttributes(Settings::class);
+
+            if (count($attributes) > 0) {
+                $attribute = $attributes[0];
+                /** @var Settings $settings */
+                $settings = $attribute->newInstance();
+
+                $name = $settings->name ?? self::generateDefaultNameFromClassName($class);
+
+                //Ensure that the name is unique
+                if (isset($tmp[$name])) {
+                    throw new \InvalidArgumentException(sprintf('There is already a class with the name %s (%s)!', $name, $tmp[$name]));
+                }
+
+                $tmp[$name] = $class;
+            }
+        }
+
+        return $tmp;
     }
 
     /**

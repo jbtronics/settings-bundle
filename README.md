@@ -107,6 +107,53 @@ class ExampleService {
 
 ```
 
+### Forms
+
+The bundle can automatically generate forms to change settings classes. This is done via the `SettingsFormFactoryInterface`, which creates a form builder containing fields to edit one or more settings classes. You can also render just a subset of the settings. Validation attributes are checked and mapped to form errors. This way you can easily create a controller, to let users change the settings:
+
+```php
+<?php
+
+class SettingsFormController {
+
+    public function __construct(
+        private SettingsManagerInterface $settingsManager,
+        private SettingsFormFactoryInterface $settingsFormFactory,
+        ) {}
+
+    #[Route('/settings', name: 'settings')]
+    public function settingsForm(Request $request): Response
+    {
+        //Create a builder for the settings form
+        $builder = $this->settingsFormFactory->createSettingsFormBuilder(TestSettings::class);
+
+        //Add a submit button, so we can save the form
+        $builder->add('submit', SubmitType::class);
+
+        //Create the form
+        $form = $builder->getForm();
+
+        //Handle the form submission
+        $form->handleRequest($request);
+
+        //If the form was submitted and the data is valid, then it
+        if ($form->isSubmitted() && $form->isValid()) {
+            //Save the settings
+            $this->settingsManager->save();
+        }
+
+        //Render the form
+        return $this->render('settings.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+}
+```
+
+Form rendering can be customized via the Parameter attributes. See documentation for full info.
+
+### Twig templates
+
 In twig templates you can access the settings via the `settings_instance()` function, which behaves like the `SettingsManagerInterface::get()` function and returns the current settings instance:
 
 ```twig

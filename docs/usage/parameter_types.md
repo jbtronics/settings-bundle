@@ -51,7 +51,7 @@ class MyType implements ParameterTypeInterface
 
     public function convertPHPToNormalized(
         mixed $value,
-        ParameterMetadata $parameterSchema,
+        ParameterMetadata $parameterMetadata,
     ): int|string|float|bool|array|null {
         //Convert the value in the PHP object to the normalized format for the storage adapter
 
@@ -60,7 +60,7 @@ class MyType implements ParameterTypeInterface
 
     public function convertNormalizedToPHP(
         float|int|bool|array|string|null $value,
-        ParameterMetadata $parameterSchema,
+        ParameterMetadata $parameterMetadata,
     ): ?bool {
         //Convert the value from the normalized format for the storage adapter to the PHP object
 
@@ -76,13 +76,13 @@ If you wanna define some default behavior for form rendering on your parameter t
 
 class MyType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
 {
-    public function getFormType(ParameterSchema $parameterSchema): string
+    public function getFormType(ParameterMetadata $parameterMetadata): string
     {
         //Return the class name of the form type to use
         return CheckboxType::class;
     }
 
-    public function configureFormOptions(OptionsResolver $resolver, ParameterSchema $parameterSchema): void
+    public function configureFormOptions(OptionsResolver $resolver, ParameterMetadata $parameterMetadata): void
     {
         //Configure the default options of the form type via the options resolver
 

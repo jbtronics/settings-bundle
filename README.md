@@ -1,3 +1,5 @@
+**[Documentation](https://docs.part-db.de/)**
+
 # Settings bundle
 
 Settings-bundle is a symfony bundle that let you manage your application settings on the frontend side.
@@ -34,6 +36,8 @@ return [
 ```
 
 ## Usage
+
+*The following section is just a quick overview. See [documentation](https://jbtronics.github.io/settings-bundle/) for full info.*
 
 Settings classes are simple PHP classes, which are annotated with the `#[Settings]` attribute. They must live in the path configured to store settings classes (normally `src/Settings`), in your symfony project. The bundle will automatically find and register all settings classes in this directory.
 

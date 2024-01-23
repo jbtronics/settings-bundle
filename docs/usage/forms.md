@@ -104,5 +104,5 @@ class GroupedSettings
 ```php
 
 //This will only render the parameters in the group1 group (myString and myString2)
-$builder = $this->settingsFormFactory->createSettingsFormBuilder(GroupedSettings::class, groups: ['group1]);
+$builder = $this->settingsFormFactory->createSettingsFormBuilder(GroupedSettings::class, groups: ['group1']);
 ```

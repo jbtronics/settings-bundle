@@ -62,6 +62,8 @@ class SettingsMetadata
      * @phpstan-param class-string<StorageAdapterInterface> $storageAdapter
      * @param  string  $name The (short) name of the settings class.
      * @param  string[]  $defaultGroups The default groups, which the parameters of this settings class should belong too, if they are not explicitly set.
+     * @param  int|null  $version The current version of the settings class. Null, if the settings should not be versioned. If set, you have to set a migrator service too.
+     * @param  string|null $migrationService The service id of the migration service, which should be used to migrate the settings from one version to another.
      */
     public function __construct(
         private readonly string $className,
@@ -69,8 +71,15 @@ class SettingsMetadata
         private readonly string $storageAdapter,
         private readonly string $name,
         private readonly ?array $defaultGroups = null,
+        private readonly ?int $version = null,
+        private readonly ?string $migrationService = null,
     )
     {
+        //Ensure that the migrator service is set, if the version is set
+        if ($this->version !== null && $this->migrationService === null) {
+            throw new \LogicException(sprintf('The migration service must be set, if you want to use versioning on settings class "%s"', $this->className));
+        }
+
         //Sort the parameters by their property names and names
         $byName = [];
         $byPropertyName = [];
@@ -232,5 +241,33 @@ class SettingsMetadata
         }
 
         return $tmp;
+    }
+
+    /**
+     * Check if this settings class is version managed.
+     * @return bool
+     */
+    public function isVersioned(): bool
+    {
+        return $this->version !== null;
+    }
+
+    /**
+     * Returns the version of this settings class.
+     * Returns null if the settings class is not versioned.
+     * @return int|null
+     */
+    public function getVersion(): ?int
+    {
+        return $this->version;
+    }
+
+    /**
+     * Returns the service id of the migrator service, which should be used to migrate the settings from one version to another.
+     * @return string|null
+     */
+    public function getMigrationService(): ?string
+    {
+        return $this->migrationService;
     }
 }

@@ -33,6 +33,7 @@ use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
 use PhpParser\Node\Param;
 use PHPUnit\Framework\TestCase;
 
@@ -196,5 +197,70 @@ class SettingsMetadataTest extends TestCase
         $this->assertContains($this->parameterMetadata[0], $params);
         $this->assertContains($this->parameterMetadata[1], $params);
         $this->assertContains($this->parameterMetadata[2], $params);
+    }
+
+    public function testMissingMigrator(): void
+    {
+        $this->expectException(\LogicException::class);
+
+        $schema = new SettingsMetadata(
+            className: self::class,
+            parameterMetadata:  $this->parameterMetadata,
+            storageAdapter: InMemoryStorageAdapter::class,
+            name: 'test',
+            version: 1,
+            migrationService: null
+        );
+    }
+
+    public function testGetVersion(): void
+    {
+        //The version is not set on global test object
+        $this->assertNull($this->configSchema->getVersion());
+
+        $schema = new SettingsMetadata(
+            className: self::class,
+            parameterMetadata:  $this->parameterMetadata,
+            storageAdapter: InMemoryStorageAdapter::class,
+            name: 'test',
+            version: 1,
+            migrationService: TestMigration::class
+        );
+
+        $this->assertEquals(1, $schema->getVersion());
+    }
+
+    public function testIsVersioned(): void
+    {
+        //The version is not set on global test object
+        $this->assertFalse($this->configSchema->isVersioned());
+
+        $schema = new SettingsMetadata(
+            className: self::class,
+            parameterMetadata:  $this->parameterMetadata,
+            storageAdapter: InMemoryStorageAdapter::class,
+            name: 'test',
+            version: 1,
+            migrationService: TestMigration::class
+        );
+
+        $this->assertTrue($schema->isVersioned());
+    }
+
+    public function testGetMigrationService(): void
+    {
+        //The version is not set on global test object
+        $this->assertNull($this->configSchema->getMigrationService());
+
+        $schema = new SettingsMetadata(
+            className: self::class,
+            parameterMetadata:  $this->parameterMetadata,
+            storageAdapter: InMemoryStorageAdapter::class,
+            name: 'test',
+            version: 1,
+            migrationService: TestMigration::class
+        );
+
+        $this->assertEquals(TestMigration::class, $schema->getMigrationService());
     }
 }

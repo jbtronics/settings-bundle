@@ -108,6 +108,7 @@ final class MetadataManager implements MetadataManagerInterface
                 $className));
         }
 
+        /** @var Settings $classAttribute */
         $classAttribute = $attributes[0]->newInstance();
         $parameters = [];
 
@@ -172,6 +173,8 @@ final class MetadataManager implements MetadataManagerInterface
             storageAdapter: $classAttribute->storageAdapter ?? $this->defaultStorageAdapter,
             name: $classAttribute->name ?? SettingsRegistry::generateDefaultNameFromClassName($className),
             defaultGroups: $classAttribute->groups,
+            version: $classAttribute->version,
+            migrationService: $classAttribute->migrationService,
         );
     }
 }

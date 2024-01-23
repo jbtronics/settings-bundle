@@ -137,6 +137,13 @@ return static function (ContainerConfigurator $container) {
             ]);
     }
 
+    $services->set('jbtronics.settings.env_processor', \Jbtronics\SettingsBundle\DependencyInjection\SettingsEnvProcessor::class)
+        ->tag('container.env_var_processor')
+        ->args([
+            '$settingsManager' => service('jbtronics.settings.settings_manager'),
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
+        ]);
+
     /*********************************************************************************
      * Form subsystem
      *********************************************************************************/

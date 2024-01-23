@@ -75,3 +75,34 @@ private string $myString;
 #[SettingsParameter(label: 'Label2', description: 'This will be shown as help text', formOptions: ['label' => '<b>HTML</b> label', label_html => true])]
 private string $value2;
 ```
+
+## Rendering only particular parameters
+
+If you want to render only a subset of the parameters of a settings class, you can pass an array of groups to the `groups` parameter of the `createSettingsFormBuilder()` or `createMultiSettingsFormBuilder()` methods. Only parameters which are in one of the given groups will be rendered. If no groups are given, all parameters will be rendered.
+
+The groups are defined at the `#[SettingsParameter]` attribute. If no group is given, the parameter is in the default group. You can also use the `groups` option of the `#[Settings]` attribute to define a default group for all parameters of the settings class, where it is not explicitly defined.
+
+```php
+
+//All parameters without a group are in the default group
+#[Settings(groups: ['defaultGroup'])]
+class GroupedSettings
+{
+
+    #[SettingsParameter(groups: ['group1'])]
+    private string $myString;
+
+    #[SettingsParameter(groups: ['group1', 'group2'])]
+    private string $myString2
+
+    #[SettingsParameter(groups: ['group2', 'group3'])]
+    private string $myString3;
+}
+
+```
+
+```php
+
+//This will only render the parameters in the group1 group (myString and myString2)
+$builder = $this->settingsFormFactory->createSettingsFormBuilder(GroupedSettings::class, groups: ['group1]);
+```

@@ -7,7 +7,7 @@ parent: Advanced
 # Using settings as container parameters
 
 {: .warning }
-> You should try to avoid using settings as container parameters, whereever possible, as it can harm performance and can lead to weird effects. This is only a workaround for cases, where you can not avoid it, normally you should use the `SettingsManagerInterface` service to access settings.
+> You should try to avoid using settings as container parameters, whereever possible, as it can harm performance and can lead to weird effects (be sure to read the limitations section!). This is intended only as workaround for cases, where you can not avoid it, normally you should use the `SettingsManagerInterface` service to access settings.
 
 Symfony has the concept of container parameters used to configure the application and its services. The user changable settings managed by this bundle should normally retrieved via the `SettingsManagerInterface` service. However in some cases (e.g. working with third-party code you can not change) you wanna use the values configured in a settings class, passed directly to a service similar to a classical container parameter. For this purpose this bundle offers a special Environment Variable Processor. 
 

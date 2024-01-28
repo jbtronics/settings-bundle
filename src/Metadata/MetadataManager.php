@@ -166,6 +166,11 @@ final class MetadataManager implements MetadataManagerInterface
             );
         }
 
+        //Ensure that the settings version is greather than 0
+        if ($classAttribute->version !== null && $classAttribute->version <= 0) {
+            throw new \LogicException(sprintf("The version of the settings class %s must be greater than zero! %d given", $className, $classAttribute->version));
+        }
+
         //Now we have all infos required to build our settings metadata
         return new SettingsMetadata(
             className: $className,

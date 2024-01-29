@@ -28,7 +28,18 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration;
 
-class TestMigration
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
+use Jbtronics\SettingsBundle\Migrations\SettingsMigrationInterface;
+
+class TestMigration implements SettingsMigrationInterface
 {
 
+    public function migrate(SettingsMetadata $metadata, array $data, int $oldVersion, int $newVersion): array
+    {
+        $data['migrated'] = true;
+        $data['old'] = $oldVersion;
+        $data['new'] = $newVersion;
+
+        return $data;
+    }
 }

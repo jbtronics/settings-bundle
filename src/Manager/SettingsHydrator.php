@@ -26,6 +26,7 @@
 namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
+use Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
@@ -40,6 +41,7 @@ class SettingsHydrator implements SettingsHydratorInterface
     public function __construct(
         private readonly StorageAdapterRegistryInterface $storageAdapterRegistry,
         private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
+        private readonly MigrationsManagerInterface $migrationsManager,
     ) {
 
     }

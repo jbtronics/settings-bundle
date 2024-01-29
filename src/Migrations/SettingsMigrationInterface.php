@@ -35,10 +35,10 @@ interface SettingsMigrationInterface
     /**
      * Migrate the given (normalized) settings data from an old version to a new version.
      * @param  SettingsMetadata  $metadata The metadata of the settings class to migrate
-     * @param  array  $oldData The normalized settings data in the old version
+     * @param  array  $data The normalized settings data in the old version
      * @param  int  $oldVersion The old version of the settings data
      * @param  int  $newVersion The new version of the settings data
      * @return array The normalized settings data in the new version
      */
-    public function migrate(SettingsMetadata $metadata, array $oldData, int $oldVersion, int $newVersion): array;
+    public function migrate(SettingsMetadata $metadata, array $data, int $oldVersion, int $newVersion): array;
 }

@@ -73,6 +73,7 @@ class MigrationsManager implements MigrationsManagerInterface
 
     public function requireUpgrade(SettingsMetadata $settingsMetadata, array $persistedData, ?int $targetVersion = null): bool
     {
+        //Resolve target version if not explicitly given
         if ($targetVersion === null) {
             $targetVersion = $settingsMetadata->getVersion();
         }
@@ -91,8 +92,13 @@ class MigrationsManager implements MigrationsManagerInterface
         array $persistedData,
         ?int $targetVersion = null
     ): array {
+        //Resolve target version if not explicitly given
+        if ($targetVersion === null) {
+            $targetVersion = $settingsMetadata->getVersion();
+        }
+
         //If we don't require an update, just return the array untouched
-        if ($this->requireUpgrade($settingsMetadata, $persistedData, $targetVersion)) {
+        if (!$this->requireUpgrade($settingsMetadata, $persistedData, $targetVersion)) {
             return $persistedData;
         }
 

@@ -67,6 +67,7 @@ class SettingsHydrator implements SettingsHydratorInterface
         //Migrate to the latest version if necessary.
         if ($this->migrationsManager->requireUpgrade($metadata, $normalizedRepresentation)) {
             $normalizedRepresentation = $this->migrationsManager->performUpgrade($metadata, $normalizedRepresentation);
+            $migrated = true;
         }
 
         //Apply the normalized representation to the settings object.

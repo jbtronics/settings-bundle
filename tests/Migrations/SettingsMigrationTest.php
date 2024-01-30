@@ -25,11 +25,17 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Migrations;
 
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
+use Jbtronics\SettingsBundle\Migrations\MigrationsManager;
+use Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface;
 use Jbtronics\SettingsBundle\Migrations\SettingsMigration;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\ClassMigration;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class SettingsMigrationTest extends TestCase
+class SettingsMigrationTest extends KernelTestCase
 {
 
     private SettingsMetadata $settingsMetadata;
@@ -66,7 +72,7 @@ class SettingsMigrationTest extends TestCase
             }
         };
 
-        $data = $migrator->migrate($this->settingsMetadata, [], 1, 2);
+        $data = $migrator->migrate($this->settingsMetadata, [], 0, 2);
 
         //Both step handlers should have been called and metadata should be passed to them
         $this->assertEquals([
@@ -103,13 +109,35 @@ class SettingsMigrationTest extends TestCase
             }
         };
 
-        $data = $migrator->migrate($this->settingsMetadata, [], 1, 2);
+        $data = $migrator->migrate($this->settingsMetadata, [], 0, 2);
 
         //Both step handlers should have been called and metadata should be passed to them
         $this->assertEquals([
             'version1' => true,
             'version2' => true,
             'metadata' => $this->settingsMetadata,
+        ], $data);
+    }
+
+    public function testPHPValueConverterTrait(): void
+    {
+        //Retrieve Class migration service
+        self::bootKernel();
+
+        /** @var MigrationsManager $migrationManager */
+        $migrationManager = self::getContainer()->get(MigrationsManagerInterface::class);
+        $migrator = $migrationManager->getMigratorService(ClassMigration::class);
+
+        /** @var MetadataManagerInterface $metadataManager */
+        $metadataManager = self::getContainer()->get(MetadataManagerInterface::class);
+        $metadata = $metadataManager->getSettingsMetadata(VersionedSettings::class);
+
+        $data = $migrator->migrate($metadata, [], 0, 2);
+
+        //Both step handlers should have been called and metadata should be passed to them
+        $this->assertEquals([
+            'migrated' => true,
+            'enum' => 2
         ], $data);
     }
 }

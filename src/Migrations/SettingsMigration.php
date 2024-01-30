@@ -41,11 +41,12 @@ use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
  */
 abstract class SettingsMigration implements SettingsMigrationInterface
 {
+    use PHPValueConverterTrait;
 
     public function migrate(SettingsMetadata $metadata, array $data, int $oldVersion, int $newVersion): array
     {
         //Iterate step-by-step through all versions
-        for ($version = $oldVersion; $version <= $newVersion; $version++) {
+        for ($version = ($oldVersion + 1); $version <= $newVersion; $version++) {
             $stepHandler = $this->resolveStepHandler($version);
             $data = $stepHandler($data, $metadata);
         }

@@ -55,6 +55,9 @@ return static function (ContainerConfigurator $container) {
         ->instanceof(SettingsMigrationInterface::class)->tag(SettingsExtension::TAG_MIGRATION)
         ;
 
+    //Inject the parameter type registry into all SettingsMigration services
+    $services->instanceof(\Jbtronics\SettingsBundle\Migrations\SettingsMigration::class)
+        ->call('setParameterTypeRegistry', [service('jbtronics.settings.parameter_type_registry')]);
 
     $services->set('jbtronics.settings.settings_registry', SettingsRegistry::class)
         ->args([

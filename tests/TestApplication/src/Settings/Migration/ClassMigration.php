@@ -26,28 +26,34 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration;
 
-use Jbtronics\SettingsBundle\Settings\Settings;
-use Jbtronics\SettingsBundle\Settings\SettingsParameter;
-use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
+use Jbtronics\SettingsBundle\Migrations\SettingsMigration;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
-use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
 
-#[Settings(storageAdapter: InMemoryStorageAdapter::class, version: self::VERSION, migrationService: TestMigration::class)]
-class VersionedSettings
+/**
+ * This class is used to migrate the settings data of the VersionedSettings class.
+ */
+class ClassMigration extends SettingsMigration
 {
-    public const VERSION = 5;
+    public function migrateToVersion1(array $data, SettingsMetadata $metadata): array
+    {
+        $data['migrated'] = true;
 
-    #[SettingsParameter]
-    public bool $migrated = false;
+        return $data;
+    }
 
-    #[SettingsParameter]
-    public ?int $old = null;
+    public function migrateToVersion2(array $data, SettingsMetadata $metadata): array
+    {
+        //Use the PHPValueConverterTrait to retrieve a bool value from the settings data
+        $migrated = $this->getAsPHPValue('migrated', $data, $metadata);
 
-    #[SettingsParameter]
-    public ?int $new = null;
+        //Simulate some migration logic
+        if ($migrated) {
+            $this->setAsPHPValue('enum', TestEnum::BAR, $data, $metadata);
+        }
 
-    #[SettingsParameter]
-    public ?TestEnum $enum = null;
+        return $data;
+    }
 }

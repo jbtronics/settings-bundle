@@ -28,9 +28,9 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Helpers;
 
-enum TestEnum
+enum TestEnum: int
 {
-    case FOO;
-    case BAR;
-    case BAZ;
+    case FOO = 1;
+    case BAR = 2;
+    case BAZ = 3;
 }

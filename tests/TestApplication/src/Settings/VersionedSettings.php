@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 
 use Jbtronics\SettingsBundle\Settings\Settings;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
 
@@ -36,4 +37,13 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigrat
 class VersionedSettings
 {
     public const VERSION = 5;
+
+    #[SettingsParameter]
+    public bool $migrated = false;
+
+    #[SettingsParameter]
+    public ?int $old = null;
+
+    #[SettingsParameter]
+    public ?int $new = null;
 }

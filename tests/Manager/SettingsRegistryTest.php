@@ -29,6 +29,7 @@ use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -49,6 +50,7 @@ class SettingsRegistryTest extends TestCase
             'simple' => SimpleSettings::class,
             'test234' => ValidatableSettings::class,
             'guessable' => GuessableSettings::class,
+            'versioned' => VersionedSettings::class,
         ], $configurationRegistry->getSettingsClasses());
     }
 

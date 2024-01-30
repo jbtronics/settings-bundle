@@ -25,6 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\DependencyInjection;
 
+use Jbtronics\SettingsBundle\Migrations\SettingsMigrationInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 use Symfony\Component\Config\FileLocator;
@@ -37,6 +38,7 @@ class SettingsExtension extends Extension
 
     public const TAG_PARAMETER_TYPE = 'jbtronics.settings.parameter_type';
     public const TAG_STORAGE_ADAPTER = 'jbtronics.settings.storage_adapter';
+    public const TAG_MIGRATION = 'jbtronics.settings.migration';
 
 
     public function load(array $configs, ContainerBuilder $container): void
@@ -49,5 +51,8 @@ class SettingsExtension extends Extension
 
         $container->registerForAutoconfiguration(StorageAdapterInterface::class)
             ->addTag(self::TAG_STORAGE_ADAPTER);
+
+        $container->registerForAutoconfiguration(SettingsMigrationInterface::class)
+            ->addTag(self::TAG_MIGRATION);
     }
 }

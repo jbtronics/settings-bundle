@@ -32,6 +32,7 @@ use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsResetter;
 use Jbtronics\SettingsBundle\Manager\SettingsResetterInterface;
+use Jbtronics\SettingsBundle\Migrations\SettingsMigrationInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistry;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
@@ -51,8 +52,12 @@ return static function (ContainerConfigurator $container) {
         ->defaults()->private()
         ->instanceof(ParameterTypeInterface::class)->tag(SettingsExtension::TAG_PARAMETER_TYPE)
         ->instanceof(StorageAdapterInterface::class)->tag(SettingsExtension::TAG_STORAGE_ADAPTER)
+        ->instanceof(SettingsMigrationInterface::class)->tag(SettingsExtension::TAG_MIGRATION)
         ;
 
+    //Inject the parameter type registry into all SettingsMigration services
+    $services->instanceof(\Jbtronics\SettingsBundle\Migrations\SettingsMigration::class)
+        ->call('setParameterTypeRegistry', [service('jbtronics.settings.parameter_type_registry')]);
 
     $services->set('jbtronics.settings.settings_registry', SettingsRegistry::class)
         ->args([
@@ -103,6 +108,7 @@ return static function (ContainerConfigurator $container) {
         ->args([
             '$storageAdapterRegistry' => service('jbtronics.settings.storage_adapter_registry'),
             '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
+            '$migrationsManager' => service('jbtronics.settings.settings_migration_manager'),
         ])
         ;
     $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');
@@ -162,6 +168,16 @@ return static function (ContainerConfigurator $container) {
             '$formFactory' => service('form.factory'),
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Form\SettingsFormFactoryInterface::class, 'jbtronics.settings.settings_form_factory');
+
+    /*************************************************************************************
+     * Migrations subsystem
+     *************************************************************************************/
+
+    $services->set('jbtronics.settings.settings_migration_manager', \Jbtronics\SettingsBundle\Migrations\MigrationsManager::class)
+        ->args([
+            '$locator' => tagged_locator(SettingsExtension::TAG_MIGRATION),
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface::class, 'jbtronics.settings.settings_migration_manager');
 
     /**********************************************************************************
      * Parameter Types

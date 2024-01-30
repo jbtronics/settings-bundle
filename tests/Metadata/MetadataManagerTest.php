@@ -31,8 +31,10 @@ use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\Guess\Guess;
 
@@ -126,6 +128,20 @@ class MetadataManagerTest extends KernelTestCase
         $this->assertEquals(['group1', 'group2'], $paramMetadata->getGroups());
         $this->assertSame($paramMetadata, $schema->getParametersByGroup('group1')[0]);
         $this->assertSame($paramMetadata, $schema->getParametersByGroup('group2')[0]);
+    }
 
+    public function testVersioning(): void
+    {
+        //For a non versioned class, the version should be null
+        $schema = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
+        $this->assertNull($schema->getVersion());
+        $this->assertFalse($schema->isVersioned());
+        $this->assertNull($schema->getMigrationService());
+
+        //For a versioned class, the version should be set
+        $schema = $this->metadataManager->getSettingsMetadata(VersionedSettings::class);
+        $this->assertEquals(VersionedSettings::VERSION, $schema->getVersion());
+        $this->assertTrue($schema->isVersioned());
+        $this->assertEquals(TestMigration::class, $schema->getMigrationService());
     }
 }

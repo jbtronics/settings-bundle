@@ -26,6 +26,8 @@
 namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
+use Jbtronics\SettingsBundle\Migrations\MigrationsManager;
+use Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
@@ -34,9 +36,14 @@ use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
 
 class SettingsHydrator implements SettingsHydratorInterface
 {
+    /** @var string The name of the key used to store meta information in persisted data */
+    public const META_KEY = '$META$';
+
     public function __construct(
         private readonly StorageAdapterRegistryInterface $storageAdapterRegistry,
         private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
+        private readonly MigrationsManagerInterface $migrationsManager,
+        private readonly bool $saveAfterMigration = true,
     ) {
 
     }
@@ -55,8 +62,24 @@ class SettingsHydrator implements SettingsHydratorInterface
             return $settings;
         }
 
+        $migrated = false;
+
+        //Migrate to the latest version if necessary.
+        if ($this->migrationsManager->requireUpgrade($metadata, $normalizedRepresentation)) {
+            $normalizedRepresentation = $this->migrationsManager->performUpgrade($metadata, $normalizedRepresentation);
+            $migrated = true;
+        }
+
         //Apply the normalized representation to the settings object.
-        return $this->applyNormalizedRepresentation($normalizedRepresentation, $settings, $metadata);
+        $tmp = $this->applyNormalizedRepresentation($normalizedRepresentation, $settings, $metadata);
+
+        //If we went here, then the application of the normalized representation was successful.
+        //If the settings object was migrated, we save it to the storage adapter, to make later retrievals faster.
+        if ($this->saveAfterMigration && $migrated) {
+            $storageAdapter->save($metadata->getStorageKey(), $normalizedRepresentation);
+        }
+
+        return $tmp;
     }
 
     public function persist(object $settings, SettingsMetadata $metadata): object
@@ -100,6 +123,12 @@ class SettingsHydrator implements SettingsHydratorInterface
 
             $normalizedRepresentation[$parameterName] = $converter->convertPHPToNormalized($value, $parameterMetadata);
         }
+
+        //Add the version meta tag to the normalized representation, if needed
+        if ($metadata->isVersioned()) {
+            $normalizedRepresentation[self::META_KEY][MigrationsManager::META_VERSION_KEY] = $metadata->getVersion();
+        }
+
 
         return $normalizedRepresentation;
     }

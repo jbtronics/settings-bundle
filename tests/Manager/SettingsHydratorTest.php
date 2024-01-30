@@ -30,18 +30,21 @@ use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SettingsHydratorTest extends WebTestCase
 {
     private SettingsHydrator $service;
     private MetadataManagerInterface $schemaManager;
+    private InMemoryStorageAdapter $storageAdapter;
 
     public function setUp(): void
     {
         self::bootKernel();
         $this->service = self::getContainer()->get(SettingsHydratorInterface::class);
         $this->schemaManager = self::getContainer()->get(MetadataManagerInterface::class);
+        $this->storageAdapter = self::getContainer()->get(InMemoryStorageAdapter::class);
     }
 
     public function testToNormalizedRepresentation(): void
@@ -115,6 +118,58 @@ class SettingsHydratorTest extends WebTestCase
         $this->assertEquals($test->getValue1(), $test2->getValue1());
         $this->assertEquals($test->getValue2(), $test2->getValue2());
         $this->assertEquals($test->getValue3(), $test2->getValue3());
+    }
+
+    public function testPersistVersioned(): void
+    {
+        $test = new VersionedSettings();
+        $schema = $this->schemaManager->getSettingsMetadata(VersionedSettings::class);
+
+        $this->service->persist($test, $schema);
+
+        //The storage adapter should contain the version info
+        $data = $this->storageAdapter->load($schema->getStorageKey());
+        $this->assertArrayHasKey(SettingsHydrator::META_KEY, $data);
+        $this->assertArrayHasKey('version', $data[SettingsHydrator::META_KEY]);
+        $this->assertEquals(VersionedSettings::VERSION, $data[SettingsHydrator::META_KEY]['version']);
+    }
+
+    public function testHydrateVersioned(): void
+    {
+        $test = new VersionedSettings();
+        $this->assertFalse($test->migrated);
+        $this->assertNull($test->old);
+        $this->assertNull($test->new);
+
+        $schema = $this->schemaManager->getSettingsMetadata(VersionedSettings::class);
+
+        //Prepare the storage adapter with some dummy data to migrate
+        $data = $this->storageAdapter->save($schema->getStorageKey(), [
+            '$META$' => [
+                'version' => 1,
+            ],
+            'foo' => 'bar',
+        ]);
+
+        //Hydrate the settings object. This should work without any errors.
+        $test = $this->service->hydrate($test, $schema);
+
+        //Afterwards the settings object should be hydrated with the migrated data
+        $this->assertTrue($test->migrated);
+        $this->assertEquals(1, $test->old);
+        $this->assertEquals(VersionedSettings::VERSION, $test->new);
+
+        //The storage adapter should contain the version info and migrated data, as it was saved after the migration
+        $data = $this->storageAdapter->load($schema->getStorageKey());
+        $this->assertEquals([
+            '$META$' => [
+                'version' => VersionedSettings::VERSION,
+            ],
+            'foo' => 'bar',
+            'migrated' => true,
+            'old' => 1,
+            'new' => VersionedSettings::VERSION,
+        ], $data);
     }
 
 }

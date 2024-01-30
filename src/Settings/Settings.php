@@ -35,11 +35,15 @@ final class Settings
      * @param  string|null  $name The (short) name of the settings class. If not set, the lower case class name without the "Settings" suffix is used.
      * @param  string|null  $storageAdapter The storage adapter to use for this settings class. If not set, the default storage adapter is used.
      * @param  string[]|null  $groups An array of groups, which the parameters of this settings class should belong too, if they are not explicitly set.
+     * @param  int|null  $version  The current version of the settings class. Null, if the settings should not be versioned. If set, you have to set a migrator service too.
+     * @param  string|null  $migrationService  The service id of the migrator service, which should be used to migrate the settings from one version to another.
      */
     public function __construct(
         public readonly string|null $name = null,
         public readonly string|null $storageAdapter = null,
         public readonly array|null $groups = null,
+        public readonly int|null $version = null,
+        public readonly string|null $migrationService = null,
     )
     {
 

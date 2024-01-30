@@ -26,11 +26,28 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Helpers;
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 
-enum TestEnum: int
+use Jbtronics\SettingsBundle\Settings\Settings;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
+
+#[Settings(storageAdapter: InMemoryStorageAdapter::class, version: self::VERSION, migrationService: TestMigration::class)]
+class VersionedSettings
 {
-    case FOO = 1;
-    case BAR = 2;
-    case BAZ = 3;
+    public const VERSION = 5;
+
+    #[SettingsParameter]
+    public bool $migrated = false;
+
+    #[SettingsParameter]
+    public ?int $old = null;
+
+    #[SettingsParameter]
+    public ?int $new = null;
+
+    #[SettingsParameter]
+    public ?TestEnum $enum = null;
 }

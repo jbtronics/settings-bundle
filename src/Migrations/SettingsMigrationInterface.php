@@ -26,11 +26,19 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Helpers;
+namespace Jbtronics\SettingsBundle\Migrations;
 
-enum TestEnum: int
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
+
+interface SettingsMigrationInterface
 {
-    case FOO = 1;
-    case BAR = 2;
-    case BAZ = 3;
+    /**
+     * Migrate the given (normalized) settings data from an old version to a new version.
+     * @param  SettingsMetadata  $metadata The metadata of the settings class to migrate
+     * @param  array  $data The normalized settings data in the old version
+     * @param  int  $oldVersion The old version of the settings data
+     * @param  int  $newVersion The new version of the settings data
+     * @return array The normalized settings data in the new version
+     */
+    public function migrate(SettingsMetadata $metadata, array $data, int $oldVersion, int $newVersion): array;
 }

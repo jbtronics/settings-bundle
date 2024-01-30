@@ -26,11 +26,34 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Helpers;
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration;
 
-enum TestEnum: int
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
+use Jbtronics\SettingsBundle\Migrations\SettingsMigration;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
+
+/**
+ * This class is used to migrate the settings data of the VersionedSettings class.
+ */
+class ClassMigration extends SettingsMigration
 {
-    case FOO = 1;
-    case BAR = 2;
-    case BAZ = 3;
+    public function migrateToVersion1(array $data, SettingsMetadata $metadata): array
+    {
+        $data['migrated'] = true;
+
+        return $data;
+    }
+
+    public function migrateToVersion2(array $data, SettingsMetadata $metadata): array
+    {
+        //Use the PHPValueConverterTrait to retrieve a bool value from the settings data
+        $migrated = $this->getAsPHPValue('migrated', $data, $metadata);
+
+        //Simulate some migration logic
+        if ($migrated) {
+            $this->setAsPHPValue('enum', TestEnum::BAR, $data, $metadata);
+        }
+
+        return $data;
+    }
 }

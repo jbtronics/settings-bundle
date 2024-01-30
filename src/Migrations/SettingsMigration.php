@@ -39,7 +39,7 @@ use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
  * number. If the method does not exist, an exception is thrown. You can override the resolveStepHandler() method to
  * change this behavior.
  */
-class AbstractSettingsMigration implements SettingsMigrationInterface
+abstract class SettingsMigration implements SettingsMigrationInterface
 {
 
     public function migrate(SettingsMetadata $metadata, array $data, int $oldVersion, int $newVersion): array

@@ -23,13 +23,13 @@
  * SOFTWARE.
  */
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Migrations;
+namespace Jbtronics\SettingsBundle\Tests\Migrations;
 
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
-use Jbtronics\SettingsBundle\Migrations\AbstractSettingsMigration;
+use Jbtronics\SettingsBundle\Migrations\SettingsMigration;
 use PHPUnit\Framework\TestCase;
 
-class AbstractSettingsMigrationTest extends TestCase
+class SettingsMigrationTest extends TestCase
 {
 
     private SettingsMetadata $settingsMetadata;
@@ -43,14 +43,14 @@ class AbstractSettingsMigrationTest extends TestCase
     {
         $this->expectException(\LogicException::class);
 
-        $migration = new class extends AbstractSettingsMigration {
+        $migration = new class extends SettingsMigration {
         };
         $migration->migrate($this->settingsMetadata, [], 1, 2);
     }
 
     public function testStepHandlersCalled(): void
     {
-        $migrator = new class extends AbstractSettingsMigration {
+        $migrator = new class extends SettingsMigration {
             protected function migrateToVersion1(array $data, SettingsMetadata $metadata): array
             {
                 $data['version1'] = true;
@@ -78,7 +78,7 @@ class AbstractSettingsMigrationTest extends TestCase
 
     public function testStepResolverOverride(): void
     {
-        $migrator = new class extends AbstractSettingsMigration {
+        $migrator = new class extends SettingsMigration {
             protected function toVersion1(array $data, SettingsMetadata $metadata): array
             {
                 $data['version1'] = true;

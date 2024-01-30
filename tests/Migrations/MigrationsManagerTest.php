@@ -23,9 +23,8 @@
  * SOFTWARE.
  */
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Migrations;
+namespace Jbtronics\SettingsBundle\Tests\Migrations;
 
-use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Migrations\MigrationsManager;
@@ -34,7 +33,6 @@ use Jbtronics\SettingsBundle\Migrations\SettingsMigrationInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class MigrationsManagerTest extends KernelTestCase

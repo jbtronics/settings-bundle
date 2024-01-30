@@ -49,6 +49,11 @@ abstract class SettingsMigration implements SettingsMigrationInterface
         for ($version = ($oldVersion + 1); $version <= $newVersion; $version++) {
             $stepHandler = $this->resolveStepHandler($version);
             $data = $stepHandler($data, $metadata);
+
+            //Ensure that data is still an array
+            if (!is_array($data)) {
+                throw new \LogicException('The step migration handler for ' . $version . ' did not return an array!');
+            }
         }
 
         return $data;

@@ -34,7 +34,7 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 trait PHPValueConverterTrait
 {
-    protected ?ParameterTypeRegistryInterface $parameterTypeRegistry;
+    protected ?ParameterTypeRegistryInterface $parameterTypeRegistry = null;
 
     #[Required()]
     public function setParameterTypeRegistry(ParameterTypeRegistryInterface $parameterTypeRegistry): void

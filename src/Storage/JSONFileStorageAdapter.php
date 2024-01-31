@@ -42,7 +42,7 @@ class JSONFileStorageAdapter implements StorageAdapterInterface
         return $this->storageDirectory . '/' . $filename . '.json';
     }
 
-    public function save(string $key, array $data): void
+    public function save(string $key, array $data, array $options = []): void
     {
         //Convert the key to a safe filename
         $filename = $this->getFileName($key);
@@ -59,9 +59,11 @@ class JSONFileStorageAdapter implements StorageAdapterInterface
     }
 
     /**
+     * @param  string  $key
+     * @param  array  $options
      * @throws \JsonException
      */
-    public function load(string $key): ?array
+    public function load(string $key, array $options = []): ?array
     {
         //Convert the key to a safe filename
         $filename = $this->getFileName($key);

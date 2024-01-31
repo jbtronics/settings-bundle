@@ -180,6 +180,7 @@ final class MetadataManager implements MetadataManagerInterface
             defaultGroups: $classAttribute->groups,
             version: $classAttribute->version,
             migrationService: $classAttribute->migrationService,
+            storageAdapterOptions: $classAttribute->storageAdapterOptions,
         );
     }
 }

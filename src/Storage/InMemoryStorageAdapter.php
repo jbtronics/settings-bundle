@@ -33,12 +33,12 @@ class InMemoryStorageAdapter implements StorageAdapterInterface
 {
     private array $data = [];
 
-    public function save(string $key, array $data): void
+    public function save(string $key, array $data, array $options = []): void
     {
         $this->data[$key] = $data;
     }
 
-    public function load(string $key): ?array
+    public function load(string $key, array $options = []): ?array
     {
         return $this->data[$key] ?? null;
     }

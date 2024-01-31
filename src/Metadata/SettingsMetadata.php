@@ -64,6 +64,7 @@ class SettingsMetadata
      * @param  string[]  $defaultGroups The default groups, which the parameters of this settings class should belong too, if they are not explicitly set.
      * @param  int|null  $version The current version of the settings class. Null, if the settings should not be versioned. If set, you have to set a migrator service too.
      * @param  string|null $migrationService The service id of the migration service, which should be used to migrate the settings from one version to another.
+     * @param  array  $storageAdapterOptions An array of options, which should be passed to the storage adapter.
      */
     public function __construct(
         private readonly string $className,
@@ -73,6 +74,7 @@ class SettingsMetadata
         private readonly ?array $defaultGroups = null,
         private readonly ?int $version = null,
         private readonly ?string $migrationService = null,
+        private readonly array $storageAdapterOptions = [],
     )
     {
         //Ensure that the migrator service is set, if the version is set
@@ -269,5 +271,14 @@ class SettingsMetadata
     public function getMigrationService(): ?string
     {
         return $this->migrationService;
+    }
+
+    /**
+     * Returns the options, which should be passed to the storage adapter.
+     * @return array
+     */
+    public function getStorageAdapterOptions(): array
+    {
+        return $this->storageAdapterOptions;
     }
 }

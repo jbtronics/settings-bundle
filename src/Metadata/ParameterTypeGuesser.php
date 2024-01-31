@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\Metadata;
 
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
+use Jbtronics\SettingsBundle\ParameterTypes\DatetimeType;
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\ParameterTypes\FloatType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
@@ -60,6 +61,10 @@ class ParameterTypeGuesser implements ParameterTypeGuesserInterface
                 if (is_a($typeName, \UnitEnum::class, true)) {
                     return EnumType::class;
                 }
+
+                if (is_a($typeName, \DateTimeInterface::class, true)) {
+                    return DatetimeType::class;
+                }
             }
         }
 
@@ -76,6 +81,12 @@ class ParameterTypeGuesser implements ParameterTypeGuesserInterface
 
                 //Check if type is an enum class, then pass the class name to the metadata
                 if (is_a($typeName, \UnitEnum::class, true)) {
+                    return [
+                        'class' => $type->getName(),
+                    ];
+                }
+
+                if (is_a($typeName, \DateTimeInterface::class, true)) {
                     return [
                         'class' => $type->getName(),
                     ];

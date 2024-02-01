@@ -19,6 +19,7 @@ Following parameter types are built-in and handle the most common property types
 * `BoolType`: Maps a boolean property
 * `FloatType`: Maps a float property
 * `EnumType`: Maps an (backed) enum property. The enum must be backed, and the backed values are used to store the enum values in the storage backend. If the enumtype is not configured automatically, you have to pass the enum class as extra option to the parameter attribute (e.g. `#[SettingsParameter(type: EnumType::class, options: ['class' => MyEnum::class])]`). By default this should be setup automatically by the bundle in most cases.
+* `DateTimeType`: Maps a `\DateTime` or `\DateTimeImmutable` (or their child classes) property. The date is stored as an ATOM/RFC3339 string in the storage backend. If the date type is not configured automatically, you have to pass the date type as extra option to the parameter attribute (e.g. `#[SettingsParameter(type: DateTimeType::class, options: ['class' => \DatetimeImmutable::class])]`). By default this should be setup automatically by the bundle in most cases.
 
 ## Automatic parameter type detection
 
@@ -34,6 +35,7 @@ The following table shows the default mapping of property types to parameter typ
 | bool          | BoolType       |
 | float         | FloatType      |
 | enum / BackedEnum          | EnumType       |
+| DateTime / DateTimeImmutable | DateTimeType   |
 
 A nullable property type is mapped to the same parameter type, but with the `nullable` option of the parameter metadata set to `true`.
 

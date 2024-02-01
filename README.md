@@ -15,9 +15,11 @@ All relevant definitions of settings are done directly in the settings class via
 * Class based settings, which get easily managed by the bundle
 * Type-safe access to settings
 * Easy to use API
+* Almost zero configuration required in many cases, as the bundle tries to derive as much information as possible from code metadata like property types, etc.
 * Various storage backends, like database, json files, PHP files, etc. (custom backends can be easily implemented)
 * Use symfony/validator to easily restrict possible values of settings parameters
 * Automatically generate forms to change settings
+* Easy possibility to version settings and automatically migrate old stored data to the current format
 * Profiler integration for easy debugging
 
 ## Installation

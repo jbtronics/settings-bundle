@@ -101,6 +101,10 @@ The attribute has the following parameters:
 
 * `name` (optional): A short name for the settings class. This name can be used to retrieve the settings class via the `SettingsManagerInterface::get()` method. If not set, the name will be generated from the class name by removing the `Settings` suffix and converting the class name to lowercase (e.g. `TestSettings` -> `test`).
 * `storageAdapter` (optional): The class name of the storageAdapter service which should be used to store the settings (e.g. `InMemoryStorageAdapter::class`). If none is set, the global configured storage adapter will be used.
+* `storageAdapterOptions` (optional): An array of options, which is passed to the storage adapter. The available options depend on the storage adapter. See the documentation of the storage adapter for more information.
+* `groups` (optional): The default groups of parameters in this settings class. This can be used to only render subsets of the parameters in forms, etc. The groups are used as default groups for the parameters, if they are not explicitly set. The groups can be overridden by the `groups` option of the `#[SettingsParameter]` attribute.
+* `version` (optional): The expected version of this settings class. Must be an int greater 0. If set, settings from older versions of this class will be migrated to the current version. See the documentation about versioning and migrations for more information. If set to null, then the settings class is not versioned and no migrations are performed.
+* `migrationService` (optional): The class name of the service, which should be used to perform the migration. This value is required if `version` is set. See the documentation about versioning and migrations for more information. 
 
 ### #[SettingsParameter]
 
@@ -112,4 +116,8 @@ The attribute has the following parameters:
 * `name` (optional): The name of the parameter, by which it should be identified internally (this will be the key in the normalized data, etc.) If not set, this will default to the name of the property.
 * `label` (optional): A string or translation key, which can be used as user friendly label for the parameter, when showing it to user (e.g. in forms). This should be just a few words maximum.
 * `description` (optional): A string or translation key, which can be used as user friendly description for the parameter, when showing it to user (e.g. in forms). Unlike the label this can be a longer text giving more information about the parameter.
-* `extra_options` (optional): An array of extra options, which is passed to the parameter type. The available options depend on the parameter type. See the documentation of the parameter type for more information.
+* `options` (optional): An array of extra options, which is passed to the parameter type. The available options depend on the parameter type. See the documentation of the parameter type for more information.
+* `formType` (optional): The (symfony) form type, which should be used to render the parameter in forms. This overrides any default values given by the parameter type.
+* `formOptions` (optional): An array of options, which is passed to the form type. This overrides the defaults defined by the defaults defined by the parameter type. The available options depend on the form type. See the documentation of the form type for more information.
+* `nullable` (optional): Override the behavior if the parameter is considered nullable. Normally this is derived automatically from the declared property type.
+* `groups` (optional): The groups this parameter belongs to. This can be used to only render certain subsets of the parameters in forms, etc. This must be an array of strings, or null if this parameter should not belong to any group.

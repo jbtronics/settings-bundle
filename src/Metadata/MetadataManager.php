@@ -26,6 +26,7 @@
 namespace Jbtronics\SettingsBundle\Metadata;
 
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
+use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
@@ -69,7 +70,7 @@ final class MetadataManager implements MetadataManagerInterface
     public function getSettingsMetadata(string|object $className): SettingsMetadata
     {
         if (is_object($className)) {
-            $className = get_class($className);
+            $className = ProxyClassNameHelper::resolveEffectiveClass($className);
         } elseif (!class_exists($className)) { //If the given name is not a class name, try to resolve the name via SettingsRegistry
             $className = $this->settingsRegistry->getSettingsClassByName($className);
         }

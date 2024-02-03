@@ -26,7 +26,11 @@
 namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
+use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
+use Jbtronics\SettingsBundle\Proxy\ProxyFactory;
+use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
+use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 
 /**
@@ -40,6 +44,7 @@ final class SettingsManager implements SettingsManagerInterface
         private readonly SettingsResetterInterface $settingsResetter,
         private readonly SettingsValidatorInterface $settingsValidator,
         private readonly SettingsRegistryInterface $settingsRegistry,
+        private readonly ProxyFactoryInterface $proxyFactory
     )
     {
 
@@ -47,7 +52,7 @@ final class SettingsManager implements SettingsManagerInterface
 
     private array $settings_by_class = [];
 
-    public function get(string $settingsClass): object
+    public function get(string $settingsClass, bool $lazy = false): object
     {
         //If not a class name is given, try to resolve the name via SettingsRegistry
         if (!class_exists($settingsClass)) {
@@ -65,11 +70,24 @@ final class SettingsManager implements SettingsManagerInterface
         }
 
         //If not create a new instance of the given settings class with the default values
-        $settings = $this->getNewInstance($settingsClass);
-        $this->settingsHydrator->hydrate($settings, $this->metadataManager->getSettingsMetadata($settingsClass));
+        if (!$lazy) { //If we are not lazy, we initialize the settings class immediately
+            $settings = $this->getInitializedVersion($settingsClass);
+        } else { //Otherwise we create a lazy loading proxy
+            $settings = $this->proxyFactory->createProxy($settingsClass, function () use ($settingsClass) {
+                return $this->getInitializedVersion($settingsClass);
+            });
+        }
 
         //Add it to our memory map
         $this->settings_by_class[$settingsClass] = $settings;
+        return $settings;
+    }
+
+    private function getInitializedVersion(string $settingsClass): object
+    {
+        $settings = $this->getNewInstance($settingsClass);
+        $this->settingsHydrator->hydrate($settings, $this->metadataManager->getSettingsMetadata($settingsClass));
+
         return $settings;
     }
 
@@ -91,7 +109,7 @@ final class SettingsManager implements SettingsManagerInterface
     public function save(string|object|null $settingsClass = null): void
     {
         if (is_object($settingsClass)) {
-            $settingsClass = get_class($settingsClass);
+            $settingsClass = ProxyClassNameHelper::resolveEffectiveClass($settingsClass);
         }
 
         /* If no settings class is given, save all settings classes

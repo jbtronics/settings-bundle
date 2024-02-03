@@ -34,12 +34,14 @@ interface SettingsManagerInterface
     /**
      * Returns the value filled instance of the given settings class.
      * @param  string  $settingsClass The settings class to get the instance for. This can either be a class string, or the short name of the settings class.
+     * @param  bool $lazy If true, the instance is lazy loaded if not already in memory yet, meaning that the instance is only retrieved from the storage provider when it is accessed for the first time.
+     * If false, the instance is always initialized by this method.
      * @return object
      * @template T of object
      * @phpstan-param string|class-string<T> $settingsClass
      * @phpstan-return ($settingsClass is class-string<T> ? T : object)
      */
-    public function get(string $settingsClass): object;
+    public function get(string $settingsClass, bool $lazy = false): object;
 
     /**
      * Reloads the settings class from memory provider and overwrites the values in memory.

@@ -27,6 +27,7 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 
 use Jbtronics\SettingsBundle\Manager\SettingsManager;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
+use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -37,6 +38,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class SettingsManagerTest extends KernelTestCase
 {
 
+    /** @var SettingsManager $service */
     private SettingsManagerInterface $service;
 
     public function setUp(): void
@@ -76,8 +78,6 @@ class SettingsManagerTest extends KernelTestCase
         $this->assertEquals('default', $settings->getValue1());
     }
 
-
-
     public function testSaveAndReload(): void
     {
         /** @var SimpleSettings $settings */
@@ -98,5 +98,40 @@ class SettingsManagerTest extends KernelTestCase
 
         //And the value should be the one, which we saved before
         $this->assertEquals('changed', $settings->getValue1());
+    }
+
+    public function testGetLazy(): void
+    {
+        $settings = $this->service->get(SimpleSettings::class, true);
+        $this->assertInstanceOf(SimpleSettings::class, $settings);
+        $this->assertInstanceOf(SettingsProxyInterface::class, $settings);
+
+        //Test if we can read the value
+        $this->assertEquals('default', $settings->getValue1());
+
+        //Test if we can change the value
+        $settings->setValue1('changed');
+        $this->assertEquals('changed', $settings->getValue1());
+
+        //Test if we can save the settings
+        $this->service->save($settings);
+    }
+
+    public function testReloadLazy(): void
+    {
+        $settings = $this->service->get(SimpleSettings::class, true);
+        $this->assertInstanceOf(SimpleSettings::class, $settings);
+        $this->assertInstanceOf(SettingsProxyInterface::class, $settings);
+
+        //Change the value of the settings
+        $settings->setValue1('changed');
+        $this->assertEquals('changed', $settings->getValue1());
+
+        //Reloading the settings must work
+        $this->service->reload($settings);
+
+        //The value must be the default value again
+        $this->assertEquals('default', $settings->getValue1());
+
     }
 }

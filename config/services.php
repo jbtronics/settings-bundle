@@ -86,6 +86,7 @@ return static function (ContainerConfigurator $container) {
             '$settingsResetter' => service('jbtronics.settings.settings_resetter'),
             '$settingsValidator' => service('jbtronics.settings.settings_validator'),
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
+            '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
         ])
         ;
     $services->alias(SettingsManagerInterface::class, 'jbtronics.settings.settings_manager');
@@ -149,6 +150,24 @@ return static function (ContainerConfigurator $container) {
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
             '$metadataManager' => service('jbtronics.settings.metadata_manager'),
         ]);
+
+    /*********************************************************************************
+     * Lazy loading subsystem
+     ********************************************************************************/
+
+    $services->set('jbtronics.settings.proxy_factory', \Jbtronics\SettingsBundle\Proxy\ProxyFactory::class)
+        ->args([
+            '$proxyDir' => '%kernel.cache_dir%/jbtronics_settings/proxies',
+            '$proxyNamespace' => 'Proxies\\',
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface::class, 'jbtronics.settings.proxy_factory');
+
+    $services->set('jbtronics.settings.proxy_cache_warmer', \Jbtronics\SettingsBundle\Proxy\ProxyCacheWarmer::class)
+        ->args([
+            '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
+            '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
+        ])
+        ->tag('kernel.cache_warmer');
 
     /*********************************************************************************
      * Form subsystem

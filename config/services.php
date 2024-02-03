@@ -151,6 +151,24 @@ return static function (ContainerConfigurator $container) {
         ]);
 
     /*********************************************************************************
+     * Lazy loading subsystem
+     ********************************************************************************/
+
+    $services->set('jbtronics.settings.proxy_factory', \Jbtronics\SettingsBundle\Proxy\ProxyFactory::class)
+        ->args([
+            '$proxyDir' => '%kernel.cache_dir%/jbtronics_settings/proxies',
+            '$proxyNamespace' => 'Proxies\\',
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface::class, 'jbtronics.settings.proxy_factory');
+
+    $services->set('jbtronics.settings.proxy_cache_warmer', \Jbtronics\SettingsBundle\Proxy\ProxyCacheWarmer::class)
+        ->args([
+            '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
+            '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
+        ])
+        ->tag('kernel.cache_warmer');
+
+    /*********************************************************************************
      * Form subsystem
      *********************************************************************************/
 

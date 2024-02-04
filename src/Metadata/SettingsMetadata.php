@@ -106,7 +106,7 @@ class SettingsMetadata
 
             //Add the parameter to the groups it belongs to
             foreach ($parameterMetadatum->getGroups() as $group) {
-                $byGroups[$group][] = $parameterMetadatum;
+                $byGroups[$group][$parameterMetadatum->getName()] = $parameterMetadatum;
             }
         }
 

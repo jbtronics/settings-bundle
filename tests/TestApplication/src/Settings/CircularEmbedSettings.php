@@ -26,24 +26,25 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Settings;
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
+
+use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
+use Jbtronics\SettingsBundle\Settings\Settings;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 
 /**
- * This attribute marks that a settings class should be embedded into another settings class as property.
- * This attribute is applied to the property into which the settings class should be embedded.
+ * This class is used to test embedded settings with circular references.
  */
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
-class EmbeddedSettings
+#[Settings(storageAdapter: InMemoryStorageAdapter::class)]
+class CircularEmbedSettings
 {
-    /**
-     * @param  string|null  $target The class name of the settings class, which should be embedded into this property. If null, this is automatically discovered from the property type.
-     * @phpstan-param class-string $target
-     * @param  string[]|null  $groups  The groups, which this parameter should belong to. Groups can be used to only render subsets of the configuration entries in the UI. If not set, the parameter is assigned to the default group set in the settings class.
-     */
-    public function __construct(
-        public readonly ?string $target = null,
-        public readonly ?array $groups = null,
-    ) {
-    }
+    #[SettingsParameter]
+    public bool $bool;
 
+    #[EmbeddedSettings()]
+    public SimpleSettings $simpleSettings;
+
+    #[EmbeddedSettings()]
+    public EmbeddedSettings $embeddedSettings;
 }

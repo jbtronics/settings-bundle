@@ -95,8 +95,6 @@ final class MetadataManager implements MetadataManagerInterface
 
     private function getMetadataUncached(string $className): SettingsMetadata
     {
-        //If not, create it and cache it.
-
         //Retrieve the #[ConfigClass] attribute from the given class.
         $reflClass = new \ReflectionClass($className);
         $attributes = $reflClass->getAttributes(Settings::class);
@@ -113,6 +111,8 @@ final class MetadataManager implements MetadataManagerInterface
         /** @var Settings $classAttribute */
         $classAttribute = $attributes[0]->newInstance();
         $parameters = [];
+        $embeddeds = [];
+
 
         //Retrieve all parameter attributes on the properties of the given class
         $reflProperties = PropertyAccessHelper::getProperties($className);
@@ -122,6 +122,12 @@ final class MetadataManager implements MetadataManagerInterface
             $parameterMetadata = $this->parseParameterMetadata($className, $reflProperty, $classAttribute);
             if ($parameterMetadata !== null) {
                 $parameters[] = $parameterMetadata;
+            }
+
+            //Try to parse the embedded metadata from the property
+            $embeddedMetadata = $this->parseEmbeddedMetadata($className, $reflProperty, $classAttribute);
+            if ($embeddedMetadata !== null) {
+                $embeddeds[] = $embeddedMetadata;
             }
         }
 
@@ -140,6 +146,52 @@ final class MetadataManager implements MetadataManagerInterface
             version: $classAttribute->version,
             migrationService: $classAttribute->migrationService,
             storageAdapterOptions: $classAttribute->storageAdapterOptions,
+            embeddedMetadata: $embeddeds,
+        );
+    }
+
+    /**
+     * Tries to parse the embedded metadata from the given property. If the property is not an embedded settings, null is returned.
+     * @param  string  $className
+     * @param  \ReflectionProperty  $reflProperty
+     * @param  Settings  $classAttribute
+     * @return EmbeddedMetadata|null
+     */
+    private function parseEmbeddedMetadata(string $className, \ReflectionProperty $reflProperty, Settings $classAttribute): ?EmbeddedMetadata
+    {
+        $attributes = $reflProperty->getAttributes(EmbeddedSettings::class);
+        //Skip properties without a EmbeddedSettings attribute
+        if (count($attributes) < 1) {
+            return null;
+        }
+
+        if (count($attributes) > 1) {
+            throw new \LogicException(sprintf('The property "%s" of the class "%s" has more than one EmbeddedSettings attributes! Only one is allowed',
+                $reflProperty->getName(), $className));
+        }
+
+        //Create a new instance of the attribute
+        /** @var EmbeddedSettings $attribute */
+        $attribute = $attributes[0]->newInstance();
+
+        //If the target class is not set explicitly, try to guess it from the property type
+        $targetClass = $attribute->target;
+        if ($targetClass === null) {
+            $type = $reflProperty->getType();
+            if (!$type instanceof \ReflectionNamedType) {
+                throw new \LogicException(sprintf('The property "%s" of the class "%s" has no usable type declaration and the target class could not be guessed. Please set the target class explicitly!',
+                    $reflProperty->getName(), $className));
+            }
+            //Assume the type is our target class
+            $targetClass = $type->getName();
+        }
+
+        //Create the embedded metadata
+        return new EmbeddedMetadata(
+            className: $className,
+            propertyName: $reflProperty->getName(),
+            targetClass: $targetClass,
+            groups: $attribute->groups ?? $classAttribute->groups ?? [],
         );
     }
 
@@ -157,7 +209,7 @@ final class MetadataManager implements MetadataManagerInterface
             return null;
         }
         if (count($attributes) > 1) {
-            throw new \LogicException(sprintf('The property "%s" of the class "%s" has more than one ConfigEntry atrributes! Only one is allowed',
+            throw new \LogicException(sprintf('The property "%s" of the class "%s" has more than one ConfigEntry attributes! Only one is allowed',
                 $reflProperty->getName(), $className));
         }
 

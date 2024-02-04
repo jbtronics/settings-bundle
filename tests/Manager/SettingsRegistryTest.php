@@ -51,6 +51,8 @@ class SettingsRegistryTest extends TestCase
             'test234' => ValidatableSettings::class,
             'guessable' => GuessableSettings::class,
             'versioned' => VersionedSettings::class,
+            'circularembed' => 'Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings',
+            'embed' => 'Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings',
         ], $configurationRegistry->getSettingsClasses());
     }
 

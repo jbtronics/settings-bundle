@@ -29,7 +29,10 @@ use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
+use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
@@ -143,5 +146,27 @@ class MetadataManagerTest extends KernelTestCase
         $this->assertEquals(VersionedSettings::VERSION, $schema->getVersion());
         $this->assertTrue($schema->isVersioned());
         $this->assertEquals(TestMigration::class, $schema->getMigrationService());
+    }
+
+    public function testEmbeddeds(): void
+    {
+        //Test that embedded settings are correctly recognized
+        $schema = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
+        $this->assertEmpty($schema->getEmbeddeds());
+
+        //Embedded settings should be recognized
+        $schema = $this->metadataManager->getSettingsMetadata(EmbedSettings::class);
+        $embeddeds = $schema->getEmbeddeds();
+        $this->assertCount(2, $embeddeds);
+        $this->assertEquals('simpleSettings', $embeddeds['simpleSettings']->getPropertyName());
+        $this->assertEquals('circularSettings', $embeddeds['circularSettings']->getPropertyName());
+
+        //The target class should be set correctly
+        $this->assertEquals(SimpleSettings::class, $embeddeds['simpleSettings']->getTargetClass());
+        $this->assertEquals(CircularEmbedSettings::class, $embeddeds['circularSettings']->getTargetClass());
+
+        //Test that the groups are correctly inherited
+        $this->assertEquals(['default'], $embeddeds['simpleSettings']->getGroups());
+        $this->assertEquals(['group1'], $embeddeds['circularSettings']->getGroups());
     }
 }

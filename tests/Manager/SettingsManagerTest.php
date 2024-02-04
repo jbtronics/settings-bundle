@@ -180,4 +180,14 @@ class SettingsManagerTest extends KernelTestCase
         //Test if we can retrieve the value via the embedded settings
         $this->assertEquals('default', $settings->circularSettings->embeddedSettings->simpleSettings->getValue1());
     }
+
+    public function testSaveCascade(): void
+    {
+        /** @var EmbedSettings */
+        $settings = $this->service->get(EmbedSettings::class);
+
+        $settings->simpleSettings->setValue1('changed');
+
+        $this->service->save($settings, true);
+    }
 }

@@ -103,7 +103,7 @@ final class SettingsManager implements SettingsManagerInterface
         return $settings;
     }
 
-    public function reload(string|object $settings): object
+    public function reload(string|object|array $settings, bool $cascade = true): object
     {
         if (is_string($settings)) {
             $settings = $this->get($settings);
@@ -118,25 +118,38 @@ final class SettingsManager implements SettingsManagerInterface
         return $settings;
     }
 
-    public function save(string|object|null $settingsClass = null): void
+    public function save(string|object|array|null $settings = null, bool $cascade = true): void
     {
-        if (is_object($settingsClass)) {
-            $settingsClass = ProxyClassNameHelper::resolveEffectiveClass($settingsClass);
+        //If no class were given, we save all classes
+        if ($settings == null) {
+            $settings = array_keys($this->settings_by_class);
         }
 
-        /* If no settings class is given, save all settings classes
-         * It is enough to only save the settings which are currently managed by the SettingsManager, as these are the
-         * only ones which could have been changed.
-         */
-        $classesToSave = $settingsClass === null ? array_keys($this->settings_by_class) : [$settingsClass];
+        //Iterate over each given settings class to resolve which classes we really need to save
+        $classesToSave = [];
+        foreach ($settings as $setting) {
+            if (is_object($setting)) {
+                $setting = ProxyClassNameHelper::resolveEffectiveClass($setting);
+            }
+
+            //If we should cascade, we resolve all embedded settings
+            if ($cascade) {
+                $classesToSave = array_merge($classesToSave, $this->metadataManager->resolveEmbeddedCascade($setting));
+            } else { //Or we just add the given class
+                $classesToSave[] = $setting;
+            }
+        }
+
+        //Ensure that the classes are unique
+        $classesToSave = array_unique($classesToSave);
 
         $errors = [];
 
         //Ensure that the classes are all valid
         foreach ($classesToSave as $class) {
-            $settings = $this->get($class, true);
+            $instance = $this->get($class, true);
 
-            $errors_per_property = $this->settingsValidator->validate($settings);
+            $errors_per_property = $this->settingsValidator->validate($instance);
             if (count($errors_per_property) > 0) {
                 $errors[$class] = $errors_per_property;
             }
@@ -149,14 +162,14 @@ final class SettingsManager implements SettingsManagerInterface
 
         //Otherwise persist the settings
         foreach ($classesToSave as $class) {
-            $settings = $this->get($class, true);
+            $instance = $this->get($class, true);
 
             //If the settings class is a proxy and was not yet initialized, we do not need to save it as it was not changed
-            if ($settings instanceof SettingsProxyInterface && $settings instanceof LazyObjectInterface && !$settings->isLazyObjectInitialized()) {
+            if ($instance instanceof SettingsProxyInterface && $instance instanceof LazyObjectInterface && !$instance->isLazyObjectInitialized()) {
                 continue;
             }
 
-            $this->settingsHydrator->persist($settings, $this->metadataManager->getSettingsMetadata($class));
+            $this->settingsHydrator->persist($instance, $this->metadataManager->getSettingsMetadata($class));
         }
     }
 

@@ -41,7 +41,11 @@ final class MetadataManager implements MetadataManagerInterface
 {
     private array $metadata_cache = [];
 
+    private array $resolve_embedded_cache = [];
+
     private const CACHE_KEY_PREFIX = 'jbtronics_settings.metadata.';
+
+    private const CACHE_KEY_EMBEDDED_PREFIX = 'jbtronics_settings.embedded.';
 
     public function __construct(
         private readonly CacheInterface $cache,
@@ -252,5 +256,54 @@ final class MetadataManager implements MetadataManagerInterface
             formOptions: $attribute->formOptions,
             groups: $attribute->groups ?? $classAttribute->groups ?? [],
         );
+    }
+
+    public function resolveEmbeddedCascade(string $className): array
+    {
+        //Check if the embedded cascade for the given class is already cached.
+        if (isset($this->resolve_embedded_cache[$className])) {
+            return $this->resolve_embedded_cache[$className];
+        }
+
+        if ($this->debug_mode) {
+            $embeddedCascade = $this->resolveEmbeddedCascadeUncached($className);
+        } else {
+            $embeddedCascade = $this->cache->get(self::CACHE_KEY_EMBEDDED_PREFIX.md5($className), function () use ($className) {
+                return $this->resolveEmbeddedCascadeUncached($className);
+            });
+        }
+
+        $this->resolve_embedded_cache[$className] = $embeddedCascade;
+        return $embeddedCascade;
+    }
+
+    private function resolveEmbeddedCascadeUncached(string $className, ?array $done_classes = null): array
+    {
+        //Prefill the list with the className
+        $done_classes = $done_classes ?? [$className];
+
+        //Retrieve the metadata of the classname
+        $metadata = $this->getSettingsMetadata($className);
+
+        //Retrieve all embedded settings
+        $embeddedSettings = $metadata->getEmbeddedSettings();
+
+        //Iterate over all embedded settings and add them to our list
+        foreach ($embeddedSettings as $embeddedSetting) {
+            $targetClass = $embeddedSetting->getTargetClass();
+
+            //If the target class is already in the list, skip it
+            if (in_array($targetClass, $done_classes, true)) {
+                continue;
+            }
+
+            //Add the target class to the list
+            $done_classes[] = $targetClass;
+
+            //Resolve the embedded cascade of the target class
+            $done_classes = array_merge($done_classes, $this->resolveEmbeddedCascadeUncached($targetClass, $done_classes));
+        }
+
+        return array_unique($done_classes);
     }
 }

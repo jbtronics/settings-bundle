@@ -44,4 +44,14 @@ interface MetadataManagerInterface
      * @phpstan-return SettingsMetadata<T>
      */
     public function getSettingsMetadata(string|object $className): SettingsMetadata;
+
+    /**
+     * Returns a list of all settings classes embedded in the given settings class and their child embeds.
+     * This is used to retrieve all related settings classes, which are needed to save or load the settings class.
+     * The settings class for which the embedded settings are resolved is always included in the result, even if it has
+     * no embedded settings.
+     * @param  string $className The className of the settings class, to resolve the embedded settings for.
+     * @return string[] The class names of the embedded settings.
+     */
+    public function resolveEmbeddedCascade(string $className): array;
 }

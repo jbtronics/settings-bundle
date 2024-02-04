@@ -169,4 +169,19 @@ class MetadataManagerTest extends KernelTestCase
         $this->assertEquals(['default'], $embeddeds['simpleSettings']->getGroups());
         $this->assertEquals(['group1'], $embeddeds['circularSettings']->getGroups());
     }
+
+    public function testResolveEmbeddedCascade(): void
+    {
+        //For a settings class, without embedded settings, the result should be an empty array
+        $this->assertEquals([SimpleSettings::class], $this->metadataManager->resolveEmbeddedCascade(SimpleSettings::class));
+
+        //For a settings class, with embedded settings, the result should be an array with the embedded settings
+        $cascade = $this->metadataManager->resolveEmbeddedCascade(EmbedSettings::class);
+        $this->assertEqualsCanonicalizing([
+            EmbedSettings::class,
+            SimpleSettings::class,
+            CircularEmbedSettings::class,
+            GuessableSettings::class,
+        ], $cascade);
+    }
 }

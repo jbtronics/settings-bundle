@@ -14,6 +14,9 @@
 <div id="tree-details-container">
     {% for class, schema in collector.settingsMetadata %}
         {{ tree.settings_details(class, schema, collector) }}
+        {% for embeddedName, embeddedMetadata in schema.embeddedSettings %}
+            {{ tree.embedded_details(class, embeddedName, embeddedMetadata, collector) }}
+        {% endfor %}
         {% for parameterName, parameterSchema in schema.parameters %}
             {{ tree.parameter_details(class, parameterName, parameterSchema, collector) }}
         {% endfor %}

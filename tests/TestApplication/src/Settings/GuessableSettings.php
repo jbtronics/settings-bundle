@@ -40,16 +40,16 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 class GuessableSettings
 {
     #[SettingsParameter]
-    public bool $bool;
+    public bool $bool = true;
 
     #[SettingsParameter]
     public ?int $int;
 
     #[SettingsParameter]
-    public string $string;
+    public string $string = "";
 
     #[SettingsParameter]
-    public TestEnum $enum;
+    public TestEnum $enum = TestEnum::BAZ;
 
     public TestEnum|bool|int $complexType;
     public \stdClass $stdClass;

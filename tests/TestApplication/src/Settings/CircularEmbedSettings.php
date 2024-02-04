@@ -47,4 +47,7 @@ class CircularEmbedSettings
 
     #[EmbeddedSettings()]
     public EmbedSettings $embeddedSettings;
+
+    #[EmbeddedSettings()]
+    public GuessableSettings $guessableSettings;
 }

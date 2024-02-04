@@ -32,13 +32,13 @@ use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsResetter;
 use Jbtronics\SettingsBundle\Manager\SettingsResetterInterface;
+use Jbtronics\SettingsBundle\Metadata\MetadataManager;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Migrations\SettingsMigrationInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistry;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Profiler\SettingsCollector;
-use Jbtronics\SettingsBundle\Metadata\MetadataManager;
-use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistry;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
@@ -65,7 +65,6 @@ return static function (ContainerConfigurator $container) {
             '$cache' => service('cache.app'),
             '$debug_mode' => '%kernel.debug%',
         ])
-        ->tag('kernel.cache_warmer')
     ;
     $services->alias(SettingsRegistryInterface::class, 'jbtronics.settings.settings_registry');
 
@@ -78,6 +77,13 @@ return static function (ContainerConfigurator $container) {
         ])
     ;
     $services->alias(MetadataManagerInterface::class, 'jbtronics.settings.metadata_manager');
+
+    $services->set('jbtronics.settings.metadata_cache_warmer', \Jbtronics\SettingsBundle\CacheWarmer\MetadataCacheWarmer::class)
+        ->args([
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
+            '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
+        ])
+        ->tag('kernel.cache_warmer');
 
     $services->set('jbtronics.settings.settings_manager', SettingsManager::class)
         ->args([
@@ -162,7 +168,7 @@ return static function (ContainerConfigurator $container) {
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface::class, 'jbtronics.settings.proxy_factory');
 
-    $services->set('jbtronics.settings.proxy_cache_warmer', \Jbtronics\SettingsBundle\Proxy\ProxyCacheWarmer::class)
+    $services->set('jbtronics.settings.proxy_cache_warmer', \Jbtronics\SettingsBundle\CacheWarmer\ProxyCacheWarmer::class)
         ->args([
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$proxyFactory' => service('jbtronics.settings.proxy_factory'),

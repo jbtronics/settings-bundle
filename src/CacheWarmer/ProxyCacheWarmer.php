@@ -26,9 +26,10 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Proxy;
+namespace Jbtronics\SettingsBundle\CacheWarmer;
 
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
+use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 
 /**

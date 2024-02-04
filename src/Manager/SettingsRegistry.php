@@ -34,7 +34,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  * This class is responsible for getting all configuration classes, defined in the application.
  * It scans the files in the defined directories for classes with the #[ConfigClass] attribute.
  */
-final class SettingsRegistry implements SettingsRegistryInterface, CacheWarmerInterface
+final class SettingsRegistry implements SettingsRegistryInterface
 {
 
     private const CACHE_KEY = 'jbtronics.settings.settings_classes';
@@ -102,18 +102,6 @@ final class SettingsRegistry implements SettingsRegistryInterface, CacheWarmerIn
             ->withAttribute(Settings::class)
             ->get()
             ;
-    }
-
-    public function isOptional(): bool
-    {
-        return true;
-    }
-
-    public function warmUp(string $cacheDir, string $buildDir = null): array
-    {
-        //Call the getter function to warm up the cache
-        $this->getSettingsClasses();
-        return [];
     }
 
     /**

@@ -47,9 +47,11 @@ interface SettingsManagerInterface
      * Reloads the settings class from memory provider and overwrites the values in memory.
      * The new instance is returned.
      * @param  object|string  $settings  The settings class or the name of the settings class
+     * @phpstan-param class-string<T>|T $settings
      * @param  bool  $cascade  If true, all embedded settings (and their embeds) are also reloaded
      * @return object
      * @template T of object
+     * @phpstan-return T
      */
     public function reload(object|string $settings, bool $cascade = true): object;
 

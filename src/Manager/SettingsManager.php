@@ -103,7 +103,7 @@ final class SettingsManager implements SettingsManagerInterface
         return $settings;
     }
 
-    public function reload(string|object|array $settings, bool $cascade = true): object
+    public function reload(string|object $settings, bool $cascade = true): object
     {
         if (is_string($settings)) {
             $settings = $this->get($settings);
@@ -115,6 +115,23 @@ final class SettingsManager implements SettingsManagerInterface
         //Reload the settings class from the storage adapter
         $this->settingsHydrator->hydrate($settings, $this->metadataManager->getSettingsMetadata($settings));
 
+        //When cascade is enabled, then we also need to reload all embedded settings
+        if ($cascade) {
+            $settingsClass = ProxyClassNameHelper::resolveEffectiveClass($settings);
+            $classes_to_reload = $this->metadataManager->resolveEmbeddedCascade($settingsClass);
+
+            foreach ($classes_to_reload as $class) {
+                //Skip the class itself
+                if ($settingsClass == $class) {
+                    continue;
+                }
+
+                //Reload the embedded settings (cascade must be false, otherwise we end up in an endless loop)
+                $instance = $this->get($class);
+                $this->reload($instance, false);
+            }
+        }
+
         return $settings;
     }
 
@@ -123,6 +140,10 @@ final class SettingsManager implements SettingsManagerInterface
         //If no class were given, we save all classes
         if ($settings == null) {
             $settings = array_keys($this->settings_by_class);
+        }
+
+        if (!is_array($settings)) {
+            $settings = [$settings];
         }
 
         //Iterate over each given settings class to resolve which classes we really need to save

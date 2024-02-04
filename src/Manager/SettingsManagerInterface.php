@@ -46,12 +46,12 @@ interface SettingsManagerInterface
     /**
      * Reloads the settings class from memory provider and overwrites the values in memory.
      * The new instance is returned.
-     * @param  object|string|array  $settings  The settings class or the name of the settings class
+     * @param  object|string  $settings  The settings class or the name of the settings class
      * @param  bool  $cascade  If true, all embedded settings (and their embeds) are also reloaded
      * @return object
      * @template T of object
      */
-    public function reload(object|string|array $settings, bool $cascade = true): object;
+    public function reload(object|string $settings, bool $cascade = true): object;
 
     /**
      * Save the configuration class to the storage provider. If no configuration class is given, all configuration

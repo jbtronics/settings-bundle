@@ -40,7 +40,7 @@ use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 class CircularEmbedSettings
 {
     #[SettingsParameter]
-    public bool $bool;
+    public bool $bool = true;
 
     #[EmbeddedSettings()]
     public SimpleSettings $simpleSettings;

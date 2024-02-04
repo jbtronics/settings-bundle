@@ -181,13 +181,50 @@ class SettingsManagerTest extends KernelTestCase
         $this->assertEquals('default', $settings->circularSettings->embeddedSettings->simpleSettings->getValue1());
     }
 
-    public function testSaveCascade(): void
+    public function testSaveCascadeFalse(): void
     {
-        /** @var EmbedSettings */
+        /** @var EmbedSettings $settings */
         $settings = $this->service->get(EmbedSettings::class);
 
         $settings->simpleSettings->setValue1('changed');
+        $this->service->save($settings, false);
 
+        //If the cascade is false, the embedded settings should not be saved and the default values reloaded
+        $this->service->reload(SimpleSettings::class);
+        $this->assertEquals('default', $this->service->get(SimpleSettings::class)->getValue1());
+    }
+
+    public function testSaveCascadeTrue(): void
+    {
+        /** @var EmbedSettings $settings */
+        $settings = $this->service->get(EmbedSettings::class);
+
+        $settings->simpleSettings->setValue1('changed');
         $this->service->save($settings, true);
+
+        $this->service->reload(SimpleSettings::class);
+        $this->assertEquals('changed', $this->service->get(SimpleSettings::class)->getValue1());
+    }
+
+    public function testReloadCascadeFalse(): void
+    {
+        $settings = $this->service->get(EmbedSettings::class);
+        $settings->simpleSettings->setValue1('changed');
+
+        $this->service->reload($settings, false);
+
+        //If the cascade is false, the embedded settings should not be reloaded and the value should be the same as before
+        $this->assertEquals('changed', $settings->simpleSettings->getValue1());
+    }
+
+    public function testReloadCascadeTrue(): void
+    {
+        $settings = $this->service->get(EmbedSettings::class);
+        $settings->simpleSettings->setValue1('changed');
+
+        $this->service->reload($settings, true);
+
+        //If the cascade is true, the embedded settings should be reloaded and the value should be the default value
+        $this->assertEquals('default', $settings->simpleSettings->getValue1());
     }
 }

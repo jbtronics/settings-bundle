@@ -33,7 +33,7 @@ namespace Jbtronics\SettingsBundle\Settings;
  * This attribute is applied to the property into which the settings class should be embedded.
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class SettingsEmbedded
+class EmbeddedSettings
 {
     /**
      * @param  string|null  $target The class name of the settings class, which should be embedded into this property. If null, this is automatically discovered from the property type.

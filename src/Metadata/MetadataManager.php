@@ -31,6 +31,7 @@ use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
+use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
@@ -113,58 +114,15 @@ final class MetadataManager implements MetadataManagerInterface
         $classAttribute = $attributes[0]->newInstance();
         $parameters = [];
 
-        //Retrieve all ConfigEntry attributes on the properties of the given class
+        //Retrieve all parameter attributes on the properties of the given class
         $reflProperties = PropertyAccessHelper::getProperties($className);
         foreach ($reflProperties as $reflProperty) {
-            $attributes = $reflProperty->getAttributes(SettingsParameter::class);
-            //Skip properties without a ConfigEntry attribute
-            if (count($attributes) < 1) {
-                continue;
+
+            //Try to parse the parameter metadata from the property
+            $parameterMetadata = $this->parseParameterMetadata($className, $reflProperty, $classAttribute);
+            if ($parameterMetadata !== null) {
+                $parameters[] = $parameterMetadata;
             }
-            if (count($attributes) > 1) {
-                throw new \LogicException(sprintf('The property "%s" of the class "%s" has more than one ConfigEntry atrributes! Only one is allowed',
-                    $reflProperty->getName(), $className));
-            }
-
-            //Add it to our list
-            /** @var SettingsParameter $attribute */
-            $attribute = $attributes[0]->newInstance();
-
-            //Try to guess type
-            $type = $attribute->type ?? $this->parameterTypeGuesser->guessParameterType($reflProperty);
-            if ($type === null) {
-                throw new \LogicException(sprintf('The property "%s" of the class "%s" has no type set and the type could not be guessed. Please set the type explicitly!',
-                    $reflProperty->getName(), $className));
-            }
-
-            //Try to guess extra options
-            $options = array_merge($this->parameterTypeGuesser->guessOptions($reflProperty) ?? [], $attribute->options);
-
-            //Try to determine whether the property is nullable
-            $nullable = $attribute->nullable;
-            if ($nullable === null) {
-                //Check if the type is nullable
-                $nullable = $reflProperty->getType()?->allowsNull();
-                //If the type is not declared then nullable is still null. Throw an exception then
-                if ($nullable === null) {
-                    throw new \LogicException(sprintf('The property "%s" of the class "%s" has no type declaration and the nullable flag could not be guessed. Please set the nullable flag explicitly!',
-                        $reflProperty->getName(), $className));
-                }
-            }
-
-            $parameters[] = new ParameterMetadata(
-                className: $className,
-                propertyName: $reflProperty->getName(),
-                type: $attribute->type ?? $type,
-                nullable: $nullable,
-                name: $attribute->name,
-                label: $attribute->label,
-                description: $attribute->description,
-                options: $options,
-                formType: $attribute->formType,
-                formOptions: $attribute->formOptions,
-                groups: $attribute->groups ?? $classAttribute->groups ?? [],
-            );
         }
 
         //Ensure that the settings version is greather than 0
@@ -182,6 +140,65 @@ final class MetadataManager implements MetadataManagerInterface
             version: $classAttribute->version,
             migrationService: $classAttribute->migrationService,
             storageAdapterOptions: $classAttribute->storageAdapterOptions,
+        );
+    }
+
+    /**
+     * Tries to parse the parameter metadata from the given property. If the property is not a settings parameter, null is returned.
+     * @param  string  $className
+     * @param  \ReflectionProperty  $reflProperty
+     * @return ParameterMetadata|null
+     */
+    private function parseParameterMetadata(string $className, \ReflectionProperty $reflProperty, Settings $classAttribute): ?ParameterMetadata
+    {
+        $attributes = $reflProperty->getAttributes(SettingsParameter::class);
+        //Skip properties without a SettingsParameter attribute
+        if (count($attributes) < 1) {
+            return null;
+        }
+        if (count($attributes) > 1) {
+            throw new \LogicException(sprintf('The property "%s" of the class "%s" has more than one ConfigEntry atrributes! Only one is allowed',
+                $reflProperty->getName(), $className));
+        }
+
+        //Add it to our list
+        /** @var SettingsParameter $attribute */
+        $attribute = $attributes[0]->newInstance();
+
+        //Try to guess type
+        $type = $attribute->type ?? $this->parameterTypeGuesser->guessParameterType($reflProperty);
+        if ($type === null) {
+            throw new \LogicException(sprintf('The property "%s" of the class "%s" has no type set and the type could not be guessed. Please set the type explicitly!',
+                $reflProperty->getName(), $className));
+        }
+
+        //Try to guess extra options
+        $options = array_merge($this->parameterTypeGuesser->guessOptions($reflProperty) ?? [], $attribute->options);
+
+        //Try to determine whether the property is nullable
+        $nullable = $attribute->nullable;
+        if ($nullable === null) {
+            //Check if the type is nullable
+            $nullable = $reflProperty->getType()?->allowsNull();
+            //If the type is not declared then nullable is still null. Throw an exception then
+            if ($nullable === null) {
+                throw new \LogicException(sprintf('The property "%s" of the class "%s" has no type declaration and the nullable flag could not be guessed. Please set the nullable flag explicitly!',
+                    $reflProperty->getName(), $className));
+            }
+        }
+
+        return new ParameterMetadata(
+            className: $className,
+            propertyName: $reflProperty->getName(),
+            type: $attribute->type ?? $type,
+            nullable: $nullable,
+            name: $attribute->name,
+            label: $attribute->label,
+            description: $attribute->description,
+            options: $options,
+            formType: $attribute->formType,
+            formOptions: $attribute->formOptions,
+            groups: $attribute->groups ?? $classAttribute->groups ?? [],
         );
     }
 }

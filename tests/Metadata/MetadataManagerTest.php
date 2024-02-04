@@ -121,13 +121,13 @@ class MetadataManagerTest extends KernelTestCase
         $paramMetadata = $schema->getParameterByPropertyName('value1');
         $this->assertEquals(['default'], $paramMetadata->getGroups());
         //And it should show up in the default group
-        $this->assertSame($paramMetadata, $schema->getParametersByGroup('default')[0]);
+        $this->assertContains($paramMetadata, $schema->getParametersByGroup('default'));
 
         //value2 must have the defined groups
         $paramMetadata = $schema->getParameterByPropertyName('value2');
         $this->assertEquals(['group1', 'group2'], $paramMetadata->getGroups());
-        $this->assertSame($paramMetadata, $schema->getParametersByGroup('group1')[0]);
-        $this->assertSame($paramMetadata, $schema->getParametersByGroup('group2')[0]);
+        $this->assertContains($paramMetadata, $schema->getParametersByGroup('group1'));
+        $this->assertContains($paramMetadata, $schema->getParametersByGroup('group2'));
     }
 
     public function testVersioning(): void

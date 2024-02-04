@@ -57,6 +57,11 @@
             <tr>
                 <td>Storage Key</td>
                 <td>{{ schema.storageKey }}</td>
+            </tr>
+            <tr>
+                <td>Default groups</td>
+                <td>{{ dump(schema.DefaultGroups) }}</td>
+            </tr>
 
             <tr>
                 <td>Version</td>
@@ -137,6 +142,10 @@
             <tr>
                 <td>Form options</td>
                 <td>{{ dump(parameterSchema.formOptions) }}</td>
+            </tr>
+            <tr>
+                <td>Groups</td>
+                <td>{{ dump(parameterSchema.groups) }}</td>
             </tr>
             <tr>
                 <td>Value</td>

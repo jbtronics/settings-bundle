@@ -54,5 +54,8 @@ class SettingsExtension extends Extension
 
         $container->registerForAutoconfiguration(SettingsMigrationInterface::class)
             ->addTag(self::TAG_MIGRATION);
+
+        $container->setParameter('jbtronics.settings.proxyDir', $container->getParameter('kernel.cache_dir').'/jbtronics_settings/proxies');
+        $container->setParameter('jbtronics.settings.proxyNamespace', 'Jbtronics\SettingsBundle\Proxy');
     }
 }

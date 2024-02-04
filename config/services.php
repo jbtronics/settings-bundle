@@ -162,9 +162,10 @@ return static function (ContainerConfigurator $container) {
      ********************************************************************************/
 
     $services->set('jbtronics.settings.proxy_factory', \Jbtronics\SettingsBundle\Proxy\ProxyFactory::class)
+        ->public() //Must be public, as we use it from inside the SettingsBundle class
         ->args([
-            '$proxyDir' => '%kernel.cache_dir%/jbtronics_settings/proxies',
-            '$proxyNamespace' => 'Proxies\\',
+            '$proxyDir' => '%jbtronics.settings.proxyDir%',
+            '$proxyNamespace' => '%jbtronics.settings.proxyNamespace%',
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface::class, 'jbtronics.settings.proxy_factory');
 

@@ -33,6 +33,7 @@ use Jbtronics\SettingsBundle\Proxy\ProxyFactory;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
+use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * This service manages all available settings classes and keeps track of them
@@ -133,7 +134,7 @@ final class SettingsManager implements SettingsManagerInterface
 
         //Ensure that the classes are all valid
         foreach ($classesToSave as $class) {
-            $settings = $this->get($class);
+            $settings = $this->get($class, true);
 
             $errors_per_property = $this->settingsValidator->validate($settings);
             if (count($errors_per_property) > 0) {
@@ -148,7 +149,12 @@ final class SettingsManager implements SettingsManagerInterface
 
         //Otherwise persist the settings
         foreach ($classesToSave as $class) {
-            $settings = $this->get($class);
+            $settings = $this->get($class, true);
+
+            //If the settings class is a proxy and was not yet initialized, we do not need to save it as it was not changed
+            if ($settings instanceof SettingsProxyInterface && $settings instanceof LazyObjectInterface && !$settings->isLazyObjectInitialized()) {
+                continue;
+            }
 
             $this->settingsHydrator->persist($settings, $this->metadataManager->getSettingsMetadata($class));
         }

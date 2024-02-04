@@ -25,7 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Metadata;
 
-use Jbtronics\SettingsBundle\Metadata\EmbeddedMetadata;
+use Jbtronics\SettingsBundle\Metadata\EmbeddedSettingsMetadata;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
@@ -55,8 +55,8 @@ class SettingsMetadataTest extends TestCase
         ];
 
         $this->embeddedMetadata = [
-            new EmbeddedMetadata(self::class, 'embedded1', self::class, groups: ['group1']),
-            new EmbeddedMetadata(self::class, 'embedded2', self::class, groups: ['group2', 'group1']),
+            new EmbeddedSettingsMetadata(self::class, 'embedded1', self::class, groups: ['group1']),
+            new EmbeddedSettingsMetadata(self::class, 'embedded2', self::class, groups: ['group2', 'group1']),
         ];
 
         $this->configSchema = new SettingsMetadata(
@@ -280,20 +280,20 @@ class SettingsMetadataTest extends TestCase
                 'embedded1' => $this->embeddedMetadata[0],
                 'embedded2' => $this->embeddedMetadata[1],
             ],
-            $this->configSchema->getEmbeddeds()
+            $this->configSchema->getEmbeddedSettings()
         );
     }
 
     public function testGetEmbeddedByPropertyName(): void
     {
-        $this->assertEquals($this->embeddedMetadata[0], $this->configSchema->getEmbeddedByPropertyName('embedded1'));
-        $this->assertEquals($this->embeddedMetadata[1], $this->configSchema->getEmbeddedByPropertyName('embedded2'));
+        $this->assertEquals($this->embeddedMetadata[0], $this->configSchema->getEmbeddedSettingByPropertyName('embedded1'));
+        $this->assertEquals($this->embeddedMetadata[1], $this->configSchema->getEmbeddedSettingByPropertyName('embedded2'));
     }
 
     public function testGetEmbeddedByPropertyNameInvalid(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->configSchema->getEmbeddedByPropertyName('embedded3');
+        $this->configSchema->getEmbeddedSettingByPropertyName('embedded3');
     }
 
     public function testGetEmbeddedsByGroup(): void
@@ -303,20 +303,20 @@ class SettingsMetadataTest extends TestCase
                 'embedded1' => $this->embeddedMetadata[0],
                 'embedded2' => $this->embeddedMetadata[1],
             ],
-            $this->configSchema->getEmbeddedsByGroup('group1')
+            $this->configSchema->getEmbeddedSettingsByGroup('group1')
         );
 
         $this->assertEquals(
             [
                 'embedded2' => $this->embeddedMetadata[1],
             ],
-            $this->configSchema->getEmbeddedsByGroup('group2')
+            $this->configSchema->getEmbeddedSettingsByGroup('group2')
         );
 
         //When accessing a group that does not exist, an empty array should be returned
         $this->assertEquals(
             [],
-            $this->configSchema->getEmbeddedsByGroup('group3')
+            $this->configSchema->getEmbeddedSettingsByGroup('group3')
         );
     }
 
@@ -327,14 +327,14 @@ class SettingsMetadataTest extends TestCase
                 'embedded1' => $this->embeddedMetadata[0],
                 'embedded2' => $this->embeddedMetadata[1],
             ],
-            $this->configSchema->getEmbeddedsWithOneOfGroups(['group1'])
+            $this->configSchema->getEmbeddedSettingsWithOneOfGroups(['group1'])
         );
 
         $this->assertEquals(
             [
                 'embedded2' => $this->embeddedMetadata[1],
             ],
-            $this->configSchema->getEmbeddedsWithOneOfGroups(['group2'])
+            $this->configSchema->getEmbeddedSettingsWithOneOfGroups(['group2'])
         );
 
         $this->assertEquals(
@@ -342,12 +342,12 @@ class SettingsMetadataTest extends TestCase
                 'embedded1' => $this->embeddedMetadata[0],
                 'embedded2' => $this->embeddedMetadata[1],
             ],
-            $this->configSchema->getEmbeddedsWithOneOfGroups(['group1', 'group2'])
+            $this->configSchema->getEmbeddedSettingsWithOneOfGroups(['group1', 'group2'])
         );
 
         $this->assertEquals(
             [],
-            $this->configSchema->getEmbeddedsWithOneOfGroups(['group3'])
+            $this->configSchema->getEmbeddedSettingsWithOneOfGroups(['group3'])
         );
     }
 }

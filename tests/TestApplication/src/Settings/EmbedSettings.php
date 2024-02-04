@@ -46,5 +46,6 @@ class EmbedSettings
     public SimpleSettings $simpleSettings;
 
     #[EmbeddedSettings(CircularEmbedSettings::class, groups: ['group1'])]
+    /** @var CircularEmbedSettings */
     public object $circularSettings;
 }

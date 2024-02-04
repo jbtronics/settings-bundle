@@ -155,9 +155,9 @@ final class MetadataManager implements MetadataManagerInterface
      * @param  string  $className
      * @param  \ReflectionProperty  $reflProperty
      * @param  Settings  $classAttribute
-     * @return EmbeddedMetadata|null
+     * @return EmbeddedSettingsMetadata|null
      */
-    private function parseEmbeddedMetadata(string $className, \ReflectionProperty $reflProperty, Settings $classAttribute): ?EmbeddedMetadata
+    private function parseEmbeddedMetadata(string $className, \ReflectionProperty $reflProperty, Settings $classAttribute): ?EmbeddedSettingsMetadata
     {
         $attributes = $reflProperty->getAttributes(EmbeddedSettings::class);
         //Skip properties without a EmbeddedSettings attribute
@@ -187,7 +187,7 @@ final class MetadataManager implements MetadataManagerInterface
         }
 
         //Create the embedded metadata
-        return new EmbeddedMetadata(
+        return new EmbeddedSettingsMetadata(
             className: $className,
             propertyName: $reflProperty->getName(),
             targetClass: $targetClass,

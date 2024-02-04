@@ -26,6 +26,7 @@
 namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
+use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactory;
@@ -87,6 +88,16 @@ final class SettingsManager implements SettingsManagerInterface
     {
         $settings = $this->getNewInstance($settingsClass);
         $this->settingsHydrator->hydrate($settings, $this->metadataManager->getSettingsMetadata($settingsClass));
+
+        //Fill the embedded settings with a lazy loaded instance
+        foreach ($this->metadataManager->getSettingsMetadata($settingsClass)->getEmbeddedSettings() as $embeddedSettingsMetadata) {
+            $targetClass = $embeddedSettingsMetadata->getTargetClass();
+            //Retrieve the embedded settings instance
+            $embeddedSettings = $this->get($targetClass, true);
+
+            //Set the embedded settings instance
+            PropertyAccessHelper::setProperty($settings, $embeddedSettingsMetadata->getPropertyName(), $embeddedSettings);
+        }
 
         return $settings;
     }

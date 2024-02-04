@@ -152,11 +152,11 @@ class MetadataManagerTest extends KernelTestCase
     {
         //Test that embedded settings are correctly recognized
         $schema = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
-        $this->assertEmpty($schema->getEmbeddeds());
+        $this->assertEmpty($schema->getEmbeddedSettings());
 
         //Embedded settings should be recognized
         $schema = $this->metadataManager->getSettingsMetadata(EmbedSettings::class);
-        $embeddeds = $schema->getEmbeddeds();
+        $embeddeds = $schema->getEmbeddedSettings();
         $this->assertCount(2, $embeddeds);
         $this->assertEquals('simpleSettings', $embeddeds['simpleSettings']->getPropertyName());
         $this->assertEquals('circularSettings', $embeddeds['circularSettings']->getPropertyName());

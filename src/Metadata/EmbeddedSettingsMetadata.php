@@ -28,7 +28,7 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Metadata;
 
-class EmbeddedMetadata
+class EmbeddedSettingsMetadata
 {
     public function __construct(
         private readonly string $className,

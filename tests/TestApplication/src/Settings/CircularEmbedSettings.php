@@ -46,5 +46,5 @@ class CircularEmbedSettings
     public SimpleSettings $simpleSettings;
 
     #[EmbeddedSettings()]
-    public EmbeddedSettings $embeddedSettings;
+    public EmbedSettings $embeddedSettings;
 }

@@ -54,6 +54,18 @@ class SettingsMetadata
     private readonly array $parametersByGroups;
 
     /**
+     * @var EmbeddedMetadata[]
+     * @phpstan-var array<string, EmbeddedMetadata>
+     */
+    private readonly array $embeddedsByPropertyNames;
+
+    /**
+     * @var EmbeddedMetadata[]
+     * @phpstan-var array<string, EmbeddedMetadata>
+     */
+    private readonly array $embeddedsByGroups;
+
+    /**
      * Create a new settings metadata instance
      * @param  string  $className The class name of the settings class.
      * @phpstan-param  class-string<T>  $className
@@ -75,6 +87,7 @@ class SettingsMetadata
         private readonly ?int $version = null,
         private readonly ?string $migrationService = null,
         private readonly array $storageAdapterOptions = [],
+        array $embeddedMetadata = []
     )
     {
         //Ensure that the migrator service is set, if the version is set
@@ -100,6 +113,21 @@ class SettingsMetadata
         $this->parametersByName = $byName;
         $this->parametersByPropertyNames = $byPropertyName;
         $this->parametersByGroups = $byGroups;
+
+        //Sort the embeds by their property names and groups
+        $embedsByPropertyName = [];
+        $embedsByGroups = [];
+
+        foreach ($embeddedMetadata as $embedMetadatum) {
+            $embedsByPropertyName[$embedMetadatum->getPropertyName()] = $embedMetadatum;
+
+            foreach ($embedMetadatum->getGroups() as $group) {
+                $embedsByGroups[$group][$embedMetadatum->getPropertyName()] = $embedMetadatum;
+            }
+        }
+
+        $this->embeddedsByPropertyNames = $embedsByPropertyName;
+        $this->embeddedsByGroups = $embedsByGroups;
     }
 
     /**
@@ -190,7 +218,7 @@ class SettingsMetadata
      * Returns a list of all property names of the parameters in this settings class
      * @return string[]
      */
-    public function getPropertyNames(): array
+    public function getParameterPropertyNames(): array
     {
         return array_keys($this->parametersByPropertyNames);
     }
@@ -208,7 +236,7 @@ class SettingsMetadata
      * Returns a list of all groups, which are defined on parameters in this settings class
      * @return string[]
      */
-    public function getDefinedGroups(): array
+    public function getDefinedParameterGroups(): array
     {
         return array_keys($this->parametersByGroups);
     }
@@ -280,5 +308,54 @@ class SettingsMetadata
     public function getStorageAdapterOptions(): array
     {
         return $this->storageAdapterOptions;
+    }
+
+    /**
+     * Returns the embedded metadata of all embeddeds in this settings class in the form of an associative array,
+     * where the key is the property name and the value is the embed metadata.
+     * @return EmbeddedMetadata[]
+     * @phpstan-return array<string, EmbeddedMetadata>
+     */
+    public function getEmbeddeds(): array
+    {
+        return $this->embeddedsByPropertyNames;
+    }
+
+    /**
+     * Retrieve the embed metadata of the embed with the given property name.
+     * @param  string  $name
+     * @return EmbeddedMetadata
+     */
+    public function getEmbeddedByPropertyName(string $name): EmbeddedMetadata
+    {
+        return $this->embeddedsByPropertyNames[$name] ?? throw new \InvalidArgumentException(sprintf('The embed with the property name "%s" does not exist in the settings class "%s"', $name, $this->className));
+    }
+
+    /**
+     * Returns a list of all embed with the given group.
+     * @param  string  $group
+     * @return array
+     */
+    public function getEmbeddedsByGroup(string $group): array
+    {
+        return $this->embeddedsByGroups[$group] ?? [];
+    }
+
+    /**
+     * Returns a list of all embeds, which belong to one of the given groups.
+     * @param  string[]  $group
+     * @return array
+     */
+    public function getEmbeddedsWithOneOfGroups(array $group): array
+    {
+        $tmp = [];
+        foreach ($group as $g) {
+            $embeds = $this->getEmbeddedsByGroup($g);
+            foreach ($embeds as $embed) {
+                $tmp[$embed->getPropertyName()] = $embed;
+            }
+        }
+
+        return $tmp;
     }
 }

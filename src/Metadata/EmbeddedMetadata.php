@@ -54,6 +54,9 @@ class EmbeddedMetadata
         return $this->targetClass;
     }
 
+    /**
+     * @return string[]
+     */
     public function getGroups(): array
     {
         return $this->groups;

@@ -49,7 +49,7 @@ class SettingsMetadata
 
     /**
      * @var ParameterMetadata[][]
-     * @phpstan-var array<string, ParameterMetadata[]>
+     * @phpstan-var array<string, array<string, ParameterMetadata>>
      */
     private readonly array $parametersByGroups;
 
@@ -60,8 +60,8 @@ class SettingsMetadata
     private readonly array $embeddedsByPropertyNames;
 
     /**
-     * @var EmbeddedMetadata[]
-     * @phpstan-var array<string, EmbeddedMetadata>
+     * @var EmbeddedMetadata[][]
+     * @phpstan-var array<string, array<EmbeddedMetadata>>
      */
     private readonly array $embeddedsByGroups;
 
@@ -77,6 +77,7 @@ class SettingsMetadata
      * @param  int|null  $version The current version of the settings class. Null, if the settings should not be versioned. If set, you have to set a migrator service too.
      * @param  string|null $migrationService The service id of the migration service, which should be used to migrate the settings from one version to another.
      * @param  array  $storageAdapterOptions An array of options, which should be passed to the storage adapter.
+     * @param  EmbeddedMetadata[]  $embeddedMetadata The embedded metadata of the settings class.
      */
     public function __construct(
         private readonly string $className,

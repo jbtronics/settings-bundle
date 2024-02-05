@@ -30,6 +30,7 @@ namespace Jbtronics\SettingsBundle\Form;
 
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -53,6 +54,15 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
     public function createSettingsFormBuilder(string $settingsName, ?array $groups = null, array $formOptions = []): FormBuilderInterface
     {
         $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
+
+        //Ensure that the embedded settings do not cause a infinite loop
+        if ($this->checkForCircularEmbedded($settingsMetadata, $groups)) {
+            throw new \LogicException(
+                sprintf('The settings class "%s" have a circular embedded settings structure, which would cause an infinite loop while form building. Use the groups option to only render a subset of the embedded settings to prevent circular loops.',
+                    $settingsMetadata->getClassName(),
+                ));
+        }
+
         $formBuilder = $this->formFactory->createBuilder(data: $this->settingsManager->get($settingsName), options: $formOptions);
         $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsMetadata, [], groups: $groups);
 
@@ -68,7 +78,8 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
             $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
 
             //Create sub form builder for the settings with the name of the settings class
-            $subBuilder = $this->formFactory->createNamedBuilder($settingsMetadata->getName(), data: $this->settingsManager->get($settingsName), options: $formOptions);
+            $subBuilder = $this->formFactory->createNamedBuilder($settingsMetadata->getName(),
+                data: $this->settingsManager->get($settingsName), options: $formOptions);
 
             //Configure the sub form builder
             $this->settingsFormBuilder->buildSettingsForm($subBuilder, $settingsMetadata, [], groups: $groups);
@@ -78,5 +89,33 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
         }
 
         return $formBuilder;
+    }
+
+    /**
+     * Checks if the given settings have a circular embedded settings structure, which would cause an infinite loop.
+     * It is checked for the given groups, if null all embedded settings are checked.
+     * @param  SettingsMetadata  $metadata
+     * @param  array|null  $groups
+     * @param  array  $already_checked
+     * @return bool
+     */
+    public function checkForCircularEmbedded(SettingsMetadata $metadata, ?array $groups = null, array $already_checked = []): bool
+    {
+        $already_checked[] = $metadata->getClassName();
+
+        $embeddedToRender = $groups === null ? $metadata->getEmbeddedSettings() : $metadata->getEmbeddedSettingsWithOneOfGroups($groups);
+
+        foreach ($embeddedToRender as $embeddedMetadata) {
+            if (in_array($embeddedMetadata->getTargetClass(), $already_checked, true)) {
+                return true;
+            }
+            $already_checked[] = $embeddedMetadata->getTargetClass();
+            $embeddedMeta = $this->metadataManager->getSettingsMetadata($embeddedMetadata->getTargetClass());
+            if ($this->checkForCircularEmbedded($embeddedMeta, $groups, $already_checked)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

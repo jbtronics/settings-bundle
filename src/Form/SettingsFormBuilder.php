@@ -62,7 +62,7 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
         $embeddedToRender = $groups === null ? $metadata->getEmbeddedSettings() : $metadata->getEmbeddedSettingsWithOneOfGroups($groups);
 
         foreach ($embeddedToRender as $embeddedMetadata) {
-            $this->addEmbeddedSettingsSubForm($builder, $embeddedMetadata, $options);
+            $this->addEmbeddedSettingsSubForm($builder, $embeddedMetadata, $options, groups: $groups);
         }
 
         foreach ($parametersToRender as $parameterMetadata) {

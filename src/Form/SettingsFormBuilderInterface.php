@@ -64,6 +64,8 @@ interface SettingsFormBuilderInterface
      * Add the given embedded settings as a sub form to the given form builder.
      * The embedded settings are described by their metadata. In the process a new form builder for the sub form is created
      * and returned.
+     * This function does not check if a given function would end up in an infinite loop. Be sure that only non circular
+     * embedded settings are passed to here.
      * @param  FormBuilderInterface  $builder
      * @param  EmbeddedSettingsMetadata  $embedded
      * @param  array  $options The options to pass to the newly created sub form builder

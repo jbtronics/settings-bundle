@@ -1,5 +1,7 @@
 **[Documentation](https://jbtronics.github.io/settings-bundle/)**
 
+[![codecov](https://codecov.io/github/jbtronics/settings-bundle/graph/badge.svg?token=2IGGK9MGOW)](https://codecov.io/github/jbtronics/settings-bundle)
+
 # Settings bundle
 
 Settings-bundle is a symfony bundle that let you manage your application settings on the frontend side.

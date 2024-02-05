@@ -26,47 +26,28 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Proxy;
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 
-use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
-use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
+use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
+use Jbtronics\SettingsBundle\Settings\Settings;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 
 /**
- * This class creates the proxy classes for the settings classes at cache warmup.
+ * This class is used to test embedded settings with circular references.
  */
-class ProxyCacheWarmer implements CacheWarmerInterface
+#[Settings(storageAdapter: InMemoryStorageAdapter::class, groups: ['default'])]
+class CircularEmbedSettings
 {
+    #[SettingsParameter]
+    public bool $bool = true;
 
-    public function __construct(
-        private readonly SettingsRegistryInterface $settingsRegistry,
-        private readonly ProxyFactoryInterface $proxyFactory,
-    ) {
+    #[EmbeddedSettings()]
+    public SimpleSettings $simpleSettings;
 
-    }
+    #[EmbeddedSettings(groups: [])]
+    public EmbedSettings $embeddedSettings;
 
-    public function isOptional(): bool
-    {
-        return false;
-    }
-
-    public function warmUp(string $cacheDir, ?string $buildDir = null): array
-    {
-        $proxyDir = $this->proxyFactory->getProxyCacheDir();
-        $files = [];
-
-        //Retrieve all defined settings classes
-        $classes = $this->settingsRegistry->getSettingsClasses();
-
-        //And generate the proxy classes for them
-        $this->proxyFactory->generateProxyClassFiles($classes);
-
-        //And return all generated proxy files for preloading
-        foreach (scandir($proxyDir) as $file) {
-            if (!is_dir($file = $proxyDir.'/'.$file)) {
-                $files[] = $file;
-            }
-        }
-
-        return $files;
-    }
+    #[EmbeddedSettings()]
+    public GuessableSettings $guessableSettings;
 }

@@ -27,6 +27,7 @@ namespace Jbtronics\SettingsBundle\Tests\Form;
 
 use Jbtronics\SettingsBundle\Form\SettingsFormBuilder;
 use Jbtronics\SettingsBundle\Form\SettingsFormBuilderInterface;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
@@ -34,6 +35,7 @@ use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use PHPStan\Type\IntegerType;
 use PHPUnit\Framework\TestCase;
@@ -43,6 +45,7 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Validator\Constraints\Valid;
 
 class SettingsFormBuilderTest extends KernelTestCase
 {
@@ -124,6 +127,50 @@ class SettingsFormBuilderTest extends KernelTestCase
         $this->assertTrue($builder->has('property3'));
     }
 
+    public function testAddEmbeddedSettingsSubForm(): void
+    {
+        $builder = $this->formFactory->createBuilder();
+        /** @var MetadataManagerInterface $metadataManager */
+        $metadataManager = self::getContainer()->get(MetadataManagerInterface::class);
+        $metadata = $metadataManager->getSettingsMetadata(EmbedSettings::class);
+        $embedded = $metadata->getEmbeddedSettings()['simpleSettings'];
+
+        $subBuilder = $this->service->addEmbeddedSettingsSubForm($builder, $embedded);
+        //Afterwards the builder should have a sub form with the name of the embedded settings
+        $this->assertTrue($builder->has('simpleSettings'));
+        //And this form contains the fields of the embedded settings
+        $this->assertTrue($builder->get('simpleSettings')->has('value1'));
+        $this->assertTrue($builder->get('simpleSettings')->has('value2'));
+        $this->assertTrue($builder->get('simpleSettings')->has('value3'));
+
+        //The returned value must be the sub form builder
+        $this->assertSame($builder->get('simpleSettings'), $subBuilder);
+
+        //The sun form must have a valid constraint
+        $constraints = $builder->get('simpleSettings')->getOption('constraints');
+        $this->assertInstanceOf(Valid::class, $constraints[0]);
+    }
+
+    public function testAddEmbeddedSettingsSubFormWithGroups(): void
+    {
+        $builder = $this->formFactory->createBuilder();
+        /** @var MetadataManagerInterface $metadataManager */
+        $metadataManager = self::getContainer()->get(MetadataManagerInterface::class);
+        $metadata = $metadataManager->getSettingsMetadata(EmbedSettings::class);
+
+        $embedded = $metadata->getEmbeddedSettings()['circularSettings'];
+        //This runs only when the group restriction is considered, otherwise an infinite loop is created
+        $this->service->addEmbeddedSettingsSubForm($builder, $embedded, groups: ['default']);
+
+        //Afterwards the builder should have a sub form with the name of the embedded settings
+        $this->assertTrue($builder->has('circularSettings'));
+
+        //And this form contains the fields of the embedded settings
+        $this->assertTrue($builder->get('circularSettings')->has('bool'));
+        //And also embedded settings
+        $this->assertTrue($builder->get('circularSettings')->has('simpleSettings'));
+    }
+
     public function testGetFormTypeForParameter(): void
     {
         //Check for explicitly given form type
@@ -166,6 +213,5 @@ class SettingsFormBuilderTest extends KernelTestCase
 
         //The text field should not be required
         $this->assertEquals(['label' => 'Name', 'help' => 'Description', 'required' => true, 'test' => 'other'], $this->service->getFormOptions($parameter, ['required' => true, 'test' => 'other']));
-
     }
 }

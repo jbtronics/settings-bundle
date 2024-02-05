@@ -4,7 +4,7 @@
     {# @var schema \Jbtronics\SettingsBundle\Metadata\SettingsMetadata #}
     <li>
         <div class="tree-inner" data-tab-target-id="{{ _self.class_key(class) }}-details" title="{{ class }}">
-            {% if schema.parameters is not empty %} {# Determine if there should be a children #}
+            {% if schema.parameters is not empty or schema.embeddedSettings is not empty %} {# Determine if there should be a children #}
                 <button class="toggle-button" data-toggle-target-id="{{ _self.class_key(class) }}-children">
                     {{ source('@WebProfiler/Icon/chevron-down.svg') }}
                 </button>
@@ -17,8 +17,14 @@
             </span>
         </div>
 
-        {% if schema.parameters is not empty %}
+        {% if schema.parameters is not empty or schema.embeddedSettings is not empty %}
             <ul id="{{ _self.class_key(class) }}-children">
+                {% for embeddedName, embeddedSchema in schema.embeddedSettings %}
+                    {{ _self.embedded_entry(class, embeddedName) }}
+                {% endfor %}
+
+
+
                 {% for parameterName, parameterSchema in schema.parameters %}
                     {{ _self.parameter_entry(class, parameterName) }}
                 {% endfor %}
@@ -57,6 +63,11 @@
             <tr>
                 <td>Storage Key</td>
                 <td>{{ schema.storageKey }}</td>
+            </tr>
+            <tr>
+                <td>Default groups</td>
+                <td>{{ dump(schema.DefaultGroups) }}</td>
+            </tr>
 
             <tr>
                 <td>Version</td>
@@ -139,10 +150,59 @@
                 <td>{{ dump(parameterSchema.formOptions) }}</td>
             </tr>
             <tr>
+                <td>Groups</td>
+                <td>{{ dump(parameterSchema.groups) }}</td>
+            </tr>
+            <tr>
                 <td>Value</td>
                 <td>{{ dump(collector.settingsParameterValue(class, parameterSchema.propertyName)) }}</td>
             </tr>
             </tbody>
+        </table>
+    </div>
+{% endmacro %}
+
+{% macro embedded_entry(class, embeddedName) %}
+    <li>
+        <div class="tree-inner" data-tab-target-id="{{ _self.class_key(class) }}-embedded-{{ embeddedName }}-details" title="{{ embeddedName }}">
+            <div class="toggle-icon empty"></div>
+            <span>
+                <b title="Embedded Settings">[E]</b>
+                {{ embeddedName }}
+            </span>
+        </div>
+    </li>
+{% endmacro %}
+
+{% macro embedded_details(class, embeddedName, embeddedSchema, collector) %}
+    {# @var embeddedSchema \Jbtronics\SettingsBundle\Metadata\EmbeddedSettingsMetadata #}
+    {# @var collector \Jbtronics\SettingsBundle\Profiler\SettingsCollector #}
+    <div class="tree-details hidden" id="{{ _self.class_key(class) }}-embedded-{{ embeddedName }}-details">
+        <h2>[Embedded Settings] {{ embeddedName }}</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>Target</td>
+                    <td>{{ dump(embeddedSchema.targetClass) }}</td>
+                </tr>
+                <tr>
+                    <td>Groups</td>
+                    <td>{{ dump(embeddedSchema.groups) }}</td>
+                </tr>
+                <tr>
+                    <td>Value</td>
+                    <td>{{ dump(collector.settingsParameterValue(class, embeddedSchema.propertyName)) }}</td>
+                </tr>
+            </tbody>
+
         </table>
     </div>
 {% endmacro %}

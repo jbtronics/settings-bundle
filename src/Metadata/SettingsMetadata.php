@@ -49,9 +49,21 @@ class SettingsMetadata
 
     /**
      * @var ParameterMetadata[][]
-     * @phpstan-var array<string, ParameterMetadata[]>
+     * @phpstan-var array<string, array<string, ParameterMetadata>>
      */
     private readonly array $parametersByGroups;
+
+    /**
+     * @var EmbeddedSettingsMetadata[]
+     * @phpstan-var array<string, EmbeddedSettingsMetadata>
+     */
+    private readonly array $embeddedsByPropertyNames;
+
+    /**
+     * @var EmbeddedSettingsMetadata[][]
+     * @phpstan-var array<string, array<EmbeddedSettingsMetadata>>
+     */
+    private readonly array $embeddedsByGroups;
 
     /**
      * Create a new settings metadata instance
@@ -65,6 +77,7 @@ class SettingsMetadata
      * @param  int|null  $version The current version of the settings class. Null, if the settings should not be versioned. If set, you have to set a migrator service too.
      * @param  string|null $migrationService The service id of the migration service, which should be used to migrate the settings from one version to another.
      * @param  array  $storageAdapterOptions An array of options, which should be passed to the storage adapter.
+     * @param  EmbeddedSettingsMetadata[]  $embeddedMetadata The embedded metadata of the settings class.
      */
     public function __construct(
         private readonly string $className,
@@ -75,6 +88,7 @@ class SettingsMetadata
         private readonly ?int $version = null,
         private readonly ?string $migrationService = null,
         private readonly array $storageAdapterOptions = [],
+        array $embeddedMetadata = []
     )
     {
         //Ensure that the migrator service is set, if the version is set
@@ -93,13 +107,28 @@ class SettingsMetadata
 
             //Add the parameter to the groups it belongs to
             foreach ($parameterMetadatum->getGroups() as $group) {
-                $byGroups[$group][] = $parameterMetadatum;
+                $byGroups[$group][$parameterMetadatum->getName()] = $parameterMetadatum;
             }
         }
 
         $this->parametersByName = $byName;
         $this->parametersByPropertyNames = $byPropertyName;
         $this->parametersByGroups = $byGroups;
+
+        //Sort the embeds by their property names and groups
+        $embedsByPropertyName = [];
+        $embedsByGroups = [];
+
+        foreach ($embeddedMetadata as $embedMetadatum) {
+            $embedsByPropertyName[$embedMetadatum->getPropertyName()] = $embedMetadatum;
+
+            foreach ($embedMetadatum->getGroups() as $group) {
+                $embedsByGroups[$group][$embedMetadatum->getPropertyName()] = $embedMetadatum;
+            }
+        }
+
+        $this->embeddedsByPropertyNames = $embedsByPropertyName;
+        $this->embeddedsByGroups = $embedsByGroups;
     }
 
     /**
@@ -190,7 +219,7 @@ class SettingsMetadata
      * Returns a list of all property names of the parameters in this settings class
      * @return string[]
      */
-    public function getPropertyNames(): array
+    public function getParameterPropertyNames(): array
     {
         return array_keys($this->parametersByPropertyNames);
     }
@@ -208,7 +237,7 @@ class SettingsMetadata
      * Returns a list of all groups, which are defined on parameters in this settings class
      * @return string[]
      */
-    public function getDefinedGroups(): array
+    public function getDefinedParameterGroups(): array
     {
         return array_keys($this->parametersByGroups);
     }
@@ -280,5 +309,54 @@ class SettingsMetadata
     public function getStorageAdapterOptions(): array
     {
         return $this->storageAdapterOptions;
+    }
+
+    /**
+     * Returns the embedded metadata of all embeddeds in this settings class in the form of an associative array,
+     * where the key is the property name and the value is the embed metadata.
+     * @return EmbeddedSettingsMetadata[]
+     * @phpstan-return array<string, EmbeddedSettingsMetadata>
+     */
+    public function getEmbeddedSettings(): array
+    {
+        return $this->embeddedsByPropertyNames;
+    }
+
+    /**
+     * Retrieve the embed metadata of the embed with the given property name.
+     * @param  string  $name
+     * @return EmbeddedSettingsMetadata
+     */
+    public function getEmbeddedSettingByPropertyName(string $name): EmbeddedSettingsMetadata
+    {
+        return $this->embeddedsByPropertyNames[$name] ?? throw new \InvalidArgumentException(sprintf('The embed with the property name "%s" does not exist in the settings class "%s"', $name, $this->className));
+    }
+
+    /**
+     * Returns a list of all embed with the given group.
+     * @param  string  $group
+     * @return array
+     */
+    public function getEmbeddedSettingsByGroup(string $group): array
+    {
+        return $this->embeddedsByGroups[$group] ?? [];
+    }
+
+    /**
+     * Returns a list of all embeds, which belong to one of the given groups.
+     * @param  string[]  $group
+     * @return array
+     */
+    public function getEmbeddedSettingsWithOneOfGroups(array $group): array
+    {
+        $tmp = [];
+        foreach ($group as $g) {
+            $embeds = $this->getEmbeddedSettingsByGroup($g);
+            foreach ($embeds as $embed) {
+                $tmp[$embed->getPropertyName()] = $embed;
+            }
+        }
+
+        return $tmp;
     }
 }

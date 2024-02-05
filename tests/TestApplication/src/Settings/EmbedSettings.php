@@ -28,29 +28,24 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 
+use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
-use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 
 /**
- * This settings are used to test the ParameterTypeGuesser.
+ * This class is used to test embedded settings.
  */
-#[Settings(storageAdapter: InMemoryStorageAdapter::class)]
-class GuessableSettings
+#[Settings(storageAdapter: InMemoryStorageAdapter::class, groups: ['default'])]
+class EmbedSettings
 {
     #[SettingsParameter]
     public bool $bool = true;
 
-    #[SettingsParameter]
-    public ?int $int;
+    #[EmbeddedSettings()]
+    public SimpleSettings $simpleSettings;
 
-    #[SettingsParameter]
-    public string $string = "";
-
-    #[SettingsParameter]
-    public TestEnum $enum = TestEnum::BAZ;
-
-    public TestEnum|bool|int $complexType;
-    public \stdClass $stdClass;
+    #[EmbeddedSettings(CircularEmbedSettings::class, groups: ['group1'])]
+    /** @var CircularEmbedSettings */
+    public object $circularSettings;
 }

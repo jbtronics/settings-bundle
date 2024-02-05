@@ -46,20 +46,23 @@ interface SettingsManagerInterface
     /**
      * Reloads the settings class from memory provider and overwrites the values in memory.
      * The new instance is returned.
-     * @param  string|object $settings The settings class or the name of the settings class
+     * @param  object|string  $settings  The settings class or the name of the settings class
+     * @phpstan-param class-string<T>|T $settings
+     * @param  bool  $cascade  If true, all embedded settings (and their embeds) are also reloaded
+     * @return object
      * @template T of object
-     * @phpstan-param class-string<T>|object $settings
      * @phpstan-return T
      */
-    public function reload(object|string $settings): object;
+    public function reload(object|string $settings, bool $cascade = true): object;
 
     /**
      * Save the configuration class to the storage provider. If no configuration class is given, all configuration
      * classes are saved.
-     * @param  string|object|null $settings The settings class or the name of the settings class
+     * @param  object|string|array|null  $settings  The settings class or the name of the settings class
+     * @param  bool  $cascade  If true, all embedded settings (and their embeds) of the given settings class are also saved
      * @return void
      */
-    public function save(object|string|null $settings = null): void;
+    public function save(object|string|null|array $settings = null, bool $cascade = true): void;
 
     /**
      * Resets the given settings class to their default values.

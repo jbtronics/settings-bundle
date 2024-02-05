@@ -26,31 +26,41 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
+namespace Jbtronics\SettingsBundle\CacheWarmer;
 
-use Jbtronics\SettingsBundle\Settings\Settings;
-use Jbtronics\SettingsBundle\Settings\SettingsParameter;
-use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
-use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
+use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
+use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 
 /**
- * This settings are used to test the ParameterTypeGuesser.
+ * This cache warmer, initializes the settings registry, the metadata cache and the embedded cascade cache.
  */
-#[Settings(storageAdapter: InMemoryStorageAdapter::class)]
-class GuessableSettings
+class MetadataCacheWarmer implements CacheWarmerInterface
 {
-    #[SettingsParameter]
-    public bool $bool = true;
 
-    #[SettingsParameter]
-    public ?int $int;
+    public function __construct(
+        private readonly MetadataManagerInterface $metadataManager,
+        private readonly SettingsRegistry $settingsRegistry,
+    )
+    {
+    }
 
-    #[SettingsParameter]
-    public string $string = "";
+    public function isOptional(): bool
+    {
+        return true;
+    }
 
-    #[SettingsParameter]
-    public TestEnum $enum = TestEnum::BAZ;
+    public function warmUp(string $cacheDir, ?string $buildDir = null): array
+    {
+        //Iterate over all settings classes and retrieve the metadata (this also initializes the settings registry)
+        foreach ($this->settingsRegistry->getSettingsClasses() as $class) {
+            //Initialize the metadata for the class
+            $this->metadataManager->getSettingsMetadata($class);
 
-    public TestEnum|bool|int $complexType;
-    public \stdClass $stdClass;
+            //Initialize the resolve the embedded cascade for the class
+            $this->metadataManager->resolveEmbeddedCascade($class);
+        }
+
+        return [];
+    }
 }

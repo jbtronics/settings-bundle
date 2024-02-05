@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Form;
 
+use Jbtronics\SettingsBundle\Metadata\EmbeddedSettingsMetadata;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeWithFormDefaultsInterface;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
@@ -35,10 +37,14 @@ use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Valid;
 
 class SettingsFormBuilder implements SettingsFormBuilderInterface
 {
-    public function __construct(private readonly ParameterTypeRegistryInterface $parameterTypeRegistry)
+    public function __construct(
+        private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
+        private readonly MetadataManagerInterface $metadataManager,
+    )
     {
     }
 
@@ -52,6 +58,13 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
         //Either use all parameters or only the ones in the given groups
         $parametersToRender = $groups === null ? $metadata->getParameters() : $metadata->getParametersWithOneOfGroups($groups);
 
+        //Add the parameters to the form
+        $embeddedToRender = $groups === null ? $metadata->getEmbeddedSettings() : $metadata->getEmbeddedSettingsWithOneOfGroups($groups);
+
+        foreach ($embeddedToRender as $embeddedMetadata) {
+            $this->addEmbeddedSettingsSubForm($builder, $embeddedMetadata, $options, groups: $groups);
+        }
+
         foreach ($parametersToRender as $parameterMetadata) {
             $this->addSettingsParameter($builder, $parameterMetadata, $options);
         }
@@ -60,6 +73,26 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
     public function addSettingsParameter(FormBuilderInterface $builder, ParameterMetadata $parameter, array $options = []): void
     {
         $builder->add($parameter->getPropertyName(), $this->getFormTypeForParameter($parameter), $this->getFormOptions($parameter, $options));
+    }
+
+    public function addEmbeddedSettingsSubForm(FormBuilderInterface $builder, EmbeddedSettingsMetadata $embedded, array $options = [], ?array $groups = null): FormBuilderInterface
+    {
+        //Set the right data class, so that the access methods of the settings can be properly detecty by symfony/forms
+        $options['data_class'] = $embedded->getTargetClass();
+        //Set constraints to validate all sub settings
+        $options['constraints'] = [
+            new Valid()
+        ];
+
+
+        $subBuilder = $builder->getFormFactory()->createNamedBuilder($embedded->getPropertyName(), options: $options);
+
+        $embeddedMeta = $this->metadataManager->getSettingsMetadata($embedded->getTargetClass());
+        $this->buildSettingsForm($subBuilder, $embeddedMeta, groups: $groups);
+
+        $builder->add($subBuilder);
+
+        return $subBuilder;
     }
 
     /**

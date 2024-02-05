@@ -26,31 +26,39 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
+namespace Jbtronics\SettingsBundle\Metadata;
 
-use Jbtronics\SettingsBundle\Settings\Settings;
-use Jbtronics\SettingsBundle\Settings\SettingsParameter;
-use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
-use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
-
-/**
- * This settings are used to test the ParameterTypeGuesser.
- */
-#[Settings(storageAdapter: InMemoryStorageAdapter::class)]
-class GuessableSettings
+class EmbeddedSettingsMetadata
 {
-    #[SettingsParameter]
-    public bool $bool = true;
+    public function __construct(
+        private readonly string $className,
+        private readonly string $propertyName,
+        private readonly string $targetClass,
+        private readonly array $groups = [],
+    ) {
 
-    #[SettingsParameter]
-    public ?int $int;
+    }
 
-    #[SettingsParameter]
-    public string $string = "";
+    public function getClassName(): string
+    {
+        return $this->className;
+    }
 
-    #[SettingsParameter]
-    public TestEnum $enum = TestEnum::BAZ;
+    public function getPropertyName(): string
+    {
+        return $this->propertyName;
+    }
 
-    public TestEnum|bool|int $complexType;
-    public \stdClass $stdClass;
+    public function getTargetClass(): string
+    {
+        return $this->targetClass;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getGroups(): array
+    {
+        return $this->groups;
+    }
 }

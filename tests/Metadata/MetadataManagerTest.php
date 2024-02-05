@@ -29,7 +29,10 @@ use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
+use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
@@ -121,13 +124,13 @@ class MetadataManagerTest extends KernelTestCase
         $paramMetadata = $schema->getParameterByPropertyName('value1');
         $this->assertEquals(['default'], $paramMetadata->getGroups());
         //And it should show up in the default group
-        $this->assertSame($paramMetadata, $schema->getParametersByGroup('default')[0]);
+        $this->assertContains($paramMetadata, $schema->getParametersByGroup('default'));
 
         //value2 must have the defined groups
         $paramMetadata = $schema->getParameterByPropertyName('value2');
         $this->assertEquals(['group1', 'group2'], $paramMetadata->getGroups());
-        $this->assertSame($paramMetadata, $schema->getParametersByGroup('group1')[0]);
-        $this->assertSame($paramMetadata, $schema->getParametersByGroup('group2')[0]);
+        $this->assertContains($paramMetadata, $schema->getParametersByGroup('group1'));
+        $this->assertContains($paramMetadata, $schema->getParametersByGroup('group2'));
     }
 
     public function testVersioning(): void
@@ -143,5 +146,42 @@ class MetadataManagerTest extends KernelTestCase
         $this->assertEquals(VersionedSettings::VERSION, $schema->getVersion());
         $this->assertTrue($schema->isVersioned());
         $this->assertEquals(TestMigration::class, $schema->getMigrationService());
+    }
+
+    public function testEmbeddeds(): void
+    {
+        //Test that embedded settings are correctly recognized
+        $schema = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
+        $this->assertEmpty($schema->getEmbeddedSettings());
+
+        //Embedded settings should be recognized
+        $schema = $this->metadataManager->getSettingsMetadata(EmbedSettings::class);
+        $embeddeds = $schema->getEmbeddedSettings();
+        $this->assertCount(2, $embeddeds);
+        $this->assertEquals('simpleSettings', $embeddeds['simpleSettings']->getPropertyName());
+        $this->assertEquals('circularSettings', $embeddeds['circularSettings']->getPropertyName());
+
+        //The target class should be set correctly
+        $this->assertEquals(SimpleSettings::class, $embeddeds['simpleSettings']->getTargetClass());
+        $this->assertEquals(CircularEmbedSettings::class, $embeddeds['circularSettings']->getTargetClass());
+
+        //Test that the groups are correctly inherited
+        $this->assertEquals(['default'], $embeddeds['simpleSettings']->getGroups());
+        $this->assertEquals(['group1'], $embeddeds['circularSettings']->getGroups());
+    }
+
+    public function testResolveEmbeddedCascade(): void
+    {
+        //For a settings class, without embedded settings, the result should be an empty array
+        $this->assertEquals([SimpleSettings::class], $this->metadataManager->resolveEmbeddedCascade(SimpleSettings::class));
+
+        //For a settings class, with embedded settings, the result should be an array with the embedded settings
+        $cascade = $this->metadataManager->resolveEmbeddedCascade(EmbedSettings::class);
+        $this->assertEqualsCanonicalizing([
+            EmbedSettings::class,
+            SimpleSettings::class,
+            CircularEmbedSettings::class,
+            GuessableSettings::class,
+        ], $cascade);
     }
 }

@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Proxy;
+namespace Jbtronics\SettingsBundle\Tests\Proxy;
 
 use Jbtronics\SettingsBundle\Proxy\ProxyFactory;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;

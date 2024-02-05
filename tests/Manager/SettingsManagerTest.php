@@ -28,9 +28,12 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 use Jbtronics\SettingsBundle\Manager\SettingsManager;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * The functional/integration test for the SettingsManager
@@ -132,6 +135,96 @@ class SettingsManagerTest extends KernelTestCase
 
         //The value must be the default value again
         $this->assertEquals('default', $settings->getValue1());
+    }
 
+    public function testGetEmbedded(): void
+    {
+        /** @var EmbedSettings $settings */
+        $settings = $this->service->get(EmbedSettings::class);
+
+        $this->assertInstanceOf(EmbedSettings::class, $settings);
+
+        $this->assertInstanceOf(SimpleSettings::class, $settings->simpleSettings);
+        //Should be a lazy loaded instance
+        $this->assertInstanceOf(SettingsProxyInterface::class, $settings->simpleSettings);
+        if ($settings->simpleSettings instanceof LazyObjectInterface) {
+            $this->assertFalse($settings->simpleSettings->isLazyObjectInitialized());
+        }
+
+        //The embedded settings should be identical to the ones we get via the settings manager
+        $this->assertSame($settings->simpleSettings, $this->service->get(SimpleSettings::class));
+
+        //Test if we can retrieve the value via the embedded settings
+        $this->assertEquals('default', $settings->simpleSettings->getValue1());
+
+
+        if ($settings->simpleSettings instanceof LazyObjectInterface) {
+            $this->assertTrue($settings->simpleSettings->isLazyObjectInitialized());
+        }
+    }
+
+    public function testGetEmbeddedCircular(): void
+    {
+        /** @var EmbedSettings $settings */
+        $settings = $this->service->get(EmbedSettings::class);
+
+        $this->assertInstanceOf(EmbedSettings::class, $settings);
+        $this->assertInstanceOf(CircularEmbedSettings::class, $settings->circularSettings);
+
+        //The embedded settings should be identical to the ones we get via the settings manager
+        $this->assertSame($settings->circularSettings, $this->service->get(CircularEmbedSettings::class));
+
+        //Circular references should be resolved
+        $this->assertSame($settings, $settings->circularSettings->embeddedSettings);
+
+        //Test if we can retrieve the value via the embedded settings
+        $this->assertEquals('default', $settings->circularSettings->embeddedSettings->simpleSettings->getValue1());
+    }
+
+    public function testSaveCascadeFalse(): void
+    {
+        /** @var EmbedSettings $settings */
+        $settings = $this->service->get(EmbedSettings::class);
+
+        $settings->simpleSettings->setValue1('changed');
+        $this->service->save($settings, false);
+
+        //If the cascade is false, the embedded settings should not be saved and the default values reloaded
+        $this->service->reload(SimpleSettings::class);
+        $this->assertEquals('default', $this->service->get(SimpleSettings::class)->getValue1());
+    }
+
+    public function testSaveCascadeTrue(): void
+    {
+        /** @var EmbedSettings $settings */
+        $settings = $this->service->get(EmbedSettings::class);
+
+        $settings->simpleSettings->setValue1('changed');
+        $this->service->save($settings, true);
+
+        $this->service->reload(SimpleSettings::class);
+        $this->assertEquals('changed', $this->service->get(SimpleSettings::class)->getValue1());
+    }
+
+    public function testReloadCascadeFalse(): void
+    {
+        $settings = $this->service->get(EmbedSettings::class);
+        $settings->simpleSettings->setValue1('changed');
+
+        $this->service->reload($settings, false);
+
+        //If the cascade is false, the embedded settings should not be reloaded and the value should be the same as before
+        $this->assertEquals('changed', $settings->simpleSettings->getValue1());
+    }
+
+    public function testReloadCascadeTrue(): void
+    {
+        $settings = $this->service->get(EmbedSettings::class);
+        $settings->simpleSettings->setValue1('changed');
+
+        $this->service->reload($settings, true);
+
+        //If the cascade is true, the embedded settings should be reloaded and the value should be the default value
+        $this->assertEquals('default', $settings->simpleSettings->getValue1());
     }
 }

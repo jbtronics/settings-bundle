@@ -25,14 +25,44 @@
 
 namespace Jbtronics\SettingsBundle;
 
+use Closure;
 use Jbtronics\SettingsBundle\DependencyInjection\SettingsExtension;
+use Jbtronics\SettingsBundle\Proxy\Autoloader;
+use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 class SettingsBundle extends AbstractBundle
 {
+
+    private ?Closure $autoloader = null;
+
     public function getContainerExtension(): ?ExtensionInterface
     {
         return new SettingsExtension();
+    }
+
+    public function boot(): void
+    {
+        //Register a autoloader to handle the proxy classes. This is important for things like unserializing proxy classes
+
+        $proxyDir = $this->container->getParameter('jbtronics.settings.proxyDir');
+        $proxyNamespace = $this->container->getParameter('jbtronics.settings.proxyNamespace');
+        /** @var ProxyFactoryInterface $proxyFactory */
+        $proxyFactory = $this->container->get('jbtronics.settings.proxy_factory');
+
+        $proxyGeneratorCallback = static function ($proxyDir, $proxyNamespace, $class) use ($proxyFactory): void {
+           $proxyFactory->generateProxyClassFiles([$class]);
+        };
+
+        $this->autoloader = Autoloader::register($proxyDir, $proxyNamespace);
+    }
+
+    public function shutdown(): void
+    {
+        if ($this->autoloader !== null) {
+            spl_autoload_unregister($this->autoloader);
+            $this->autoloader = null;
+        }
     }
 }

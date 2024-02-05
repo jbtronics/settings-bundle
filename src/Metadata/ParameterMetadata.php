@@ -61,9 +61,9 @@ class ParameterMetadata
         private readonly string|TranslatableInterface|null $label = null,
         private readonly string|TranslatableInterface|null $description = null,
         private readonly array $options = [],
-        public readonly ?string $formType = null,
-        public readonly array $formOptions = [],
-        public readonly array $groups = [],
+        private readonly ?string $formType = null,
+        private readonly array $formOptions = [],
+        private readonly array $groups = [],
     ) {
     }
 

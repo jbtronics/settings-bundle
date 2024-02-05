@@ -183,6 +183,7 @@ return static function (ContainerConfigurator $container) {
     $services->set('jbtronics.settings.settings_form_builder', \Jbtronics\SettingsBundle\Form\SettingsFormBuilder::class)
         ->args([
             '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Form\SettingsFormBuilderInterface::class, 'jbtronics.settings.settings_form_builder');
 

@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Form;
 
+use Jbtronics\SettingsBundle\Metadata\EmbeddedSettingsMetadata;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -58,4 +59,16 @@ interface SettingsFormBuilderInterface
      * @return void
      */
     public function buildSettingsForm(FormBuilderInterface $builder, SettingsMetadata $metadata, array $options = [], ?array $groups = null): void;
+
+    /**
+     * Add the given embedded settings as a sub form to the given form builder.
+     * The embedded settings are described by their metadata. In the process a new form builder for the sub form is created
+     * and returned.
+     * @param  FormBuilderInterface  $builder
+     * @param  EmbeddedSettingsMetadata  $embedded
+     * @param  array  $options The options to pass to the newly created sub form builder
+     * @param  array|null  $groups The groups to add to the form, if null all parameters are added
+     * @return FormBuilderInterface The newly created sub form builder
+     */
+    public function addEmbeddedSettingsSubForm(FormBuilderInterface $builder, EmbeddedSettingsMetadata $embedded, array $options = [], ?array $groups = null): FormBuilderInterface;
 }

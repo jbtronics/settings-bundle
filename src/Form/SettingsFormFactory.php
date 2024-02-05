@@ -77,6 +77,14 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
         foreach ($settingsNames as $settingsName) {
             $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
 
+            //Ensure that the embedded settings do not cause a infinite loop
+            if ($this->checkForCircularEmbedded($settingsMetadata, $groups)) {
+                throw new \LogicException(
+                    sprintf('The settings class "%s" have a circular embedded settings structure, which would cause an infinite loop while form building. Use the groups option to only render a subset of the embedded settings to prevent circular loops.',
+                        $settingsMetadata->getClassName(),
+                    ));
+            }
+
             //Create sub form builder for the settings with the name of the settings class
             $subBuilder = $this->formFactory->createNamedBuilder($settingsMetadata->getName(),
                 data: $this->settingsManager->get($settingsName), options: $formOptions);

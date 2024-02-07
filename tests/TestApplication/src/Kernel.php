@@ -25,7 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication;
 
-use Jbtronics\SettingsBundle\SettingsBundle;
+use Jbtronics\SettingsBundle\JbtronicsSettingsBundle;
 use Jbtronics\SettingsBundle\UserConfigBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -44,7 +44,7 @@ final class Kernel extends \Symfony\Component\HttpKernel\Kernel
     public function registerBundles(): iterable
     {
         yield new FrameworkBundle();
-        yield new SettingsBundle();
+        yield new JbtronicsSettingsBundle();
     }
 
     public function getProjectDir(): string

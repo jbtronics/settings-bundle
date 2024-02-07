@@ -32,10 +32,11 @@ composer require jbtronics/settings-bundle
 ```
 
 If you are using symfony flex, the bundle should be automatically enabled. Otherwise you have to add the bundle to your `config/bundles.php` file:
+
 ```php
 return [
     // ...
-    Jbtronics\SettingsBundle\SettingsBundle::class => ['all' => true],
+    Jbtronics\SettingsBundle\JbtronicsSettingsBundle::class => ['all' => true],
 ];
 ```
 

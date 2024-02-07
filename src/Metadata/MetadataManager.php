@@ -52,7 +52,7 @@ final class MetadataManager implements MetadataManagerInterface
         private readonly bool $debug_mode,
         private readonly SettingsRegistryInterface $settingsRegistry,
         private readonly ParameterTypeGuesserInterface $parameterTypeGuesser,
-        private readonly string $defaultStorageAdapter = InMemoryStorageAdapter::class,
+        private readonly ?string $defaultStorageAdapter = null,
     ) {
     }
 
@@ -144,7 +144,9 @@ final class MetadataManager implements MetadataManagerInterface
         return new SettingsMetadata(
             className: $className,
             parameterMetadata: $parameters,
-            storageAdapter: $classAttribute->storageAdapter ?? $this->defaultStorageAdapter,
+            storageAdapter: $classAttribute->storageAdapter ?? $this->defaultStorageAdapter
+                ?? throw new \LogicException(sprintf('No storage adapter set for the settings class "%s". Please set one explicitly or define a default one in the bundle config!',
+                $className)),
             name: $classAttribute->name ?? SettingsRegistry::generateDefaultNameFromClassName($className),
             defaultGroups: $classAttribute->groups,
             version: $classAttribute->version,

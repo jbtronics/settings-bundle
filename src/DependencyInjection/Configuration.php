@@ -51,6 +51,8 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('proxy_namespace')->defaultValue('Jbtronics\SettingsBundle\Proxies')->end()
 
+            ->scalarNode('default_storage_adapter')->defaultNull()->end()
+
             ->end();
 
         return $treeBuilder;

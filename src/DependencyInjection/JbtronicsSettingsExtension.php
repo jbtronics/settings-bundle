@@ -62,5 +62,6 @@ class JbtronicsSettingsExtension extends Extension
         $container->setParameter('jbtronics.settings.proxy_dir', $config['proxy_dir']);
         $container->setParameter('jbtronics.settings.proxy_namespace', $config['proxy_namespace']);
         $container->setParameter('jbtronics.settings.search_paths', $config['search_paths']);
+        $container->setParameter('jbtronics.settings.default_storage_adapter', $config['default_storage_adapter']);
     }
 }

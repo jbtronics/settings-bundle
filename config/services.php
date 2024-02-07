@@ -74,6 +74,7 @@ return static function (ContainerConfigurator $container) {
             '$debug_mode' => '%kernel.debug%',
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$parameterTypeGuesser' => service('jbtronics.settings.parameter_type_guesser'),
+            '$defaultStorageAdapter' => '%jbtronics.settings.default_storage_adapter%'
         ])
     ;
     $services->alias(MetadataManagerInterface::class, 'jbtronics.settings.metadata_manager');

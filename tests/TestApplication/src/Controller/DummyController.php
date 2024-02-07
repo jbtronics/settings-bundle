@@ -39,7 +39,8 @@ class DummyController
 
     //We need to inject the registry here, to make sure the services dont get optimized away, and we can access
     //them in the tests
-    public function __construct(private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
+    public function __construct(
+        private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
     private readonly StorageAdapterRegistryInterface $storageAdapterRegistry,
     private readonly MetadataManagerInterface $schemaManager,
     private readonly SettingsHydratorInterface $settingsHydrator,

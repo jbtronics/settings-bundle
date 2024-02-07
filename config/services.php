@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-use Jbtronics\SettingsBundle\DependencyInjection\SettingsExtension;
+use Jbtronics\SettingsBundle\DependencyInjection\JbtronicsSettingsExtension;
 use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManager;
@@ -50,9 +50,9 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_lo
 return static function (ContainerConfigurator $container) {
     $services = $container->services()
         ->defaults()->private()
-        ->instanceof(ParameterTypeInterface::class)->tag(SettingsExtension::TAG_PARAMETER_TYPE)
-        ->instanceof(StorageAdapterInterface::class)->tag(SettingsExtension::TAG_STORAGE_ADAPTER)
-        ->instanceof(SettingsMigrationInterface::class)->tag(SettingsExtension::TAG_MIGRATION)
+        ->instanceof(ParameterTypeInterface::class)->tag(JbtronicsSettingsExtension::TAG_PARAMETER_TYPE)
+        ->instanceof(StorageAdapterInterface::class)->tag(JbtronicsSettingsExtension::TAG_STORAGE_ADAPTER)
+        ->instanceof(SettingsMigrationInterface::class)->tag(JbtronicsSettingsExtension::TAG_MIGRATION)
         ;
 
     //Inject the parameter type registry into all SettingsMigration services
@@ -61,7 +61,7 @@ return static function (ContainerConfigurator $container) {
 
     $services->set('jbtronics.settings.settings_registry', SettingsRegistry::class)
         ->args([
-            '$directories' => ['%kernel.project_dir%/src/Settings/'],
+            '$directories' => '%jbtronics.settings.search_paths%',
             '$cache' => service('cache.app'),
             '$debug_mode' => '%kernel.debug%',
         ])
@@ -99,14 +99,14 @@ return static function (ContainerConfigurator $container) {
 
     $services->set('jbtronics.settings.parameter_type_registry', ParameterTypeRegistry::class)
         ->args([
-            '$locator' => tagged_locator(SettingsExtension::TAG_PARAMETER_TYPE)
+            '$locator' => tagged_locator(JbtronicsSettingsExtension::TAG_PARAMETER_TYPE)
         ])
         ;
     $services->alias(ParameterTypeRegistryInterface::class, 'jbtronics.settings.parameter_type_registry');
 
     $services->set('jbtronics.settings.storage_adapter_registry', StorageAdapterRegistry::class)
         ->args([
-            '$locator' => tagged_locator(SettingsExtension::TAG_STORAGE_ADAPTER)
+            '$locator' => tagged_locator(JbtronicsSettingsExtension::TAG_STORAGE_ADAPTER)
         ])
         ;
     $services->alias(StorageAdapterRegistryInterface::class, 'jbtronics.settings.storage_adapter_registry');
@@ -164,8 +164,8 @@ return static function (ContainerConfigurator $container) {
     $services->set('jbtronics.settings.proxy_factory', \Jbtronics\SettingsBundle\Proxy\ProxyFactory::class)
         ->public() //Must be public, as we use it from inside the SettingsBundle class
         ->args([
-            '$proxyDir' => '%jbtronics.settings.proxyDir%',
-            '$proxyNamespace' => '%jbtronics.settings.proxyNamespace%',
+            '$proxyDir' => '%jbtronics.settings.proxy_dir%',
+            '$proxyNamespace' => '%jbtronics.settings.proxy_namespace%',
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface::class, 'jbtronics.settings.proxy_factory');
 
@@ -202,7 +202,7 @@ return static function (ContainerConfigurator $container) {
 
     $services->set('jbtronics.settings.settings_migration_manager', \Jbtronics\SettingsBundle\Migrations\MigrationsManager::class)
         ->args([
-            '$locator' => tagged_locator(SettingsExtension::TAG_MIGRATION),
+            '$locator' => tagged_locator(JbtronicsSettingsExtension::TAG_MIGRATION),
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface::class, 'jbtronics.settings.settings_migration_manager');
 

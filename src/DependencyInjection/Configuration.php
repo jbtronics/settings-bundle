@@ -53,6 +53,8 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('default_storage_adapter')->defaultNull()->end()
 
+            ->booleanNode('save_after_migration')->defaultTrue()->end()
+
             ->end();
 
         return $treeBuilder;

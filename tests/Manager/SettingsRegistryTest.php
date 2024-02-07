@@ -33,6 +33,8 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 
 class SettingsRegistryTest extends TestCase
 {
@@ -51,8 +53,8 @@ class SettingsRegistryTest extends TestCase
             'test234' => ValidatableSettings::class,
             'guessable' => GuessableSettings::class,
             'versioned' => VersionedSettings::class,
-            'circularembed' => 'Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings',
-            'embed' => 'Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings',
+            'circularembed' => CircularEmbedSettings::class,
+            'embed' => EmbedSettings::class,
         ], $configurationRegistry->getSettingsClasses());
     }
 

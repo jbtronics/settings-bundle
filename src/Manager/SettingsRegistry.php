@@ -25,8 +25,11 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
+use Ergebnis\Classy\Construct;
+use Ergebnis\Classy\Constructs;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Spatie\StructureDiscoverer\Discover;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -98,10 +101,35 @@ final class SettingsRegistry implements SettingsRegistryInterface
      */
     private function searchInPathes(array $pathes): array
     {
-        return Discover::in(...$pathes)
-            ->withAttribute(Settings::class)
-            ->get()
-            ;
+        $classes = [];
+
+        foreach ($pathes as $path) {
+            //Skip non-existing directories
+            if (!is_dir($path)) {
+                continue;
+            }
+
+            //Find all PHP classes in the given directories
+            $constructs = Constructs::fromDirectory($path);
+            $names = array_map(static function (Construct $construct): string {
+                return $construct->name();
+            }, $constructs);
+
+            $classes = array_merge($classes, $names);
+        }
+
+        //Now filter out all classes, which donot have the #[Settings] attribute
+        $settings_classes = [];
+
+        foreach ($classes as $class) {
+            $reflClass = new \ReflectionClass($class);
+            $attributes = $reflClass->getAttributes(Settings::class);
+            if (count($attributes) > 0) {
+                $settings_classes[] = $class;
+            }
+        }
+
+        return $settings_classes;
     }
 
     /**

@@ -91,6 +91,36 @@ Settings-bundle integrates with `symfony/validator`, so you can use the normal v
 
 You can pass the settings instance to the `validate` method of the `SettingsValidatorInterface` service to check if the settings are valid. If the method returns an empty array the settings are valid, otherwise the array contains the validation errors.
 
+## Embedded settings
+
+For better organisation of related settings, you can embed settings classes into other settings classes. This is done by defining a property of the embedded settings class and marking it with the `#[EmbeddedSettings]` attribute. The Settings Manager automatically injects the (lazy loaded) embedded settings instance into the property, so that it can be used like a normal settings instance.
+
+```php
+<?php
+
+namespace App\Settings;
+
+use Jbtronics\SettingsBundle\Settings\Settings;
+use Jbtronics\SettingsBundle\Settings\SettingsTrait;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
+
+#[Settings]
+class EmbeddedTestSettings 
+{
+    use SettingsTrait;
+
+    //You can still define normal parameters in the embedded settings class
+    #[SettingsParameter()]
+    public string $myString = 'default value'; // The default value can be set right here in most cases
+
+    #[EmbeddedSettings]
+    public TestSettings $testSettings; //This will be automatically filled with an instance of TestSettings
+}
+```
+
+The bundle can handle complex and even circular nesting of embedded settings classes. However, you should try to avoid repetitive and circular nesting, as it makes using the form generation very hard and you have to carefully set the correct groups for form generation.
+
 ## Attributes reference
 
 ### #[Settings]
@@ -121,3 +151,8 @@ The attribute has the following parameters:
 * `formOptions` (optional): An array of options, which is passed to the form type. This overrides the defaults defined by the defaults defined by the parameter type. The available options depend on the form type. See the documentation of the form type for more information.
 * `nullable` (optional): Override the behavior if the parameter is considered nullable. Normally this is derived automatically from the declared property type.
 * `groups` (optional): The groups this parameter belongs to. This can be used to only render certain subsets of the parameters in forms, etc. This must be an array of strings, or null if this parameter should not belong to any group.
+
+### #[EmbeddedSettings]
+
+* `target`(optional): The class name of the settings class, which should be embedded. If not set, the target class is derived automatically from the property type.
+* `groups` (optional): The groups this embedded settings class belongs to. This can be used to only render certain subsets of the parameters in forms, etc.

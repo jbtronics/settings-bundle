@@ -2,6 +2,7 @@
 title: Defining settings
 layout: default
 parent: Usage
+nav_order: 1
 ---
 
 # Defining settings
@@ -11,6 +12,8 @@ managable by the settings-bundle. Besides the attribute, the class is basically 
 Only classes with the `#[Settings]` attribute and which are contained in on of the configured settings directories will be usable by the settings-bundle. By default, this means that you should put them into the `src/Settings` directory of your symfony project (or a subfolder of it).
 
 Settings classes should be suffixed by `Settings` (e.g. `MySettings`), but this is not required.
+
+Settings classes *must not* be final or contain final properties, methods as then no lazy loading proxy classes can be generated for them.
 
 The properties of the class, which should be filled by the settings-bundle, are marked with the `#[SettingsParameter]` attribute. This attribute contains information about how the data of the parameter should be mapped to normalized data for the storage adapter and how the parameter should be rendered in forms, etc.
 

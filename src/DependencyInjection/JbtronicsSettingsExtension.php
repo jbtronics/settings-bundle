@@ -64,5 +64,9 @@ class JbtronicsSettingsExtension extends Extension
         $container->setParameter('jbtronics.settings.search_paths', $config['search_paths']);
         $container->setParameter('jbtronics.settings.default_storage_adapter', $config['default_storage_adapter']);
         $container->setParameter('jbtronics.settings.save_after_migration', $config['save_after_migration']);
+
+        $container->setParameter('jbtronics.settings.file_storage.storage_directory', $config['file_storage']['storage_directory']);
+        //The default filename without extension
+        $container->setParameter('jbtronics.settings.file_storage.default_filename', $config['file_storage']['default_filename']);
     }
 }

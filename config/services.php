@@ -223,6 +223,12 @@ return static function (ContainerConfigurator $container) {
     $services->set(\Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter::class);
     $services->set(\Jbtronics\SettingsBundle\Storage\JSONFileStorageAdapter::class)
         ->args([
-            '$storageDirectory' => '%kernel.project_dir%/var/jbtronics_settings/',
+            '$storageDirectory' => '%jbtronics.settings.file_storage.storage_directory%',
+            '$defaultFilename' => '%jbtronics.settings.file_storage.default_filename%.json',
+        ]);
+    $services->set(\Jbtronics\SettingsBundle\Storage\PHPFileStorageAdapter::class)
+        ->args([
+            '$storageDirectory' => '%jbtronics.settings.file_storage.storage_directory%',
+            '$defaultFilename' => '%jbtronics.settings.file_storage.default_filename%.php',
         ]);
 };

@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -57,6 +58,19 @@ class Configuration implements ConfigurationInterface
 
             ->end();
 
+        $this->addFileStorageConfiguration($rootNode);
+
         return $treeBuilder;
+    }
+
+    private function addFileStorageConfiguration(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
+            ->arrayNode('file_storage')
+            ->children()
+            ->scalarNode('storage_directory')->defaultValue('%kernel.project_dir%/var/jbtronics_settings/')->end()
+            ->scalarNode('default_filename')->defaultValue('settings')->end()
+            ->end();
     }
 }

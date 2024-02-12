@@ -1,7 +1,7 @@
 <?php
-
-
 /*
+ * This file is part of jbtronics/settings-bundle (https://github.com/jbtronics/settings-bundle).
+ *
  * Copyright (c) 2024 Jan Böhmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,21 +23,28 @@
  * SOFTWARE.
  */
 
-namespace Jbtronics\SettingsBundle\Storage;
+declare(strict_types=1);
 
-/**
- * This class implements a file storage adapter for JSON files
- */
-class JSONFileStorageAdapter extends AbstractFileStorageAdapter
+
+namespace Jbtronics\SettingsBundle\Tests\Storage;
+
+trait FileAdapterTestTrait
 {
-
-    protected function unserialize(string $content): array
+    /**
+     * Cleans the storage directory for a clean test
+     * @param  string  $dir
+     * @return void
+     */
+    private function cleanStorageDir(string $dir): void
     {
-        return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
-    }
-
-    protected function serialize(array $data): string
-    {
-        return json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+        if (is_dir($dir)) {
+            $files = glob($dir.'/*');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+            rmdir($dir);
+        }
     }
 }

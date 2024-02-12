@@ -57,7 +57,7 @@ class DatetimeType implements ParameterTypeInterface, ParameterTypeWithFormDefau
 
         //Check if the value is an instance of the class
         if (!is_a($value, $class)) {
-            throw new \LogicException(sprintf('The value of the property "%s" must be an instance of "%s", but "%s" given.', $parameterMetadata->getName(), $class, gettype($value)));
+            throw new \LogicException(sprintf('The value of the property "%s" must be an instance of "%s", but "%s" given.', $parameterMetadata->getName(), $class, get_debug_type($value)));
         }
 
         //Convert the value to a normalized value (ATOM format), which can easily be stored in the storage provider

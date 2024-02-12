@@ -78,7 +78,7 @@ private string $value2;
 
 ## Rendering only particular parameters
 
-If you want to render only a subset of the parameters of a settings class, you can pass an array of groups to the `groups` parameter of the `createSettingsFormBuilder()` or `createMultiSettingsFormBuilder()` methods. Only parameters which are in one of the given groups will be rendered. If no groups are given, all parameters will be rendered.
+If you want to render only a subset of the parameters (or embedded settings) of a settings class, you can pass an array of groups to the `groups` parameter of the `createSettingsFormBuilder()` or `createMultiSettingsFormBuilder()` methods. Only parameters which are in one of the given groups will be rendered. If no groups are given, all parameters will be rendered.
 
 The groups are defined at the `#[SettingsParameter]` attribute. If no group is given, the parameter is in the default group. You can also use the `groups` option of the `#[Settings]` attribute to define a default group for all parameters of the settings class, where it is not explicitly defined.
 
@@ -106,3 +106,10 @@ class GroupedSettings
 //This will only render the parameters in the group1 group (myString and myString2)
 $builder = $this->settingsFormFactory->createSettingsFormBuilder(GroupedSettings::class, groups: ['group1']);
 ```
+
+## Embedded settings
+
+Embedded settings in a settings class are recursively rendered as subforms.
+This means you can define complex settings forms with nested subforms, by using the root settings (or any other node) of your settings hierachy.
+
+If you have a non-tree structure (with circular references), the form builder will throw an exception, as it is not possible to render a circular form. In that cases you will need to restrict the rendered form fields using the `groups` option.

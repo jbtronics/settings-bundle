@@ -44,4 +44,6 @@ Stores the settings in memory (RAM). The settings are not persistet and will be 
 
 You can create your own storage adapters by creating a new service implementing the `StorageAdapterInterface`. This way you can also create storage adapters for more complex storage backends, like databases, etc.
 
-TODO: Add example 
+The storage adapter must implement a `load` method, which takes a key and returns the normalized settings data for this key, or null if no data is stored for this key. The `save` method takes a key and the normalized settings data and saves it. The options array from the settings class annotation is passed as the third argument to the `load` and `save` methods.
+
+When you want to create a file based storage adapter, you can extend the `AbstractFileStorageAdapter` class, which already implements the `load` and `save` methods and just requires implementation of the format serialization/unserialization.

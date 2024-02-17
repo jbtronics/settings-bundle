@@ -67,7 +67,7 @@ class SettingsCollector extends AbstractDataCollector
 
     public static function getTemplate(): ?string
     {
-        return '@Settings/profiler/main.html.twig';
+        return '@JbtronicsSettings/profiler/main.html.twig';
     }
 
     public function getSettingsClasses(): array

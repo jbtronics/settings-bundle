@@ -3,14 +3,14 @@
 {# @var collector \Jbtronics\SettingsBundle\Profiler\SettingsCollector #}
 
 {% block toolbar %}
-    {{ include("@Settings/profiler/_toolbar.html.twig") }}
+    {{ include("@JbtronicsSettings/profiler/_toolbar.html.twig") }}
 {% endblock %}
 
 {% block menu %}
     {# This left-hand menu appears when using the full-screen profiler. #}
     <span class="label">
         <span class="icon" style="margin-right: 0;">
-            {{ include("@Settings/profiler/assets/icon.svg") }}
+            {{ include("@JbtronicsSettings/profiler/assets/icon.svg") }}
         </span><strong>Settings</strong>
     </span>
 {% endblock %}
@@ -26,5 +26,5 @@
 {% endblock %}
 
 {% block panel %}
-    {{ include("@Settings/profiler/_panel.html.twig") }}
+    {{ include("@JbtronicsSettings/profiler/_panel.html.twig") }}
 {% endblock %}

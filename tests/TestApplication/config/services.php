@@ -40,7 +40,7 @@ return static function (ContainerConfigurator $container) {
     $services->set(AppFixtures::class)->tag('doctrine.fixture.orm');
 
     $services->load('Jbtronics\\SettingsBundle\\Tests\\TestApplication\\', '../src/*')
-        ->exclude('../{Entity,Tests,Kernel.php}');
+        ->exclude('../src/{Entity,Tests,Kernel.php}');
 
     $services->load('Jbtronics\\SettingsBundle\\Tests\\TestApplication\\Controller\\', '../src/Controller/')
         ->tag('controller.service_arguments');

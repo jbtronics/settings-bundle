@@ -42,8 +42,9 @@ abstract class AbstractSettingsORMEntry
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $data = null;
 
-    public function __construct()
+    public function __construct(string $key)
     {
+        $this->key = $key;
     }
 
     /**

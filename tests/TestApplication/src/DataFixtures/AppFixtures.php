@@ -37,12 +37,10 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager)
     {
-        $existing1 = new SettingsEntry();
-        $existing1->setKey('existing1');
+        $existing1 = new SettingsEntry('existing1');
         $existing1->setData(['foo' => 'existing1']);
 
-        $existing2 = new OtherSettingsEntry();
-        $existing2->setKey('existing2');
+        $existing2 = new OtherSettingsEntry('existing2');
         $existing2->setData(['foo' => 'existing2']);
 
         $manager->persist($existing1);

@@ -35,7 +35,10 @@ use Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry;
 class ORMStorageAdapter implements StorageAdapterInterface
 {
 
-    /** @var array[][] */
+    /**
+     * @var AbstractSettingsORMEntry[][]
+     * @phpstan-var array<string, array<AbstractSettingsORMEntry>>
+     */
     private array $cache = [];
 
     public function __construct(
@@ -53,6 +56,7 @@ class ORMStorageAdapter implements StorageAdapterInterface
      * Returns the entity object for the given key. If the entity does not exist, it will be created.
      * @param  string  $key
      * @param  string  $entityClass The class of the entity to use
+
      * @return AbstractSettingsORMEntry
      */
     private function getEntityObject(string $key, string $entityClass): AbstractSettingsORMEntry
@@ -62,19 +66,18 @@ class ORMStorageAdapter implements StorageAdapterInterface
         }
 
         //Check if we already have the entity in the cache
-        if (isset($this->cache[$key])) {
-            return $this->cache[$key];
+        if (isset($this->cache[$entityClass][$key])) {
+            return $this->cache[$entityClass][$key];
         }
 
         //Retrieve the entity from the database or create a new one if it does not exist
         $entity = $this->entityManager->getRepository($entityClass)->findOneBy(['key' => $key]);
         if ($entity === null) {
-            $entity = new $entityClass();
-            $entity->setKey($key);
+            $entity = new $entityClass($key);
         }
 
         //Store the entity in the cache
-        $this->cache[$key] = $entity;
+        $this->cache[$entityClass][$key] = $entity;
 
         return $entity;
     }
@@ -97,7 +100,7 @@ class ORMStorageAdapter implements StorageAdapterInterface
 
         $entities = $this->entityManager->getRepository($entityClass)->findAll();
         foreach ($entities as $entity) {
-            $this->cache[$entity->getKey()] = $entity;
+            $this->cache[$entityClass][$entity->getKey()] = $entity;
         }
     }
 

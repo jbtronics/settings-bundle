@@ -32,7 +32,6 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\NullAdapter;
-use Symfony\Contracts\Cache\CacheInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 

@@ -25,7 +25,9 @@
 
 namespace Jbtronics\SettingsBundle\Tests\ParameterTypes;
 
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -42,7 +44,7 @@ class BoolTypeTest extends TestCase
 
     public function testConvertNormalizedToPHP(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
         $this->assertTrue($this->boolType->convertNormalizedToPHP(true, $metadata));
         $this->assertFalse($this->boolType->convertNormalizedToPHP(false, $metadata));
@@ -59,7 +61,7 @@ class BoolTypeTest extends TestCase
 
     public function testConvertPHPToNormalized(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
         $this->assertTrue($this->boolType->convertPHPToNormalized(true, $metadata));
         $this->assertFalse($this->boolType->convertPHPToNormalized(false, $metadata));
@@ -69,21 +71,21 @@ class BoolTypeTest extends TestCase
 
     public function testConvertPHPToNormalizedInvalidType(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->boolType->convertPHPToNormalized(1, $metadata);
     }
 
     public function testGetFormType(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
         $this->assertEquals(CheckboxType::class, $this->boolType->getFormType($metadata));
     }
 
     public function testConfigureFormOptions(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
         $resolver = new OptionsResolver();
         $this->boolType->configureFormOptions($resolver, $metadata);
 

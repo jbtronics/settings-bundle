@@ -25,8 +25,15 @@
 
 namespace Jbtronics\SettingsBundle\Tests\ParameterTypes;
 
+use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\ParameterTypes\DatetimeType;
+use LogicException;
 use PHPUnit\Framework\TestCase;
+use stdClass;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DatetimeTypeTest extends TestCase
 {
@@ -40,71 +47,71 @@ class DatetimeTypeTest extends TestCase
 
     public function testConvertPHPToNormalizedDateTime(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
-        $metadata->method('getOptions')->willReturn(['class' => \DateTime::class]);
+        $metadata = $this->createMock(ParameterMetadata::class);
+        $metadata->method('getOptions')->willReturn(['class' => DateTime::class]);
 
         //Null should be returned as null
         $this->assertNull($this->datetimeType->convertPHPToNormalized(null, $metadata));
 
         //Test with a DateTime object
-        $this->assertEquals('2024-01-01T00:00:00+00:00', $this->datetimeType->convertPHPToNormalized(new \DateTime('2024-01-01', new \DateTimeZone('UTC')), $metadata));
-        $this->assertEquals('2024-01-01T00:00:00+01:00', $this->datetimeType->convertPHPToNormalized(new \DateTime('2024-01-01', new \DateTimeZone('Europe/Berlin')), $metadata));
+        $this->assertEquals('2024-01-01T00:00:00+00:00', $this->datetimeType->convertPHPToNormalized(new DateTime('2024-01-01', new DateTimeZone('UTC')), $metadata));
+        $this->assertEquals('2024-01-01T00:00:00+01:00', $this->datetimeType->convertPHPToNormalized(new DateTime('2024-01-01', new DateTimeZone('Europe/Berlin')), $metadata));
     }
 
     public function testConvertPHPToNormalizedDateTimeImmutable(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
-        $metadata->method('getOptions')->willReturn(['class' => \DateTimeImmutable::class]);
+        $metadata = $this->createMock(ParameterMetadata::class);
+        $metadata->method('getOptions')->willReturn(['class' => DateTimeImmutable::class]);
 
         //Null should be returned as null
         $this->assertNull($this->datetimeType->convertPHPToNormalized(null, $metadata));
 
         //Test with a DateTimeImmutable object
-        $metadata->method('getOptions')->willReturn(['class' => \DateTimeImmutable::class]);
-        $this->assertEquals('2024-01-01T00:00:00+00:00', $this->datetimeType->convertPHPToNormalized(new \DateTimeImmutable('2024-01-01', new \DateTimeZone('UTC')), $metadata));
-        $this->assertEquals('2024-01-01T00:00:00+01:00', $this->datetimeType->convertPHPToNormalized(new \DateTimeImmutable('2024-01-01', new \DateTimeZone('Europe/Berlin')), $metadata));
+        $metadata->method('getOptions')->willReturn(['class' => DateTimeImmutable::class]);
+        $this->assertEquals('2024-01-01T00:00:00+00:00', $this->datetimeType->convertPHPToNormalized(new DateTimeImmutable('2024-01-01', new DateTimeZone('UTC')), $metadata));
+        $this->assertEquals('2024-01-01T00:00:00+01:00', $this->datetimeType->convertPHPToNormalized(new DateTimeImmutable('2024-01-01', new DateTimeZone('Europe/Berlin')), $metadata));
     }
 
     public function testConvertPHPToNormalizedInvalidClass(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
-        $metadata->method('getOptions')->willReturn(['class' => \DateTime::class]);
+        $metadata = $this->createMock(ParameterMetadata::class);
+        $metadata->method('getOptions')->willReturn(['class' => DateTime::class]);
 
-        $this->expectException(\LogicException::class);
-        $this->datetimeType->convertPHPToNormalized(new \stdClass(), $metadata);
+        $this->expectException(LogicException::class);
+        $this->datetimeType->convertPHPToNormalized(new stdClass(), $metadata);
     }
 
     public function testConvertNormalizedToPHPDatetime(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
-        $metadata->method('getOptions')->willReturn(['class' => \DateTime::class]);
+        $metadata = $this->createMock(ParameterMetadata::class);
+        $metadata->method('getOptions')->willReturn(['class' => DateTime::class]);
 
         //Null should be returned as null
         $this->assertNull($this->datetimeType->convertNormalizedToPHP(null, $metadata));
 
         //Test with a DateTime object
-        $this->assertEquals(new \DateTime('2024-01-01', new \DateTimeZone('UTC')), $this->datetimeType->convertNormalizedToPHP('2024-01-01T00:00:00+00:00', $metadata));
-        $this->assertEquals(new \DateTime('2024-01-01', new \DateTimeZone('Europe/Berlin')), $this->datetimeType->convertNormalizedToPHP('2024-01-01T00:00:00+01:00', $metadata));
+        $this->assertEquals(new DateTime('2024-01-01', new DateTimeZone('UTC')), $this->datetimeType->convertNormalizedToPHP('2024-01-01T00:00:00+00:00', $metadata));
+        $this->assertEquals(new DateTime('2024-01-01', new DateTimeZone('Europe/Berlin')), $this->datetimeType->convertNormalizedToPHP('2024-01-01T00:00:00+01:00', $metadata));
     }
 
     public function testConvertNormalizedToPHPDatetimeImmutable(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
-        $metadata->method('getOptions')->willReturn(['class' => \DateTimeImmutable::class]);
+        $metadata = $this->createMock(ParameterMetadata::class);
+        $metadata->method('getOptions')->willReturn(['class' => DateTimeImmutable::class]);
 
         //Null should be returned as null
         $this->assertNull($this->datetimeType->convertNormalizedToPHP(null, $metadata));
 
         //Test with a DateTimeImmutable object
-        $this->assertEquals(new \DateTimeImmutable('2024-01-01', new \DateTimeZone('UTC')), $this->datetimeType->convertNormalizedToPHP('2024-01-01T00:00:00+00:00', $metadata));
-        $this->assertEquals(new \DateTimeImmutable('2024-01-01', new \DateTimeZone('Europe/Berlin')), $this->datetimeType->convertNormalizedToPHP('2024-01-01T00:00:00+01:00', $metadata));
+        $this->assertEquals(new DateTimeImmutable('2024-01-01', new DateTimeZone('UTC')), $this->datetimeType->convertNormalizedToPHP('2024-01-01T00:00:00+00:00', $metadata));
+        $this->assertEquals(new DateTimeImmutable('2024-01-01', new DateTimeZone('Europe/Berlin')), $this->datetimeType->convertNormalizedToPHP('2024-01-01T00:00:00+01:00', $metadata));
     }
 
     public function testConfigureFormOptions(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
-        $metadata->method('getOptions')->willReturn(['class' => \DateTimeImmutable::class]);
-        $resolver = new \Symfony\Component\OptionsResolver\OptionsResolver();
+        $metadata = $this->createMock(ParameterMetadata::class);
+        $metadata->method('getOptions')->willReturn(['class' => DateTimeImmutable::class]);
+        $resolver = new OptionsResolver();
         $this->datetimeType->configureFormOptions($resolver, $metadata);
 
         $this->assertEquals(['input' => 'datetime_immutable'], $resolver->resolve());
@@ -112,7 +119,7 @@ class DatetimeTypeTest extends TestCase
 
     public function testGetFormType(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
         $this->assertEquals(\Symfony\Component\Form\Extension\Core\Type\DateTimeType::class, $this->datetimeType->getFormType($metadata));
     }

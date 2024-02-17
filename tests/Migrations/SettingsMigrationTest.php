@@ -25,6 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Migrations;
 
+use Closure;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Migrations\MigrationsManager;
@@ -32,7 +33,7 @@ use Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface;
 use Jbtronics\SettingsBundle\Migrations\SettingsMigration;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\ClassMigration;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
-use PHPUnit\Framework\TestCase;
+use LogicException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SettingsMigrationTest extends KernelTestCase
@@ -47,7 +48,7 @@ class SettingsMigrationTest extends KernelTestCase
 
     public function testMissingStepHandlerMethod(): void
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
 
         $migration = new class extends SettingsMigration {
         };
@@ -99,7 +100,7 @@ class SettingsMigrationTest extends KernelTestCase
                 return $data;
             }
 
-            protected function resolveStepHandler(int $version): \Closure
+            protected function resolveStepHandler(int $version): Closure
             {
                 return match ($version) {
                     1 => $this->toVersion1(...),

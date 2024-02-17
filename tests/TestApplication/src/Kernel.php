@@ -31,6 +31,8 @@ use Jbtronics\SettingsBundle\JbtronicsSettingsBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 
+use function dirname;
+
 final class Kernel extends \Symfony\Component\HttpKernel\Kernel
 {
 
@@ -51,6 +53,6 @@ final class Kernel extends \Symfony\Component\HttpKernel\Kernel
 
     public function getProjectDir(): string
     {
-        return \dirname(__DIR__);
+        return dirname(__DIR__);
     }
 }

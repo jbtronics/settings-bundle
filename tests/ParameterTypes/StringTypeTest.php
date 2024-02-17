@@ -25,8 +25,12 @@
 
 namespace Jbtronics\SettingsBundle\Tests\ParameterTypes;
 
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
+use LogicException;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class StringTypeTest extends TestCase
 {
@@ -40,7 +44,7 @@ class StringTypeTest extends TestCase
 
     public function testConvertNormalizedToPHP(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
         $this->assertEquals('foo', $this->stringType->convertNormalizedToPHP('foo', $metadata));
         $this->assertNull($this->stringType->convertNormalizedToPHP(null, $metadata));
@@ -48,7 +52,7 @@ class StringTypeTest extends TestCase
 
     public function testConvertPHPToNormalized(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
         $this->assertEquals('foo', $this->stringType->convertPHPToNormalized('foo', $metadata));
         $this->assertNull($this->stringType->convertPHPToNormalized(null, $metadata));
@@ -56,25 +60,25 @@ class StringTypeTest extends TestCase
 
     public function testConvertPHPToNormalizedInvalidType(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->stringType->convertPHPToNormalized(1, $metadata);
     }
 
 
     public function testGetFormType(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
-        $this->assertEquals(\Symfony\Component\Form\Extension\Core\Type\TextType::class, $this->stringType->getFormType($metadata));
+        $this->assertEquals(TextType::class, $this->stringType->getFormType($metadata));
     }
 
     public function testConfigureFormOptions(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
-        $resolver  = new \Symfony\Component\OptionsResolver\OptionsResolver();
+        $resolver  = new OptionsResolver();
         $this->stringType->configureFormOptions($resolver, $metadata);
 
         $this->assertSame([], $resolver->resolve());

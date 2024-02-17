@@ -26,9 +26,12 @@
 namespace Jbtronics\SettingsBundle\Tests\Storage;
 
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Jbtronics\SettingsBundle\Storage\ORMStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\OtherSettingsEntry;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\SettingsEntry;
+use LogicException;
+use stdClass;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ORMStorageAdapterTest extends KernelTestCase
@@ -90,23 +93,23 @@ class ORMStorageAdapterTest extends KernelTestCase
     public function testThrowOnInvalidDefaultEntityClass(): void
     {
         //Must throw an exception, if the default entity class is not a subclass of AbstractSettingsORMEntry
-        $this->expectException(\InvalidArgumentException::class);
-        new ORMStorageAdapter($this->entityManager, \stdClass::class, false);
+        $this->expectException(InvalidArgumentException::class);
+        new ORMStorageAdapter($this->entityManager, stdClass::class, false);
     }
 
     public function testThrowOnInvalidEntityClass(): void
     {
         //Must throw an exception, if the passed entity class is not a subclass of AbstractSettingsORMEntry
         $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
-        $this->expectException(\InvalidArgumentException::class);
-        $adapter->load('foo', ['entity_class' => \stdClass::class]);
+        $this->expectException(InvalidArgumentException::class);
+        $adapter->load('foo', ['entity_class' => stdClass::class]);
     }
 
     public function testThrowIfNoEntityClassResolvable(): void
     {
         //Must throw an exception, if no entity class is passed and no default entity class is set
         $adapter = new ORMStorageAdapter($this->entityManager, null, false);
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $adapter->load('foo');
     }
 

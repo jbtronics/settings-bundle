@@ -144,7 +144,7 @@ class SettingsHydratorTest extends WebTestCase
         $schema = $this->schemaManager->getSettingsMetadata(VersionedSettings::class);
 
         //Prepare the storage adapter with some dummy data to migrate
-        $data = $this->storageAdapter->save($schema->getStorageKey(), [
+        $this->storageAdapter->save($schema->getStorageKey(), [
             '$META$' => [
                 'version' => 1,
             ],

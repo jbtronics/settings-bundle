@@ -25,7 +25,6 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Storage;
 
-use Jbtronics\SettingsBundle\Storage\JSONFileStorageAdapter;
 use Jbtronics\SettingsBundle\Storage\PHPFileStorageAdapter;
 use PHPUnit\Framework\TestCase;
 

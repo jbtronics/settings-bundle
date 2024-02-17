@@ -25,8 +25,10 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Settings;
 
+use Error;
 use Jbtronics\SettingsBundle\Settings\SettingsTrait;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 class TestClass
 {
@@ -40,20 +42,21 @@ class SettingsTraitTest extends TestCase
 
     public function setUp(): void
     {
-        $reflClass = new \ReflectionClass(TestClass::class);
+        $reflClass = new ReflectionClass(TestClass::class);
         $this->instance = $reflClass->newInstanceWithoutConstructor();
     }
 
     public function testPreventConstructor(): void
     {
-        $this->expectException(\Error::class);
+        $this->expectException(Error::class);
         //Invalid instantiation
+        /** @noinspection Annotator */
         new TestClass();
     }
 
     public function testPreventClone(): void
     {
-        $this->expectException(\Error::class);
+        $this->expectException(Error::class);
         //Invalid clone
         clone $this->instance;
     }

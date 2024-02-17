@@ -28,7 +28,6 @@ namespace Jbtronics\SettingsBundle\Tests\Storage;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistry;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class StorageAdapterRegistryTest extends KernelTestCase

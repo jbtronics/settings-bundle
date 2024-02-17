@@ -31,6 +31,7 @@ use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
+use LogicException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -79,7 +80,7 @@ class SettingsFormFactoryTest extends KernelTestCase
     public function testCreateSettingsFormBuilderCircular(): void
     {
         //If we encounter a circular embedded settings structure, we should throw an exception
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->service->createSettingsFormBuilder(EmbedSettings::class);
     }
 
@@ -100,7 +101,7 @@ class SettingsFormFactoryTest extends KernelTestCase
     public function testCreateMultiSettingsFormBuilderCircular(): void
     {
         //If we encounter a circular embedded settings structure, we should throw an exception
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->service->createMultiSettingsFormBuilder([SimpleSettings::class, EmbedSettings::class]);
     }
 }

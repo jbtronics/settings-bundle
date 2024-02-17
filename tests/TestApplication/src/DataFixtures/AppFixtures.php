@@ -35,7 +35,7 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\SettingsEntry;
 
 class AppFixtures extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $existing1 = new SettingsEntry('existing1');
         $existing1->setData(['foo' => 'existing1']);

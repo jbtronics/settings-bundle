@@ -25,17 +25,17 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Metadata;
 
+use InvalidArgumentException;
 use Jbtronics\SettingsBundle\Metadata\EmbeddedSettingsMetadata;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Settings\Settings;
-use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
-use PhpParser\Node\Param;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 
 class SettingsMetadataTest extends TestCase
@@ -100,7 +100,7 @@ class SettingsMetadataTest extends TestCase
 
     public function testGetParameterInvalid(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->configSchema->getParameter('property4');
     }
 
@@ -113,7 +113,7 @@ class SettingsMetadataTest extends TestCase
 
     public function testGetParameterByPropertyNameInvalid(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->configSchema->getParameterByPropertyName('property4');
     }
 
@@ -153,19 +153,19 @@ class SettingsMetadataTest extends TestCase
     {
         //Check group 1
         $params = $this->configSchema->getParametersByGroup('group1');
-        $this->assertEquals(2, count($params));
+        $this->assertCount(2, $params);
         $this->assertContains($this->parameterMetadata[0], $params);
         $this->assertContains($this->parameterMetadata[1], $params);
 
         //Check group 2
         $params = $this->configSchema->getParametersByGroup('group2');
-        $this->assertEquals(2, count($params));
+        $this->assertCount(2, $params);
         $this->assertContains($this->parameterMetadata[1], $params);
         $this->assertContains($this->parameterMetadata[2], $params);
 
         //Check group 3
         $params = $this->configSchema->getParametersByGroup('group3');
-        $this->assertEquals(1, count($params));
+        $this->assertCount(1, $params);
         $this->assertContains($this->parameterMetadata[2], $params);
 
         //Check invalid group: Must return an empty array
@@ -177,32 +177,32 @@ class SettingsMetadataTest extends TestCase
     public function testGetParametersWithOneOfGroups(): void
     {
         $params = $this->configSchema->getParametersWithOneOfGroups(['group1']);
-        $this->assertEquals(2, count($params));
+        $this->assertCount(2, $params);
         $this->assertContains($this->parameterMetadata[0], $params);
         $this->assertContains($this->parameterMetadata[1], $params);
 
         $params = $this->configSchema->getParametersWithOneOfGroups(['group2']);
-        $this->assertEquals(2, count($params));
+        $this->assertCount(2, $params);
         $this->assertContains($this->parameterMetadata[1], $params);
         $this->assertContains($this->parameterMetadata[2], $params);
 
         $params = $this->configSchema->getParametersWithOneOfGroups(['group3']);
-        $this->assertEquals(1, count($params));
+        $this->assertCount(1, $params);
         $this->assertContains($this->parameterMetadata[2], $params);
 
         $params = $this->configSchema->getParametersWithOneOfGroups(['group2', 'group3']);
-        $this->assertEquals(2, count($params));
+        $this->assertCount(2, $params);
         $this->assertContains($this->parameterMetadata[1], $params);
         $this->assertContains($this->parameterMetadata[2], $params);
 
         $params = $this->configSchema->getParametersWithOneOfGroups(['group1', 'group3']);
-        $this->assertEquals(3, count($params));
+        $this->assertCount(3, $params);
         $this->assertContains($this->parameterMetadata[0], $params);
         $this->assertContains($this->parameterMetadata[1], $params);
         $this->assertContains($this->parameterMetadata[2], $params);
 
         $params = $this->configSchema->getParametersWithOneOfGroups(['group1', 'group2', 'group3']);
-        $this->assertEquals(3, count($params));
+        $this->assertCount(3, $params);
         $this->assertContains($this->parameterMetadata[0], $params);
         $this->assertContains($this->parameterMetadata[1], $params);
         $this->assertContains($this->parameterMetadata[2], $params);
@@ -210,7 +210,7 @@ class SettingsMetadataTest extends TestCase
 
     public function testMissingMigrator(): void
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
 
         $schema = new SettingsMetadata(
             className: self::class,
@@ -292,7 +292,7 @@ class SettingsMetadataTest extends TestCase
 
     public function testGetEmbeddedByPropertyNameInvalid(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->configSchema->getEmbeddedSettingByPropertyName('embedded3');
     }
 

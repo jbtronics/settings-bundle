@@ -37,6 +37,7 @@ use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 
 class SettingsResetterTest extends TestCase
@@ -133,7 +134,7 @@ class SettingsResetterTest extends TestCase
     public function testResetSettingsNotResetableProperty(): void
     {
         //If we encounter a property without a default value and which is not nullable, we throw an exception
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
 
         $settings = new class {
             public string $value1;

@@ -25,9 +25,11 @@
 
 namespace Jbtronics\SettingsBundle\Tests\ParameterTypes;
 
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EnumTypeTest extends TestCase
 {
@@ -41,7 +43,7 @@ class EnumTypeTest extends TestCase
 
     public function testConvertNormalizedToPHP(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
         $metadata->method('getOptions')->willReturn(['class' => TestEnum::class]);
 
         $this->assertEquals(TestEnum::FOO, $this->enumType->convertNormalizedToPHP(1, $metadata));
@@ -53,7 +55,7 @@ class EnumTypeTest extends TestCase
 
     public function testConvertPHPToNormalized(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
         $metadata->method('getOptions')->willReturn(['class' => TestEnum::class]);
 
         $this->assertEquals(1, $this->enumType->convertPHPToNormalized(TestEnum::FOO, $metadata));
@@ -63,18 +65,18 @@ class EnumTypeTest extends TestCase
         $this->assertNull($this->enumType->convertPHPToNormalized(null, $metadata));
     }
 
-    public function testGetFormType()
+    public function testGetFormType(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
         $this->assertEquals(\Symfony\Component\Form\Extension\Core\Type\EnumType::class, $this->enumType->getFormType($metadata));
     }
 
-    public function testConfigureFormOptions()
+    public function testConfigureFormOptions(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
         $metadata->method('getOptions')->willReturn(['class' => TestEnum::class]);
 
-        $resolver = new \Symfony\Component\OptionsResolver\OptionsResolver();
+        $resolver = new OptionsResolver();
         $this->enumType->configureFormOptions($resolver, $metadata);
 
         $this->assertEquals(['class' => TestEnum::class], $resolver->resolve());

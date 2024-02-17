@@ -45,7 +45,7 @@ class EmbedSettings
     #[SettingsParameter]
     public bool $bool = true;
 
-    #[EmbeddedSettings()]
+    #[EmbeddedSettings]
     public SimpleSettings $simpleSettings;
 
     #[EmbeddedSettings(CircularEmbedSettings::class, groups: ['group1'])]

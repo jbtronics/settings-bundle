@@ -25,8 +25,11 @@
 
 namespace Jbtronics\SettingsBundle\Tests\ParameterTypes;
 
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
+use LogicException;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class IntTypeTest extends TestCase
@@ -41,7 +44,7 @@ class IntTypeTest extends TestCase
 
     public function testConvertPHPToNormalized(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
         $this->assertEquals(1, $this->intType->convertPHPToNormalized(1, $metadata));
         $this->assertNull($this->intType->convertPHPToNormalized(null, $metadata));
@@ -49,15 +52,15 @@ class IntTypeTest extends TestCase
 
     public function testConvertPHPToNormalizedInvalidType(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->intType->convertPHPToNormalized('1', $metadata);
     }
 
     public function testConvertNormalizedToPHP(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
         $this->assertEquals(1, $this->intType->convertNormalizedToPHP(1, $metadata));
         $this->assertNull($this->intType->convertNormalizedToPHP(null, $metadata));
@@ -69,7 +72,7 @@ class IntTypeTest extends TestCase
 
     public function testConfigureFormOptions(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
+        $metadata = $this->createMock(ParameterMetadata::class);
 
         $resolver  = new OptionsResolver();
         $this->intType->configureFormOptions($resolver, $metadata);
@@ -77,9 +80,9 @@ class IntTypeTest extends TestCase
         $this->assertSame([], $resolver->resolve());
     }
 
-    public function testGetFormType()
+    public function testGetFormType(): void
     {
-        $metadata = $this->createMock(\Jbtronics\SettingsBundle\Metadata\ParameterMetadata::class);
-        $this->assertEquals(\Symfony\Component\Form\Extension\Core\Type\IntegerType::class, $this->intType->getFormType($metadata));
+        $metadata = $this->createMock(ParameterMetadata::class);
+        $this->assertEquals(IntegerType::class, $this->intType->getFormType($metadata));
     }
 }

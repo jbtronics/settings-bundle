@@ -32,6 +32,7 @@ use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
+use stdClass;
 
 /**
  * This settings are used to test the ParameterTypeGuesser.
@@ -52,5 +53,5 @@ class GuessableSettings
     public TestEnum $enum = TestEnum::BAZ;
 
     public TestEnum|bool|int $complexType;
-    public \stdClass $stdClass;
+    public stdClass $stdClass;
 }

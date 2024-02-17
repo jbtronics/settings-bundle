@@ -25,11 +25,11 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Metadata;
 
+use DateTime;
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
-use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
@@ -38,8 +38,9 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigrat
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
+use LogicException;
+use stdClass;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Form\Guess\Guess;
 
 class MetadataManagerTest extends KernelTestCase
 {
@@ -49,14 +50,14 @@ class MetadataManagerTest extends KernelTestCase
     public function setUp(): void
     {
         self::bootKernel();
-        $this->metadataManager = $this->getContainer()->get(MetadataManagerInterface::class);
+        $this->metadataManager = self::getContainer()->get(MetadataManagerInterface::class);
     }
 
     public function testIsConfigClass(): void
     {
         //Basic classes should not be config classes
-        $this->assertFalse($this->metadataManager->isSettingsClass(\DateTime::class));
-        $this->assertFalse($this->metadataManager->isSettingsClass(\stdClass::class));
+        $this->assertFalse($this->metadataManager->isSettingsClass(DateTime::class));
+        $this->assertFalse($this->metadataManager->isSettingsClass(stdClass::class));
 
         //But our config class should recognize as such
         $this->assertTrue($this->metadataManager->isSettingsClass(SimpleSettings::class));
@@ -67,8 +68,8 @@ class MetadataManagerTest extends KernelTestCase
 
     public function testGetSchemaInvalidClass(): void
     {
-        $this->expectException(\LogicException::class);
-        $this->metadataManager->getSettingsMetadata(\DateTime::class);
+        $this->expectException(LogicException::class);
+        $this->metadataManager->getSettingsMetadata(DateTime::class);
     }
 
     public function testGetSchema(): void

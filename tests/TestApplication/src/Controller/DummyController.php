@@ -25,14 +25,12 @@
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Controller;
 
-use Jbtronics\SettingsBundle\Form\SettingsFormFactory;
 use Jbtronics\SettingsBundle\Form\SettingsFormFactoryInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
-use Symfony\Component\Routing\Attribute\Route;
 
 class DummyController
 {

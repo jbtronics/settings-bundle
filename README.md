@@ -170,7 +170,7 @@ class SettingsFormController {
 }
 ```
 
-Form rendering can be customized via the Parameter attributes. See documentation for full info.
+Form rendering can be customized via the Parameter attributes. See [documentation](https://jbtronics.github.io/settings-bundle/) for full info.
 
 ### Twig templates
 

@@ -5,6 +5,7 @@
 # Settings bundle
 
 Settings-bundle is a symfony bundle that let you easily create and manage user-configurable settings, which are changeable via a web frontend.
+It allows for easy creation of type-safe settings objects, which can be easily managed and changed via a web frontend in your symfony application.
 
 ## Introduction
 By default, symfony is mostly configured by parameters in configuration files, where a recompilation of the container is required, or via environment variables, which can not be easily changed by the application itself. 

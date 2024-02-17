@@ -2,6 +2,7 @@
 title: Storage adapters
 layout: default
 parent: Usage
+nav_order: 3
 ---
 
 # Storage adapters

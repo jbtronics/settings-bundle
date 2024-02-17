@@ -2,6 +2,7 @@
 title: Settings versioning and migrations
 layout: default
 parent: Usage
+nav_order: 6
 ---
 
 # Settings versioning and migrations

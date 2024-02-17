@@ -73,7 +73,9 @@ use Jbtronics\SettingsBundle\Settings\SettingsTrait;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
-#[Settings(storageAdapter: JSONFileStorageAdapter::class)] // The settings attribute makes a simple class to settings
+// The settings attribute makes a simple class to settings
+// You can configure the storage backend (here JSON files) to use either here or globally in the bundle configuration
+#[Settings(storageAdapter: JSONFileStorageAdapter::class)]
 class TestSettings {
     use SettingsTrait; // Disable constructor and __clone methods
 

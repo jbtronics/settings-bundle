@@ -26,7 +26,6 @@
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
-use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

@@ -44,7 +44,7 @@ class SettingsCollector extends AbstractDataCollector
 
     }
 
-    public function collect(Request $request, Response $response, \Throwable $exception = null)
+    public function collect(Request $request, Response $response, \Throwable $exception = null): void
     {
         $settings_classes = $this->configurationRegistry->getSettingsClasses();
         $metadata = [];

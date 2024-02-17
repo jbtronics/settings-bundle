@@ -26,7 +26,6 @@
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
-use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 
 /**
  * This is the base interface for all config entry types, defining how to map the value in the config class to a

@@ -29,7 +29,6 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\Form;
 
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormInterface;
 
 /**
  * This service allows to create forms and form builders for settings.

@@ -29,12 +29,9 @@ use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
-use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
-use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
-use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
 
 final class MetadataManager implements MetadataManagerInterface
@@ -205,6 +202,7 @@ final class MetadataManager implements MetadataManagerInterface
      * Tries to parse the parameter metadata from the given property. If the property is not a settings parameter, null is returned.
      * @param  string  $className
      * @param  \ReflectionProperty  $reflProperty
+     * @param  Settings  $classAttribute
      * @return ParameterMetadata|null
      */
     private function parseParameterMetadata(string $className, \ReflectionProperty $reflProperty, Settings $classAttribute): ?ParameterMetadata

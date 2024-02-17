@@ -28,9 +28,6 @@ namespace Jbtronics\SettingsBundle\Manager;
 use Ergebnis\Classy\Construct;
 use Ergebnis\Classy\Constructs;
 use Jbtronics\SettingsBundle\Settings\Settings;
-use Spatie\StructureDiscoverer\Discover;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**

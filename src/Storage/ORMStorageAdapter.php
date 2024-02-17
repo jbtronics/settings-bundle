@@ -44,7 +44,7 @@ class ORMStorageAdapter implements StorageAdapterInterface
      * @phpstan-var array<string, array<AbstractSettingsORMEntry>>
      */
     private array $cache = [];
-    
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ?string $defaultEntityClass = null,

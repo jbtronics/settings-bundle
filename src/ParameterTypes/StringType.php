@@ -26,8 +26,6 @@
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
-use Jbtronics\SettingsBundle\Settings\SettingsParameter;
-use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

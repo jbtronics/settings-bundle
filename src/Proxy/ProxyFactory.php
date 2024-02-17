@@ -28,7 +28,6 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Proxy;
 
-use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\VarExporter\ProxyHelper;
 
 /**

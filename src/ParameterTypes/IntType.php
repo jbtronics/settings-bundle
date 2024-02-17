@@ -26,9 +26,7 @@
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
-use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class IntType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface

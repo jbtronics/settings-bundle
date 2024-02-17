@@ -29,7 +29,6 @@ use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
-use Jbtronics\SettingsBundle\Proxy\ProxyFactory;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
@@ -122,7 +121,7 @@ final class SettingsManager implements SettingsManagerInterface
 
             foreach ($classes_to_reload as $class) {
                 //Skip the class itself
-                if ($settingsClass == $class) {
+                if ($settingsClass === $class) {
                     continue;
                 }
 
@@ -138,7 +137,7 @@ final class SettingsManager implements SettingsManagerInterface
     public function save(string|object|array|null $settings = null, bool $cascade = true): void
     {
         //If no class were given, we save all classes
-        if ($settings == null) {
+        if ($settings === null) {
             $settings = array_keys($this->settings_by_class);
         }
 

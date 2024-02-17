@@ -26,9 +26,7 @@
 namespace Jbtronics\SettingsBundle\Metadata;
 
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
-use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**

@@ -36,7 +36,7 @@ trait PHPValueConverterTrait
 {
     protected ?ParameterTypeRegistryInterface $parameterTypeRegistry = null;
 
-    #[Required()]
+    #[Required]
     public function setParameterTypeRegistry(ParameterTypeRegistryInterface $parameterTypeRegistry): void
     {
         $this->parameterTypeRegistry = $parameterTypeRegistry;

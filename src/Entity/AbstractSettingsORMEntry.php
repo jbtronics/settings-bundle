@@ -31,7 +31,6 @@ namespace Jbtronics\SettingsBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\MappedSuperclass;
-use Jbtronics\SettingsBundle\Storage\ORMStorageAdapter;
 
 /**
  * This class is the base entity class for the entities to use with the ORMStorageAdapter, it provides a basic

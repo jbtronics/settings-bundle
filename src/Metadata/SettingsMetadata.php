@@ -25,8 +25,6 @@
 
 namespace Jbtronics\SettingsBundle\Metadata;
 
-use Jbtronics\SettingsBundle\Settings\Settings;
-use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 
 /**

@@ -25,8 +25,6 @@
 
 namespace Jbtronics\SettingsBundle\Helper;
 
-use PHPUnit\Framework\Assert;
-
 /**
  * Helpers to access private and protected properties
  *
@@ -83,9 +81,7 @@ class PropertyAccessHelper
             throw new \LogicException(sprintf('The property %s does not exist on %s or any of its parents.', $propertyName, $class));
         }
 
-        $property = $refl->getProperty($propertyName);
-
-        return $property;
+        return $refl->getProperty($propertyName);
     }
 
     /**

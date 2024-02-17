@@ -61,6 +61,7 @@ use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\Storage\JSONFileStorageAdapter;
+use Jbtronics\SettingsBundle\Settings\SettingsTrait;
 use Symfony\Component\Validator\Constraints as Assert;
 
 

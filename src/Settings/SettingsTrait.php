@@ -25,11 +25,15 @@
 
 namespace Jbtronics\SettingsBundle\Settings;
 
+use Jbtronics\SettingsBundle\Settings\Helpers\ForbidCloneTrait;
+use Jbtronics\SettingsBundle\Settings\Helpers\ForbidConstructorTrait;
+
 /**
  * This trait has common functionality for all settings classes.
  * It also forbids calling the constructor directly.
  */
 trait SettingsTrait
 {
-    use BlockConstructorTrait;
+    use ForbidConstructorTrait;
+    use ForbidCloneTrait;
 }

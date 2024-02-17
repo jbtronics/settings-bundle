@@ -2,8 +2,8 @@
   "name": "jbtronics/settings-bundle",
   "type": "symfony-bundle",
   "license": "MIT",
-  "description": "A symfony bundle to easily define and use user specific configuration",
-  "keywords": ["settings", "config", "symfony", "symfony-bundle"],
+  "description": "A symfony bundle to easily create typesafe, user-configurable settings for symfony applications",
+  "keywords": ["settings", "config", "symfony", "symfony-bundle", "user-configurable"],
   "autoload": {
     "psr-4": {
       "Jbtronics\\SettingsBundle\\": "src/"

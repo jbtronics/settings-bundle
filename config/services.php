@@ -52,8 +52,7 @@ return static function (ContainerConfigurator $container) {
         ->defaults()->private()
         ->instanceof(ParameterTypeInterface::class)->tag(JbtronicsSettingsExtension::TAG_PARAMETER_TYPE)
         ->instanceof(StorageAdapterInterface::class)->tag(JbtronicsSettingsExtension::TAG_STORAGE_ADAPTER)
-        ->instanceof(SettingsMigrationInterface::class)->tag(JbtronicsSettingsExtension::TAG_MIGRATION)
-        ;
+        ->instanceof(SettingsMigrationInterface::class)->tag(JbtronicsSettingsExtension::TAG_MIGRATION);
 
     //Inject the parameter type registry into all SettingsMigration services
     $services->instanceof(\Jbtronics\SettingsBundle\Migrations\SettingsMigration::class)
@@ -64,8 +63,7 @@ return static function (ContainerConfigurator $container) {
             '$directories' => '%jbtronics.settings.search_paths%',
             '$cache' => service('cache.app'),
             '$debug_mode' => '%kernel.debug%',
-        ])
-    ;
+        ]);
     $services->alias(SettingsRegistryInterface::class, 'jbtronics.settings.settings_registry');
 
     $services->set('jbtronics.settings.metadata_manager', MetadataManager::class)
@@ -75,11 +73,11 @@ return static function (ContainerConfigurator $container) {
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$parameterTypeGuesser' => service('jbtronics.settings.parameter_type_guesser'),
             '$defaultStorageAdapter' => '%jbtronics.settings.default_storage_adapter%'
-        ])
-    ;
+        ]);
     $services->alias(MetadataManagerInterface::class, 'jbtronics.settings.metadata_manager');
 
-    $services->set('jbtronics.settings.metadata_cache_warmer', \Jbtronics\SettingsBundle\CacheWarmer\MetadataCacheWarmer::class)
+    $services->set('jbtronics.settings.metadata_cache_warmer',
+        \Jbtronics\SettingsBundle\CacheWarmer\MetadataCacheWarmer::class)
         ->args([
             '$metadataManager' => service('jbtronics.settings.metadata_manager'),
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
@@ -94,22 +92,19 @@ return static function (ContainerConfigurator $container) {
             '$settingsValidator' => service('jbtronics.settings.settings_validator'),
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
-        ])
-        ;
+        ]);
     $services->alias(SettingsManagerInterface::class, 'jbtronics.settings.settings_manager');
 
     $services->set('jbtronics.settings.parameter_type_registry', ParameterTypeRegistry::class)
         ->args([
             '$locator' => tagged_locator(JbtronicsSettingsExtension::TAG_PARAMETER_TYPE)
-        ])
-        ;
+        ]);
     $services->alias(ParameterTypeRegistryInterface::class, 'jbtronics.settings.parameter_type_registry');
 
     $services->set('jbtronics.settings.storage_adapter_registry', StorageAdapterRegistry::class)
         ->args([
             '$locator' => tagged_locator(JbtronicsSettingsExtension::TAG_STORAGE_ADAPTER)
-        ])
-        ;
+        ]);
     $services->alias(StorageAdapterRegistryInterface::class, 'jbtronics.settings.storage_adapter_registry');
 
     $services->set('jbtronics.settings.settings_hydrator', SettingsHydrator::class)
@@ -118,8 +113,7 @@ return static function (ContainerConfigurator $container) {
             '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
             '$migrationsManager' => service('jbtronics.settings.settings_migration_manager'),
             '$saveAfterMigration' => '%jbtronics.settings.save_after_migration%',
-        ])
-        ;
+        ]);
     $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');
 
     $services->set('jbtronics.settings.settings_resetter', SettingsResetter::class);
@@ -129,11 +123,13 @@ return static function (ContainerConfigurator $container) {
         ->args([
             '$validator' => service('validator'),
         ]);
-    $services->alias(\Jbtronics\SettingsBundle\Manager\SettingsValidatorInterface::class, 'jbtronics.settings.settings_validator');
+    $services->alias(\Jbtronics\SettingsBundle\Manager\SettingsValidatorInterface::class,
+        'jbtronics.settings.settings_validator');
 
-    $services->set('jbtronics.settings.parameter_type_guesser', \Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesser::class)
-        ;
-    $services->alias(\Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesserInterface::class, 'jbtronics.settings.parameter_type_guesser');
+    $services->set('jbtronics.settings.parameter_type_guesser',
+        \Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesser::class);
+    $services->alias(\Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesserInterface::class,
+        'jbtronics.settings.parameter_type_guesser');
 
     $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
         ->tag('data_collector')
@@ -152,7 +148,8 @@ return static function (ContainerConfigurator $container) {
             ]);
     }
 
-    $services->set('jbtronics.settings.env_processor', \Jbtronics\SettingsBundle\DependencyInjection\SettingsEnvProcessor::class)
+    $services->set('jbtronics.settings.env_processor',
+        \Jbtronics\SettingsBundle\DependencyInjection\SettingsEnvProcessor::class)
         ->tag('container.env_var_processor')
         ->args([
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
@@ -171,7 +168,8 @@ return static function (ContainerConfigurator $container) {
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface::class, 'jbtronics.settings.proxy_factory');
 
-    $services->set('jbtronics.settings.proxy_cache_warmer', \Jbtronics\SettingsBundle\CacheWarmer\ProxyCacheWarmer::class)
+    $services->set('jbtronics.settings.proxy_cache_warmer',
+        \Jbtronics\SettingsBundle\CacheWarmer\ProxyCacheWarmer::class)
         ->args([
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
@@ -182,31 +180,37 @@ return static function (ContainerConfigurator $container) {
      * Form subsystem
      *********************************************************************************/
 
-    $services->set('jbtronics.settings.settings_form_builder', \Jbtronics\SettingsBundle\Form\SettingsFormBuilder::class)
+    $services->set('jbtronics.settings.settings_form_builder',
+        \Jbtronics\SettingsBundle\Form\SettingsFormBuilder::class)
         ->args([
             '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
             '$metadataManager' => service('jbtronics.settings.metadata_manager'),
         ]);
-    $services->alias(\Jbtronics\SettingsBundle\Form\SettingsFormBuilderInterface::class, 'jbtronics.settings.settings_form_builder');
+    $services->alias(\Jbtronics\SettingsBundle\Form\SettingsFormBuilderInterface::class,
+        'jbtronics.settings.settings_form_builder');
 
-    $services->set('jbtronics.settings.settings_form_factory', \Jbtronics\SettingsBundle\Form\SettingsFormFactory::class)
+    $services->set('jbtronics.settings.settings_form_factory',
+        \Jbtronics\SettingsBundle\Form\SettingsFormFactory::class)
         ->args([
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
             '$metadataManager' => service('jbtronics.settings.metadata_manager'),
             '$settingsFormBuilder' => service('jbtronics.settings.settings_form_builder'),
             '$formFactory' => service('form.factory'),
         ]);
-    $services->alias(\Jbtronics\SettingsBundle\Form\SettingsFormFactoryInterface::class, 'jbtronics.settings.settings_form_factory');
+    $services->alias(\Jbtronics\SettingsBundle\Form\SettingsFormFactoryInterface::class,
+        'jbtronics.settings.settings_form_factory');
 
     /*************************************************************************************
      * Migrations subsystem
      *************************************************************************************/
 
-    $services->set('jbtronics.settings.settings_migration_manager', \Jbtronics\SettingsBundle\Migrations\MigrationsManager::class)
+    $services->set('jbtronics.settings.settings_migration_manager',
+        \Jbtronics\SettingsBundle\Migrations\MigrationsManager::class)
         ->args([
             '$locator' => tagged_locator(JbtronicsSettingsExtension::TAG_MIGRATION),
         ]);
-    $services->alias(\Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface::class, 'jbtronics.settings.settings_migration_manager');
+    $services->alias(\Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface::class,
+        'jbtronics.settings.settings_migration_manager');
 
     /**********************************************************************************
      * Parameter Types
@@ -232,4 +236,19 @@ return static function (ContainerConfigurator $container) {
             '$storageDirectory' => '%jbtronics.settings.file_storage.storage_directory%',
             '$defaultFilename' => '%jbtronics.settings.file_storage.default_filename%.php',
         ]);
+
+    //If the doctrine bundle is available, register the doctrine storage adapter
+    try {
+        $services->get('doctrine.orm.entity_manager');
+
+        //If we reach this point, the doctrine bundle is available
+        $services->set(\Jbtronics\SettingsBundle\Storage\ORM\ORMStorageAdapter::class)
+            ->args([
+                '$entityManager' => service('doctrine.orm.entity_manager'),
+                '$defaultEntityClass' => '%jbtronics.settings.orm.default_entity_class%',
+                '$fetchAll' => '%jbtronics.settings.orm.fetch_all%',
+            ]);
+    } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
+        //Do nothing, as the doctrine bundle is not available
+    }
 };

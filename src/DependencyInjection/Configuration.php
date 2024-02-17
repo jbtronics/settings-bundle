@@ -59,6 +59,7 @@ class Configuration implements ConfigurationInterface
             ->end();
 
         $this->addFileStorageConfiguration($rootNode);
+        $this->addORMStorageConfiguration($rootNode);
 
         return $treeBuilder;
     }
@@ -72,6 +73,18 @@ class Configuration implements ConfigurationInterface
                 ->children()
                 ->scalarNode('storage_directory')->defaultValue('%kernel.project_dir%/var/jbtronics_settings/')->end()
                 ->scalarNode('default_filename')->defaultValue('settings')->end()
+            ->end();
+    }
+
+    private function addORMStorageConfiguration(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
+            ->arrayNode('orm_storage')
+                ->addDefaultsIfNotSet()
+                ->children()
+                ->scalarNode('default_entity_class')->defaultNull()->end()
+                ->booleanNode('fetch_all')->defaultTrue()->end()
             ->end();
     }
 }

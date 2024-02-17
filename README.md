@@ -7,9 +7,9 @@
 Settings-bundle is a symfony bundle that let you manage your application settings on the frontend side.
 
 ## Introduction
-By default symfony is mostly configured by parameters in configuration files, where a recompilation of the container is required, or via environment variables, which can not be easily changed by the application itself. 
+By default, symfony is mostly configured by parameters in configuration files, where a recompilation of the container is required, or via environment variables, which can not be easily changed by the application itself. 
 
-However you often want administrators and users of your application let change settings and configuration of your application. This bundle provides a simple way to do this. Unlike other bundles with a similar goal, this bundle tries to be as modular as possible and to be as type-safe as possible. Therefore you define your Settings as a class, and access objects of this class in your application, instead of doing simple key-value lookups with mixed return types.
+However, you often want administrators and users of your application let change settings and configuration of your application. This bundle provides a simple way to do this. Unlike other bundles with a similar goal, this bundle tries to be as modular as possible and to be as type-safe as possible. Therefore you define your Settings as a class, and access objects of this class in your application, instead of doing simple key-value lookups with mixed return types.
 
 All relevant definitions of settings are done directly in the settings class via metadata attributes. This makes it easy to understand and maintain the settings. The bundle also provides a simple way to generate forms to change the settings, which can be easily integrated into your application.
 
@@ -24,6 +24,13 @@ All relevant definitions of settings are done directly in the settings class via
 * Easy possibility to version settings and automatically migrate old stored data to the current format
 * Possibility to lazy load settings, so that only the settings, which are really needed, are loaded
 * Profiler integration for easy debugging
+
+## Requirements
+* PHP 8.1 or higher
+* Symfony 6.4 or higher (compatible with Symfony 7.0)
+* Symfony/forms and Symfony/validator required if forms should be generated or validation should be used
+* twig required if you want to use the twig extension to access settings in your templates
+* doctrine/orm and doctrine-bundle required if you want to use the doctrine storage adapter
 
 ## Installation
 

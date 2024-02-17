@@ -32,6 +32,10 @@ namespace Jbtronics\SettingsBundle\Storage;
 use Doctrine\ORM\EntityManagerInterface;
 use Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry;
 
+/**
+ * This class provides a storage adapter for the Doctrine ORM, it allows to store settings in the database using Doctrine ORM entities.
+ * You will need to implement your own entity class that extends AbstractSettingsORMEntry and configure the storage adapter to use it.
+ */
 class ORMStorageAdapter implements StorageAdapterInterface
 {
 
@@ -40,7 +44,7 @@ class ORMStorageAdapter implements StorageAdapterInterface
      * @phpstan-var array<string, array<AbstractSettingsORMEntry>>
      */
     private array $cache = [];
-
+    
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ?string $defaultEntityClass = null,

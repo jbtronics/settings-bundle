@@ -39,6 +39,7 @@ jbtronics_settings:
     # The directory where the proxy classes should be stored
     proxy_dir: '%kernel.cache_dir%/jbtronics_settings/proxies'
 
+    # The configuration for file based storage adapters
     file_storage:
         # The directory where the settings files should be stored
         storage_directory: '%kernel.project_dir%/var/jbtronics_settings/'
@@ -46,5 +47,16 @@ jbtronics_settings:
         # The default filenmame (without extension) in which the settings are stored under in the storage directory
         # The file extension is determined by the storage adapter. The name can be overriden on a per settings class basis
         default_filename: 'settings'
+        
+    # The configuration for the ORM storage adapter
+    orm_storage:
+      # The default entity (extending AbstractSettingsORMEntry) to use to store the settings data. If not set, the entity class must be set in the settings class annotation
+      default_entity_class: ~
+
+      # If this is set to true, the ORM storage adapter will perform a SELECT * query on the settings table to load all settings at once, instead of fetching them one by one.
+      # This can improve performance, if you have a lot of settings, which are loaded frequently. 
+      # However, it can also decrease performance, if you have a lot of settings classes, which are loaded rarely.
+      prefetch_all: true
+    
 
 ```

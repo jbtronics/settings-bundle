@@ -35,9 +35,33 @@ class MySettings
 
 The PHPFileStorageAdapter loads the data directly into PHP, which is faster than parsing JSON. Be sure that the file contains only safe PHP code, as it will be executed directly by the PHP interpreter.
 
+### ORMStorageAdapter
+
+The `ORMStorageAdapter` stores the settings data in a database managed by doctrine ORM.The settings data is stored in 
+instances of a SettingsEntry entity, which must extend the `Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry` class.
+The entity class to use can be either configured on a per-settings class basis (with the `entity_class` option), or globally for all settings classes (with the `default_entity_class` key under `orm_storage` in the bundle configuration).
+
+The entity must extend the `AbstractSettingsORMEntry` class and must just define an ID field. All required fields are already defined by the abstract parent class:
+
+```php
+use Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
+
+#[ORM\Entity]
+class MySettingsORMEntry extends AbstractSettingsORMEntry
+{
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: Types::INTEGER)]
+    private int $id;
+}
+```
+
+For performance reasons the ORMStorageAdapter performs a `SELECT *` query to load all settings data at once, to save a lot of single queries. 
+This behavior can be disabled by setting the `prefetch_all` option under `orm_storage` to false in the bundle configuration.
+
 ### InMemoryStorageAdapter
 
-Stores the settings in memory (RAM). The settings are not persistet and will be lost after the current request. This storage adapter is mainly used for testing.
+Stores the settings in memory (RAM). The settings are not persisted and will be lost after the current request. This storage adapter is mainly used for testing.
 
 
 ## Creating custom storage adapters

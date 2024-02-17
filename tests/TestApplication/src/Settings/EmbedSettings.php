@@ -31,6 +31,7 @@ namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\Settings\SettingsTrait;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 
 /**
@@ -39,6 +40,8 @@ use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 #[Settings(storageAdapter: InMemoryStorageAdapter::class, groups: ['default'])]
 class EmbedSettings
 {
+    use SettingsTrait;
+
     #[SettingsParameter]
     public bool $bool = true;
 

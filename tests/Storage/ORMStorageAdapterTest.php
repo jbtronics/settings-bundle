@@ -102,5 +102,12 @@ class ORMStorageAdapterTest extends KernelTestCase
         $adapter->load('foo', ['entity_class' => \stdClass::class]);
     }
 
+    public function testThrowIfNoEntityClassResolvable(): void
+    {
+        //Must throw an exception, if no entity class is passed and no default entity class is set
+        $adapter = new ORMStorageAdapter($this->entityManager, null, false);
+        $this->expectException(\LogicException::class);
+        $adapter->load('foo');
+    }
 
 }

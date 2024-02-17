@@ -103,8 +103,10 @@ class ORMStorageAdapter implements StorageAdapterInterface
 
     public function save(string $key, array $data, array $options = []): void
     {
+        $entityClass = $options['entity_class'] ?? $this->defaultEntityClass ?? throw new \LogicException('You must either provide an entity class in the options or set a default entity class!');
+
         //Retrieve the entity object
-        $entity = $this->getEntityObject($key, $options['entity_class'] ?? $this->defaultEntityClass);
+        $entity = $this->getEntityObject($key, $entityClass);
 
         //Set the data
         $entity->setData($data);
@@ -118,7 +120,7 @@ class ORMStorageAdapter implements StorageAdapterInterface
 
     public function load(string $key, array $options = []): ?array
     {
-        $entityClass = $options['entity_class'] ?? $this->defaultEntityClass;
+        $entityClass = $options['entity_class'] ?? $this->defaultEntityClass ?? throw new \LogicException('You must either provide an entity class in the options or set a default entity class!');
 
         //Preload all entity objects if the fetchAll option is set
         if ($this->prefetchAll) {

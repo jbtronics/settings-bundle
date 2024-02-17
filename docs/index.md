@@ -177,6 +177,7 @@ Form rendering can be customized via the Parameter attributes. See documentation
 
 In twig templates you can access the settings via the `settings_instance()` function, which behaves like the `SettingsManagerInterface::get()` function and returns the current settings instance:
 
+{% raw %}
 ```twig
 {# @var settings \App\Settings\TestSettings #}
 {% set settings = settings_instance('test') %}
@@ -185,6 +186,7 @@ In twig templates you can access the settings via the `settings_instance()` func
 {# or directly #}
 {{ settings_instance('test').myString }}
 ```
+{% endraw %}
 
 ## License
 

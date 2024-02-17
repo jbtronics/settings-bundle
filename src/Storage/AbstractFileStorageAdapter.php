@@ -44,7 +44,7 @@ abstract class AbstractFileStorageAdapter implements StorageAdapterInterface
     {
         //Determine which filename to use for the given key
         $filename = $options['filename'] ?? $this->defaultFilename;
-        
+
         //Save the content to the file
         $filePath = $this->getFilePath($filename);
 

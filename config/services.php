@@ -131,13 +131,17 @@ return static function (ContainerConfigurator $container) {
     $services->alias(\Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesserInterface::class,
         'jbtronics.settings.parameter_type_guesser');
 
-    $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
-        ->tag('data_collector')
-        ->args([
-            '$configurationRegistry' => service('jbtronics.settings.settings_registry'),
-            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
-            '$settingsManager' => service('jbtronics.settings.settings_manager'),
-        ]);
+
+    //Check if the profiler bundle is available and register the data collector
+    if (interface_exists(\Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface::class)) {
+        $services->set('jbtronics.settings.profiler_data_collector', SettingsCollector::class)
+            ->tag('data_collector')
+            ->args([
+                '$configurationRegistry' => service('jbtronics.settings.settings_registry'),
+                '$metadataManager' => service('jbtronics.settings.metadata_manager'),
+                '$settingsManager' => service('jbtronics.settings.settings_manager'),
+            ]);
+    }
 
     //Only register the twig extension if twig is available
     if (interface_exists(\Twig\Extension\ExtensionInterface::class)) {

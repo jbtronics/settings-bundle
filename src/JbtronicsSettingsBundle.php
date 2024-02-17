@@ -55,7 +55,7 @@ class JbtronicsSettingsBundle extends AbstractBundle
            $proxyFactory->generateProxyClassFiles([$class]);
         };
 
-        $this->autoloader = Autoloader::register($proxyDir, $proxyNamespace);
+        $this->autoloader = Autoloader::register($proxyDir, $proxyNamespace, $proxyGeneratorCallback);
     }
 
     public function shutdown(): void

@@ -33,11 +33,12 @@ use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 use Symfony\Component\VarExporter\LazyObjectInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * This service manages all available settings classes and keeps track of them
  */
-final class SettingsManager implements SettingsManagerInterface
+final class SettingsManager implements SettingsManagerInterface, ResetInterface
 {
     public function __construct(
         private readonly MetadataManagerInterface $metadataManager,
@@ -219,5 +220,11 @@ final class SettingsManager implements SettingsManagerInterface
         }
 
         return $instance;
+    }
+
+    public function reset(): void
+    {
+        //Reset all cached settings classes, to trigger a reload on new requests
+        $this->settings_by_class = [];
     }
 }

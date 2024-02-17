@@ -92,7 +92,9 @@ return static function (ContainerConfigurator $container) {
             '$settingsValidator' => service('jbtronics.settings.settings_validator'),
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+    ;
     $services->alias(SettingsManagerInterface::class, 'jbtronics.settings.settings_manager');
 
     $services->set('jbtronics.settings.parameter_type_registry', ParameterTypeRegistry::class)

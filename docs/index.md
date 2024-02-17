@@ -6,12 +6,12 @@ nav_order: 0
 
 # Settings bundle
 
-Settings-bundle is a symfony bundle that let you manage your application settings on the frontend side.
+Settings-bundle is a symfony bundle that let you easily create and manage user-configurable settings, which are changeable via a web frontend.
 
 ## Introduction
-By default symfony is mostly configured by parameters in configuration files, where a recompilation of the container is required, or via environment variables, which can not be easily changed by the application itself. 
+By default, symfony is mostly configured by parameters in configuration files, where a recompilation of the container is required, or via environment variables, which can not be easily changed by the application itself.
 
-However you often want administrators and users of your application let change settings and configuration of your application. This bundle provides a simple way to do this. Unlike other bundles with a similar goal, this bundle tries to be as modular as possible and to be as type-safe as possible. Therefore you define your Settings as a class, and access objects of this class in your application, instead of doing simple key-value lookups with mixed return types.
+However, you often want administrators and users of your application let change settings and configuration of your application. This bundle provides a simple way to do this. Unlike other bundles with a similar goal, this bundle tries to be as modular as possible and to be as type-safe as possible. Therefore you define your Settings as a class, and access objects of this class in your application, instead of doing simple key-value lookups with mixed return types.
 
 All relevant definitions of settings are done directly in the settings class via metadata attributes. This makes it easy to understand and maintain the settings. The bundle also provides a simple way to generate forms to change the settings, which can be easily integrated into your application.
 
@@ -19,10 +19,20 @@ All relevant definitions of settings are done directly in the settings class via
 * Class based settings, which get easily managed by the bundle
 * Type-safe access to settings
 * Easy to use API
+* Almost zero configuration required in many cases, as the bundle tries to derive as much information as possible from code metadata like property types, etc.
 * Various storage backends, like database, json files, PHP files, etc. (custom backends can be easily implemented)
 * Use symfony/validator to easily restrict possible values of settings parameters
 * Automatically generate forms to change settings
+* Easy possibility to version settings and automatically migrate old stored data to the current format
+* Possibility to lazy load settings, so that only the settings, which are really needed, are loaded
 * Profiler integration for easy debugging
+
+## Requirements
+* PHP 8.1 or higher
+* Symfony 6.4 or higher (compatible with Symfony 7.0)
+* Symfony/forms and Symfony/validator required if forms should be generated or validation should be used
+* twig required if you want to use the twig extension to access settings in your templates
+* doctrine/orm and doctrine-bundle required if you want to use the doctrine storage adapter
 
 ## Installation
 
@@ -42,6 +52,8 @@ return [
 
 ## Usage
 
+*The following section is just a quick overview. See [documentation](https://jbtronics.github.io/settings-bundle/) for full info.*
+
 Settings classes are simple PHP classes, which are annotated with the `#[Settings]` attribute. They must live in the path configured to store settings classes (normally `src/Settings`), in your symfony project. The bundle will automatically find and register all settings classes in this directory.
 
 The properties of the classes are used for storing the different data. Similar to the `#[ORM\Column]` attribute of doctrine, you can use the `#[SettingsParameter]` attribute to make a class property to a managed parameter. The properties can be public, protected or private (as SettingsBundle accesses them via reflection), but you have some kind of possibility to access the properties to get/set the configuration parameters in your software.
@@ -57,17 +69,23 @@ use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
+use Jbtronics\SettingsBundle\Storage\JSONFileStorageAdapter;
+use Jbtronics\SettingsBundle\Settings\SettingsTrait;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
-#[Settings] // The settings attribute makes a simple class to settings
+#[Settings(storageAdapter: JSONFileStorageAdapter::class)] // The settings attribute makes a simple class to settings
 class TestSettings {
+    use SettingsTrait; // Disable constructor and __clone methods
 
-    //The property is public here for simplicity, but it can also be protected or private
-    #[SettingsParameter(type: StringType::class, label: 'My String', description: 'This value is shown as help in forms.')]
+     //The properties are public here for simplicity, but it can also be protected or private
+
+    //In many cases this attribute with zero config is enough, the type mapper is then derived from the declared type of the property
+    #[SettingsParameter()]
     public string $myString = 'default value'; // The default value can be set right here in most cases
 
-    #[SettingsParameter(type: IntType::class, label: 'My Integer', description: 'This value is shown as help in forms.')]
+    //Or you can explicitly set the type mapper and some options
+    #[SettingsParameter(type: IntType::class, label: 'My Integer', description: 'This value is shown as help in forms.')] 
     #[Assert\Range(min: 5, max: 10,)] // You can use symfony/validator to restrict possible values
     public ?int $myInt = null;
 }
@@ -108,6 +126,64 @@ class ExampleService {
     }
 }
 
+```
+
+### Forms
+
+The bundle can automatically generate forms to change settings classes. This is done via the `SettingsFormFactoryInterface`, which creates a form builder containing fields to edit one or more settings classes. You can also render just a subset of the settings. Validation attributes are checked and mapped to form errors. This way you can easily create a controller, to let users change the settings:
+
+```php
+<?php
+
+class SettingsFormController {
+
+    public function __construct(
+        private SettingsManagerInterface $settingsManager,
+        private SettingsFormFactoryInterface $settingsFormFactory,
+        ) {}
+
+    #[Route('/settings', name: 'settings')]
+    public function settingsForm(Request $request): Response
+    {
+        //Create a builder for the settings form
+        $builder = $this->settingsFormFactory->createSettingsFormBuilder(TestSettings::class);
+
+        //Add a submit button, so we can save the form
+        $builder->add('submit', SubmitType::class);
+
+        //Create the form
+        $form = $builder->getForm();
+
+        //Handle the form submission
+        $form->handleRequest($request);
+
+        //If the form was submitted and the data is valid, then it
+        if ($form->isSubmitted() && $form->isValid()) {
+            //Save the settings
+            $this->settingsManager->save();
+        }
+
+        //Render the form
+        return $this->render('settings.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+}
+```
+
+Form rendering can be customized via the Parameter attributes. See documentation for full info.
+
+### Twig templates
+
+In twig templates you can access the settings via the `settings_instance()` function, which behaves like the `SettingsManagerInterface::get()` function and returns the current settings instance:
+
+```twig
+{# @var settings \App\Settings\TestSettings #}
+{% set settings = settings_instance('test') %}
+{{ dump(settings) }}
+
+{# or directly #}
+{{ settings_instance('test').myString }}
 ```
 
 ## License

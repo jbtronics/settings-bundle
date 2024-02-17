@@ -25,11 +25,11 @@
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication;
 
+use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle;
 use Jbtronics\SettingsBundle\JbtronicsSettingsBundle;
-use Jbtronics\SettingsBundle\UserConfigBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Component\Config\Loader\LoaderInterface;
 
 final class Kernel extends \Symfony\Component\HttpKernel\Kernel
 {
@@ -44,6 +44,8 @@ final class Kernel extends \Symfony\Component\HttpKernel\Kernel
     public function registerBundles(): iterable
     {
         yield new FrameworkBundle();
+        yield new DoctrineBundle();
+        yield new DoctrineFixturesBundle();
         yield new JbtronicsSettingsBundle();
     }
 

@@ -60,10 +60,11 @@ use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
+use Jbtronics\SettingsBundle\Storage\JSONFileStorageAdapter;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
-#[Settings] // The settings attribute makes a simple class to settings
+#[Settings(storageAdapter: JSONFileStorageAdapter::class)] // The settings attribute makes a simple class to settings
 class TestSettings {
     use SettingsTrait; // Disable constructor and __clone methods
 

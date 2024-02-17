@@ -39,4 +39,12 @@ jbtronics_settings:
     # The directory where the proxy classes should be stored
     proxy_dir: '%kernel.cache_dir%/jbtronics_settings/proxies'
 
+    file_storage:
+        # The directory where the settings files should be stored
+        storage_directory: '%kernel.project_dir%/var/jbtronics_settings/'
+        
+        # The default filenmame (without extension) in which the settings are stored under in the storage directory
+        # The file extension is determined by the storage adapter. The name can be overriden on a per settings class basis
+        default_filename: 'settings'
+
 ```

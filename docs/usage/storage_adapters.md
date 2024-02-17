@@ -10,16 +10,40 @@ The settings-bundle is designed to be storage backend. That means that almost al
 
 The concrete storage implentation is done via storage adapters, which must implement the `StorageAdapterInterface`. The bundle comes with a few default storage adapters, but you can also implement your own storage adapters.
 
+The storage adapter, which a specific settings class use, can be configured in the settings class annotation with the `storageAdapter` attribute. If no storage adapter is set there, the global default storage adapter is used, which can be configured with the `default_storage_adapter` key in the bundle configuration.
+
+Some storage adapters, may allow to pass further options to the adapter from the settings class annotation. These options are passed as an array to the `storageAdapterOptions` attribute in the settings class annotation.
+
 ## Built-in storage adapters
 
 Following storage adapters are built-in:
 
-* `InMemoryStorageAdapter`: Stores the settings in memory (RAM). The settings are not persistet and will be lost after the current request. This storage adapter is mainly used for testing.
-* `JsonFileStorageAdapter`: Stores the settings in a JSON file. The file is created in the configured directory for settings files. The file name is the (short) name of the settings class with the `.json` suffix (e.g. `test.json`).
+
+### JSONFileStorageAdapter & PHPFileStorageAdapter
+
+The `JSONFileStorageAdapter` and the `PHPFileStorageAdapter` save the settings data as JSON file respectively a PHP file. By default all settings are saved in a single file, whose name is determined by the `default_filename` key in the bundle configuration (plus the format extension). The file is created in the configured directory for settings files (`storage_directory` option in the bundle configuration).
+
+
+If you want to save the data of certain settings classes in a separate file, you can pass the filename (including extension) as an option to the storage adapter. All settings classes with the same filename will be saved together in the same file.:
+```php
+#[Settings(storageAdapter: JSONStorageAdapter::class, storageAdapterOptions: [
+    filename: 'my_settings.json'
+])]
+class MySettings
+// ...
+```
+
+The PHPFileStorageAdapter loads the data directly into PHP, which is faster than parsing JSON. Be sure that the file contains only safe PHP code, as it will be executed directly by the PHP interpreter.
+
+### InMemoryStorageAdapter
+
+Stores the settings in memory (RAM). The settings are not persistet and will be lost after the current request. This storage adapter is mainly used for testing.
 
 
 ## Creating custom storage adapters
 
 You can create your own storage adapters by creating a new service implementing the `StorageAdapterInterface`. This way you can also create storage adapters for more complex storage backends, like databases, etc.
 
-TODO: Add example 
+The storage adapter must implement a `load` method, which takes a key and returns the normalized settings data for this key, or null if no data is stored for this key. The `save` method takes a key and the normalized settings data and saves it. The options array from the settings class annotation is passed as the third argument to the `load` and `save` methods.
+
+When you want to create a file based storage adapter, you can extend the `AbstractFileStorageAdapter` class, which already implements the `load` and `save` methods and just requires implementation of the format serialization/unserialization.

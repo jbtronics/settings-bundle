@@ -26,11 +26,11 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Storage\ORM;
+namespace Jbtronics\SettingsBundle\Storage;
 
 
 use Doctrine\ORM\EntityManagerInterface;
-use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
+use Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry;
 
 class ORMStorageAdapter implements StorageAdapterInterface
 {
@@ -44,8 +44,8 @@ class ORMStorageAdapter implements StorageAdapterInterface
         private readonly bool $fetchAll = false,
     )
     {
-        if ($this->defaultEntityClass !== null && !is_subclass_of($this->defaultEntityClass, AbstractORMStorageAdapterEntity::class)) {
-            throw new \InvalidArgumentException('The default entity class must be a subclass of ' . AbstractORMStorageAdapterEntity::class);
+        if ($this->defaultEntityClass !== null && !is_subclass_of($this->defaultEntityClass, AbstractSettingsORMEntry::class)) {
+            throw new \InvalidArgumentException('The default entity class must be a subclass of ' . AbstractSettingsORMEntry::class);
         }
     }
 
@@ -53,12 +53,12 @@ class ORMStorageAdapter implements StorageAdapterInterface
      * Returns the entity object for the given key. If the entity does not exist, it will be created.
      * @param  string  $key
      * @param  string  $entityClass The class of the entity to use
-     * @return AbstractORMStorageAdapterEntity
+     * @return AbstractSettingsORMEntry
      */
-    private function getEntityObject(string $key, string $entityClass): AbstractORMStorageAdapterEntity
+    private function getEntityObject(string $key, string $entityClass): AbstractSettingsORMEntry
     {
-        if (!is_subclass_of($entityClass, AbstractORMStorageAdapterEntity::class)) {
-            throw new \InvalidArgumentException('The entity class must be a subclass of ' . AbstractORMStorageAdapterEntity::class);
+        if (!is_subclass_of($entityClass, AbstractSettingsORMEntry::class)) {
+            throw new \InvalidArgumentException('The entity class must be a subclass of ' . AbstractSettingsORMEntry::class);
         }
 
         //Check if we already have the entity in the cache
@@ -91,8 +91,8 @@ class ORMStorageAdapter implements StorageAdapterInterface
             return;
         }
 
-        if (!is_subclass_of($entityClass, AbstractORMStorageAdapterEntity::class)) {
-            throw new \InvalidArgumentException('The entity class must be a subclass of ' . AbstractORMStorageAdapterEntity::class);
+        if (!is_subclass_of($entityClass, AbstractSettingsORMEntry::class)) {
+            throw new \InvalidArgumentException('The entity class must be a subclass of ' . AbstractSettingsORMEntry::class);
         }
 
         $entities = $this->entityManager->getRepository($entityClass)->findAll();

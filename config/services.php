@@ -242,7 +242,7 @@ return static function (ContainerConfigurator $container) {
         $services->get('doctrine.orm.entity_manager');
 
         //If we reach this point, the doctrine bundle is available
-        $services->set(\Jbtronics\SettingsBundle\Storage\ORM\ORMStorageAdapter::class)
+        $services->set(\Jbtronics\SettingsBundle\Storage\ORMStorageAdapter::class)
             ->args([
                 '$entityManager' => service('doctrine.orm.entity_manager'),
                 '$defaultEntityClass' => '%jbtronics.settings.orm.default_entity_class%',

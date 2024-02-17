@@ -23,30 +23,19 @@
  * SOFTWARE.
  */
 
-namespace Jbtronics\SettingsBundle\Tests\Storage;
+declare(strict_types=1);
 
-use Doctrine\ORM\EntityManagerInterface;
-use Jbtronics\SettingsBundle\Storage\ORMStorageAdapter;
-use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\SettingsEntry;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ORMStorageAdapterTest extends KernelTestCase
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\Entity;
+
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Entity;
+use Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry;
+
+#[Entity]
+class SettingsEntry extends AbstractSettingsORMEntry
 {
-
-    private EntityManagerInterface $entityManager;
-
-    protected function setUp(): void
-    {
-        self::bootKernel();
-        $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
-    }
-
-    public function testSaveAndLoadNewEntry(): void
-    {
-        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
-
-        $adapter->save('foo', ['bar' => 'baz']);
-
-        $this->assertEquals(['bar' => 'baz'], $adapter->load('foo'));
-    }
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: Types::INTEGER)]
+    private int $id;
 }

@@ -26,14 +26,15 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Storage\ORM;
+namespace Jbtronics\SettingsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\MappedSuperclass;
+use Jbtronics\SettingsBundle\Storage\ORMStorageAdapter;
 
 #[MappedSuperclass]
-abstract class AbstractORMStorageAdapterEntity
+abstract class AbstractSettingsORMEntry
 {
     #[ORM\Column(type: Types::STRING, length: 255, unique: true, nullable: false)]
     private string $key;
@@ -57,9 +58,9 @@ abstract class AbstractORMStorageAdapterEntity
     /**
      * Sets the key of this settings entry. The key must be unique!
      * @param string $key
-     * @return ORMStorageAdapter
+     * @return $this
      */
-    public function setKey(string $key): ORMStorageAdapter
+    public function setKey(string $key): self
     {
         $this->key = $key;
         return $this;
@@ -77,9 +78,9 @@ abstract class AbstractORMStorageAdapterEntity
     /**
      * Sets the data of this settings entry or null if no data is set
      * @param array|null $data The normalized data to store
-     * @return ORMStorageAdapter
+     * @return $this
      */
-    public function setData(?array $data): ORMStorageAdapter
+    public function setData(?array $data): self
     {
         $this->data = $data;
         return $this;

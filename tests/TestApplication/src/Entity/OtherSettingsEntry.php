@@ -1,7 +1,7 @@
 <?php
-
-
 /*
+ * This file is part of jbtronics/settings-bundle (https://github.com/jbtronics/settings-bundle).
+ *
  * Copyright (c) 2024 Jan Böhmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,25 +23,20 @@
  * SOFTWARE.
  */
 
-use Jbtronics\SettingsBundle\Tests\TestApplication\DataFixtures\AppFixtures;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+declare(strict_types=1);
 
-return static function (ContainerConfigurator $container) {
-    $container->parameters()->set('locale', 'en');
 
-    $services = $container->services()
-        ->defaults()
-        ->autowire()
-        ->autoconfigure()
-        ->public()
-    ;
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\Entity;
 
-    //Load AppFixtures
-    $services->set(AppFixtures::class)->tag('doctrine.fixture.orm');
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Entity;
+use Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry;
 
-    $services->load('Jbtronics\\SettingsBundle\\Tests\\TestApplication\\', '../src/*')
-        ->exclude('../{Entity,Tests,Kernel.php}');
-
-    $services->load('Jbtronics\\SettingsBundle\\Tests\\TestApplication\\Controller\\', '../src/Controller/')
-        ->tag('controller.service_arguments');
-};
+#[Entity]
+#[ORM\Table(name: 'other_settings')]
+class OtherSettingsEntry extends AbstractSettingsORMEntry
+{
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: Types::INTEGER)]
+    private int $id;
+}

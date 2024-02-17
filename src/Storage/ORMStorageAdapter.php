@@ -41,7 +41,7 @@ class ORMStorageAdapter implements StorageAdapterInterface
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ?string $defaultEntityClass = null,
-        private readonly bool $fetchAll = false,
+        private readonly bool $prefetchAll = false,
     )
     {
         if ($this->defaultEntityClass !== null && !is_subclass_of($this->defaultEntityClass, AbstractSettingsORMEntry::class)) {
@@ -121,7 +121,7 @@ class ORMStorageAdapter implements StorageAdapterInterface
         $entityClass = $options['entity_class'] ?? $this->defaultEntityClass;
 
         //Preload all entity objects if the fetchAll option is set
-        if ($this->fetchAll) {
+        if ($this->prefetchAll) {
             $this->preloadAllEntityObjects($entityClass);
         }
 

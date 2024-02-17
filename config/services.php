@@ -246,7 +246,7 @@ return static function (ContainerConfigurator $container) {
             ->args([
                 '$entityManager' => service('doctrine.orm.entity_manager'),
                 '$defaultEntityClass' => '%jbtronics.settings.orm.default_entity_class%',
-                '$fetchAll' => '%jbtronics.settings.orm.fetch_all%',
+                '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
             ]);
     } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
         //Do nothing, as the doctrine bundle is not available

@@ -1,7 +1,7 @@
 <?php
-
-
 /*
+ * This file is part of jbtronics/settings-bundle (https://github.com/jbtronics/settings-bundle).
+ *
  * Copyright (c) 2024 Jan Böhmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,25 +23,31 @@
  * SOFTWARE.
  */
 
-use Jbtronics\SettingsBundle\Tests\TestApplication\DataFixtures\AppFixtures;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+declare(strict_types=1);
 
-return static function (ContainerConfigurator $container) {
-    $container->parameters()->set('locale', 'en');
 
-    $services = $container->services()
-        ->defaults()
-        ->autowire()
-        ->autoconfigure()
-        ->public()
-    ;
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\DataFixtures;
 
-    //Load AppFixtures
-    $services->set(AppFixtures::class)->tag('doctrine.fixture.orm');
+use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Persistence\ObjectManager;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\OtherSettingsEntry;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\SettingsEntry;
 
-    $services->load('Jbtronics\\SettingsBundle\\Tests\\TestApplication\\', '../src/*')
-        ->exclude('../{Entity,Tests,Kernel.php}');
+class AppFixtures extends Fixture
+{
+    public function load(ObjectManager $manager)
+    {
+        $existing1 = new SettingsEntry();
+        $existing1->setKey('existing1');
+        $existing1->setData(['foo' => 'existing1']);
 
-    $services->load('Jbtronics\\SettingsBundle\\Tests\\TestApplication\\Controller\\', '../src/Controller/')
-        ->tag('controller.service_arguments');
-};
+        $existing2 = new OtherSettingsEntry();
+        $existing2->setKey('existing2');
+        $existing2->setData(['foo' => 'existing2']);
+
+        $manager->persist($existing1);
+        $manager->persist($existing2);
+
+        $manager->flush();
+    }
+}

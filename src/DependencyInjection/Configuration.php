@@ -84,7 +84,7 @@ class Configuration implements ConfigurationInterface
                 ->addDefaultsIfNotSet()
                 ->children()
                 ->scalarNode('default_entity_class')->defaultNull()->end()
-                ->booleanNode('fetch_all')->defaultTrue()->end()
+                ->booleanNode('prefetch_all')->defaultTrue()->end()
             ->end();
     }
 }

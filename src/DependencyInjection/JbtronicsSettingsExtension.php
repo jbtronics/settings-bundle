@@ -70,6 +70,6 @@ class JbtronicsSettingsExtension extends Extension
         $container->setParameter('jbtronics.settings.file_storage.default_filename', $config['file_storage']['default_filename']);
 
         $container->setParameter('jbtronics.settings.orm.default_entity_class', $config['orm_storage']['default_entity_class']);
-        $container->setParameter('jbtronics.settings.orm.fetch_all', $config['orm_storage']['fetch_all']);
+        $container->setParameter('jbtronics.settings.orm.prefetch_all', $config['orm_storage']['prefetch_all']);
     }
 }

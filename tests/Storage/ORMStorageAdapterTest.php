@@ -27,6 +27,7 @@ namespace Jbtronics\SettingsBundle\Tests\Storage;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Jbtronics\SettingsBundle\Storage\ORMStorageAdapter;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\OtherSettingsEntry;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\SettingsEntry;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -49,4 +50,57 @@ class ORMStorageAdapterTest extends KernelTestCase
 
         $this->assertEquals(['bar' => 'baz'], $adapter->load('foo'));
     }
+
+    public function testSaveAndLoadNewEntryOverride(): void
+    {
+        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
+
+        $adapter->save('foo', ['bar' => 'baz'], ['entity_class' => OtherSettingsEntry::class]);
+
+        $this->assertEquals(['bar' => 'baz'], $adapter->load('foo', ['entity_class' => OtherSettingsEntry::class]));
+    }
+
+    public function testLoadNonExisting(): void
+    {
+        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
+
+        //Non existing key must return null
+        $this->assertNull($adapter->load('non_existing'));
+
+        //Test that it also work with overridden entity class
+        $this->assertNull($adapter->load('non_existing', ['entity_class' => OtherSettingsEntry::class]));
+    }
+
+    public function testLoadExisting(): void
+    {
+        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
+        $this->assertEquals(['foo' => 'existing1'], $adapter->load('existing1'));
+
+        $this->assertEquals(['foo' => 'existing2'], $adapter->load('existing2', ['entity_class' => OtherSettingsEntry::class]));
+    }
+
+    public function testFetchAll(): void
+    {
+        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, true);
+        $this->assertEquals(['foo' => 'existing1'], $adapter->load('existing1'));
+
+        $adapter = new ORMStorageAdapter($this->entityManager, OtherSettingsEntry::class, true);
+    }
+
+    public function testThrowOnInvalidDefaultEntityClass(): void
+    {
+        //Must throw an exception, if the default entity class is not a subclass of AbstractSettingsORMEntry
+        $this->expectException(\InvalidArgumentException::class);
+        new ORMStorageAdapter($this->entityManager, \stdClass::class, false);
+    }
+
+    public function testThrowOnInvalidEntityClass(): void
+    {
+        //Must throw an exception, if the passed entity class is not a subclass of AbstractSettingsORMEntry
+        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
+        $this->expectException(\InvalidArgumentException::class);
+        $adapter->load('foo', ['entity_class' => \stdClass::class]);
+    }
+
+
 }

@@ -11,6 +11,6 @@ $container->loadFromExtension('jbtronics_settings', [
 
     'orm_storage' => [
         'default_entity_class' => \Jbtronics\SettingsBundle\Tests\TestApplication\Entity\SettingsEntryInterface::class,
-        'fetch_all' => true,
+        'prefetch_all' => true,
     ],
 ]);

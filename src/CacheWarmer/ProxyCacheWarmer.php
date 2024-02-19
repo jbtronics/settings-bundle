@@ -57,6 +57,9 @@ class ProxyCacheWarmer implements CacheWarmerInterface
 
         //Retrieve all defined settings classes
         $classes = $this->settingsRegistry->getSettingsClasses();
+        if (empty($classes)) {
+            return [];
+        }
 
         //And generate the proxy classes for them
         $this->proxyFactory->generateProxyClassFiles($classes);

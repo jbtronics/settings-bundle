@@ -60,7 +60,7 @@ class JbtronicsSettingsBundle extends AbstractBundle
             static function (
                 ChildDefinition $definition,
                 Settings $attribute,
-                \ReflectionClass $reflector
+                \Reflector $reflector
             ): void {
                 //If the settings class is dependency injectable, add the injectable settings tag
                 if ($attribute->canBeDependencyInjected()) {

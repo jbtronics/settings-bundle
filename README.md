@@ -18,6 +18,7 @@ All relevant definitions of settings are done directly in the settings class via
 * Class based settings, which get easily managed by the bundle
 * Type-safe access to settings
 * Easy to use API
+* Retrieve settings via dependency injection in service constructors
 * Almost zero configuration required in many cases, as the bundle tries to derive as much information as possible from code metadata like property types, etc.
 * Various storage backends, like database, json files, PHP files, etc. (custom backends can be easily implemented)
 * Use symfony/validator to easily restrict possible values of settings parameters
@@ -128,6 +129,25 @@ class ExampleService {
 }
 
 ```
+
+Alternatively if you have a service, which depends on the settings, you can inject the current settings instance directly via dependency injection. 
+The bundle registers a service for each settings class, which can be injected into your services like any other service. 
+Internally the settings manager `get()` method is called to retrieve a lazy loaded settings instance:
+
+```php
+class ExampleService {
+    public function __construct(private TestSettings $settings) {
+        //This is equivalent to calling $settings = $settingsManager->get(TestSettings::class, lazy: true)
+        //The settings are lazy, meaning that they are only loaded from storage, when you access a property
+        if ($this->settings->myString === 'some value') {
+            //Do something
+        }
+    }
+}
+```
+
+The instance injected via dependency injection is the same as the one you would get via the settings manager.
+This means, that all changes to the settings instance are updated automatically in all parts of your application.
 
 ### Forms
 

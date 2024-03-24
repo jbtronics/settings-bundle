@@ -9,9 +9,9 @@ nav_order: 2
 
 After you have defined the settings classes, you can use instances of them to save and store settings data.
 The central service for retrieving and saving settings is the `SettingsManagerInterface` service.
-All instances of settings instances must be retrieved from this service.
+All instances of settings instances must be retrieved from this service or via dependency injection.
 
-## Retrieving settings
+## Retrieving settings via the settings manager
 
 To retrieve a settings instance, you can use the `get()` method of the `SettingsManagerInterface` service.
 As the first argument, you must pass the class name or the short name of the settings class. You will then recieve the managed settings instance.
@@ -29,7 +29,7 @@ $settings2 = $settingsManager->get(MySettings::class);
 var_dump($settings1 === $settings2); // true
 ```
 
-By default the settings manager will directly load the data from storage and hydrate the settings instance. If you know, that you will not necessarily need the settings instance direcltly, you can pass `true` as the second argument (named `lazy`) to the `get()` method. If the settings instance were not loaded before, it will return a proxy object, that will load the settings instance on first access.
+By default, the settings manager will directly load the data from storage and hydrate the settings instance. If you know, that you will not necessarily need the settings instance direcltly, you can pass `true` as the second argument (named `lazy`) to the `get()` method. If the settings instance were not loaded before, it will return a proxy object, that will load the settings instance on first access.
 
 ```php
 
@@ -40,6 +40,29 @@ $settings1 = $settingsManager->get(MySettings::class, true);
 var_dump($settings1->getSomeValue()); // "some value"
 
 ```
+
+## Retrieving settings via dependency injection
+
+If the settings class is marked as `dependencyInjectable`, which is the default, you can also inject the settings instance
+via dependency injection. The settings bundle registers a service for each settings class, which can be injected into your services
+like any other service. Internally the settings manager `get()` method is called to retrieve a lazy loaded settings instance.
+
+If symfony autowiring is enabled, you just need to typehint the settings class in the constructor of your service.
+
+```php
+
+use Jbtronics\SettingsBundle\Settings\MySettings;
+
+class MyService
+{
+    public function __construct(private MySettings $settings) {
+        //The $settings instance can be used like normal and always contains the current settings data
+    }
+}
+```
+
+This dependency injection pattern makes services easily testable, as you can replace the settings instance with
+a mock object in your tests and have no additional dependencies to the settings manager.
 
 ## Save settings
 

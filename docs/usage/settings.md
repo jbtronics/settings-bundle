@@ -138,6 +138,8 @@ The attribute has the following parameters:
 * `groups` (optional): The default groups of parameters in this settings class. This can be used to only render subsets of the parameters in forms, etc. The groups are used as default groups for the parameters, if they are not explicitly set. The groups can be overridden by the `groups` option of the `#[SettingsParameter]` attribute.
 * `version` (optional): The expected version of this settings class. Must be an int greater 0. If set, settings from older versions of this class will be migrated to the current version. See the documentation about versioning and migrations for more information. If set to null, then the settings class is not versioned and no migrations are performed.
 * `migrationService` (optional): The class name of the service, which should be used to perform the migration. This value is required if `version` is set. See the documentation about versioning and migrations for more information. 
+* `dependencyInjectable` (default: true): If set to false, the settings class will not be dependency injectable and is not available as service.
+
 
 ### #[SettingsParameter]
 

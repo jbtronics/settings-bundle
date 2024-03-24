@@ -38,6 +38,7 @@ final class Settings
      * @param  string[]|null  $groups  An array of groups, which the parameters of this settings class should belong too, if they are not explicitly set.
      * @param  int|null  $version  The current version of the settings class. Null, if the settings should not be versioned. If set, you have to set a migrator service too.
      * @param  string|null  $migrationService  The service id of the migrator service, which should be used to migrate the settings from one version to another.
+     * @param  bool $dependencyInjectable  If true, the settings class can be injected as a dependency by symfony's service container.
      */
     public function __construct(
         public readonly string|null $name = null,
@@ -46,8 +47,19 @@ final class Settings
         public readonly array|null $groups = null,
         public readonly int|null $version = null,
         public readonly string|null $migrationService = null,
+        public readonly bool $dependencyInjectable = true,
     )
     {
 
+    }
+
+    /**
+     * Returns true, if the settings class marked by this attribute can be injected as a dependency
+     * by symfony's service container.
+     * @return bool
+     */
+    public function canBeDependencyInjected(): bool
+    {
+        return $this->dependencyInjectable;
     }
 }

@@ -28,6 +28,7 @@ namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
+use Jbtronics\SettingsBundle\Settings\DependencyInjectableSettings;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;

@@ -40,6 +40,8 @@ class JbtronicsSettingsExtension extends Extension
     public const TAG_STORAGE_ADAPTER = 'jbtronics.settings.storage_adapter';
     public const TAG_MIGRATION = 'jbtronics.settings.migration';
 
+    public const TAG_INJECTABLE_SETTINGS = 'jbtronics.settings.injectable_settings';
+
 
     public function load(array $configs, ContainerBuilder $container): void
     {

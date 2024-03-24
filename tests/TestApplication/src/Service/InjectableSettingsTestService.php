@@ -26,32 +26,15 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\Service;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
-use Jbtronics\SettingsBundle\Settings\Settings;
-use Jbtronics\SettingsBundle\Settings\SettingsParameter;
-use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
-use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
-use stdClass;
-
-/**
- * This settings are used to test the ParameterTypeGuesser.
- */
-#[Settings(storageAdapter: InMemoryStorageAdapter::class, dependencyInjectable: false)]
-class GuessableSettings
+#[Autoconfigure(public: true)]
+class InjectableSettingsTestService
 {
-    #[SettingsParameter]
-    public bool $bool = true;
-
-    #[SettingsParameter]
-    public ?int $int;
-
-    #[SettingsParameter]
-    public string $string = "";
-
-    #[SettingsParameter]
-    public TestEnum $enum = TestEnum::BAZ;
-
-    public TestEnum|bool|int $complexType;
-    public stdClass $stdClass;
+    public function __construct(public readonly SimpleSettings $simpleSettings)
+    {
+    }
 }

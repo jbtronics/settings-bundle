@@ -27,10 +27,18 @@ namespace Jbtronics\SettingsBundle;
 
 use Closure;
 use Jbtronics\SettingsBundle\DependencyInjection\JbtronicsSettingsExtension;
+use Jbtronics\SettingsBundle\DependencyInjection\ConfigureInjectableSettingsPass;
+use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Proxy\Autoloader;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
+use Jbtronics\SettingsBundle\Settings\DependencyInjectableSettings;
+use Jbtronics\SettingsBundle\Settings\Settings;
+use Symfony\Component\DependencyInjection\ChildDefinition;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 class JbtronicsSettingsBundle extends AbstractBundle
 {
@@ -40,6 +48,35 @@ class JbtronicsSettingsBundle extends AbstractBundle
     public function getContainerExtension(): ?ExtensionInterface
     {
         return new JbtronicsSettingsExtension();
+    }
+
+    public function build(ContainerBuilder $container): void
+    {
+        parent::build($container);
+        $this->processSettingsServices($container);
+
+        $container->addCompilerPass(new ConfigureInjectableSettingsPass());
+    }
+
+    protected function processSettingsServices(ContainerBuilder $container): void
+    {
+        $forRemoval = [];
+
+        $container->registerAttributeForAutoconfiguration(Settings::class,
+            static function (
+                ChildDefinition $definition,
+                Settings $attribute,
+                \ReflectionClass $reflector
+            ) use (&$forRemoval): void {
+                //If the settings class is dependency injectable, add the injectable settings tag
+                if ($attribute->canBeDependencyInjected()) {
+                    $definition->addTag(JbtronicsSettingsExtension::TAG_INJECTABLE_SETTINGS);
+                } else {
+                    //If the settings class is not dependency injectable, remove the injectable settings tag
+                    $definition->addTag(ConfigureInjectableSettingsPass::TAG_TO_REMOVE);
+                }
+            }
+        );
     }
 
     public function boot(): void
@@ -52,7 +89,7 @@ class JbtronicsSettingsBundle extends AbstractBundle
         $proxyFactory = $this->container->get('jbtronics.settings.proxy_factory');
 
         $proxyGeneratorCallback = static function ($proxyDir, $proxyNamespace, $class) use ($proxyFactory): void {
-           $proxyFactory->generateProxyClassFiles([$class]);
+            $proxyFactory->generateProxyClassFiles([$class]);
         };
 
         $this->autoloader = Autoloader::register($proxyDir, $proxyNamespace, $proxyGeneratorCallback);

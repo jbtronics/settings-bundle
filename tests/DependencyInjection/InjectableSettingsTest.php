@@ -60,6 +60,13 @@ class InjectableSettingsTest extends KernelTestCase
         $this->assertSame($this->simpleSettingsAsService, $injectedInstance);
 
         //And the same as the one retrieved from the settings manager
-        $this->assertSame($injectedInstance, $this->settingsManager->get(SimpleSettings::class));
+        /** @var SimpleSettings $fromManager */
+        $fromManager = $this->settingsManager->get(SimpleSettings::class);
+        $this->assertSame($injectedInstance, $fromManager);
+
+        //Ensure that we can change the settings and the changes are reflected in the injected instance
+        $fromManager->setValue1('changed value');
+
+        $this->assertSame('changed value', $injectedInstance->getValue1());
     }
 }

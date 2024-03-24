@@ -29,14 +29,9 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\DependencyInjection;
 
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
-use Jbtronics\SettingsBundle\Settings\DependencyInjectableSettings;
-use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-
 use Symfony\Component\DependencyInjection\Reference;
-
-use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 /**
  * This compiler pass registers all settings classes, which are marked as injectable via dependency injection and

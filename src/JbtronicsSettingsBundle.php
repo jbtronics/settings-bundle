@@ -28,17 +28,13 @@ namespace Jbtronics\SettingsBundle;
 use Closure;
 use Jbtronics\SettingsBundle\DependencyInjection\JbtronicsSettingsExtension;
 use Jbtronics\SettingsBundle\DependencyInjection\ConfigureInjectableSettingsPass;
-use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Proxy\Autoloader;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
-use Jbtronics\SettingsBundle\Settings\DependencyInjectableSettings;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
-
-use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 class JbtronicsSettingsBundle extends AbstractBundle
 {
@@ -60,14 +56,12 @@ class JbtronicsSettingsBundle extends AbstractBundle
 
     protected function processSettingsServices(ContainerBuilder $container): void
     {
-        $forRemoval = [];
-
         $container->registerAttributeForAutoconfiguration(Settings::class,
             static function (
                 ChildDefinition $definition,
                 Settings $attribute,
                 \ReflectionClass $reflector
-            ) use (&$forRemoval): void {
+            ): void {
                 //If the settings class is dependency injectable, add the injectable settings tag
                 if ($attribute->canBeDependencyInjected()) {
                     $definition->addTag(JbtronicsSettingsExtension::TAG_INJECTABLE_SETTINGS);

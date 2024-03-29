@@ -210,7 +210,7 @@ In twig templates you can access the settings via the `settings_instance()` func
 ## License
 
 SettingsBundle is licensed under the MIT License.
-This mostly means that you can use Part-DB for whatever you want (even use it commercially)
+This mostly means that you can use this bundle for whatever you want (even use it commercially)
 as long as you retain the copyright/license information.
 
 See [LICENSE](https://github.com/jbtronics/settings-bundle/blob/master/LICENSE) for more information.

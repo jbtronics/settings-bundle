@@ -49,6 +49,9 @@ class ParameterMetadata
      * @phpstan-param class-string<AbstractType>|null $formType
      * @param  array  $formOptions  An array of extra options, which are passed to the form type. This will override the values from the parameterType
      * @param  string[] $groups The groups, which this parameter should belong to. Groups can be used to only render subsets of the configuration entries in the UI.
+     * @param  string|null  $envVar  The name of the environment variable, which should be used to fill this parameter. If not set, the parameter is not filled by an environment variable.
+     * @param  EnvVarMode  $envVarMode  The mode in which the environment variable should be used to fill the parameter. Defaults to EnvVarMode::INITIAL
+     * @param  \Closure|null  $envVarMapper  A closure, which is used to map the value from the environment variable to the parameter value. It takes the value from the environment variable as argument and returns the mapped value.
      */
     public function __construct(
         private readonly string $className,
@@ -62,6 +65,9 @@ class ParameterMetadata
         private readonly ?string $formType = null,
         private readonly array $formOptions = [],
         private readonly array $groups = [],
+        private readonly ?string $envVar = null,
+        private readonly EnvVarMode $envVarMode = EnvVarMode::INITIAL,
+        private readonly ?\Closure $envVarMapper = null,
     ) {
     }
 
@@ -127,4 +133,35 @@ class ParameterMetadata
     {
         return $this->groups;
     }
+
+    /**
+     * Returns the name of the environment variable, which should be used to fill this parameter.
+     * Null if no environment variable should be used to fill this parameter.
+     * @return string|null
+     */
+    public function getEnvVar(): ?string
+    {
+        return $this->envVar;
+    }
+
+    /**
+     * Returns the mode in which the environment variable should be used to fill the parameter.
+     * @return EnvVarMode
+     */
+    public function getEnvVarMode(): EnvVarMode
+    {
+        return $this->envVarMode;
+    }
+
+    /**
+     * Returns the closure, which is used to map the value from the environment variable to the parameter value.
+     * Null if no mapping function is set.
+     * @return \Closure|null
+     */
+    public function getEnvVarMapper(): ?\Closure
+    {
+        return $this->envVarMapper;
+    }
+
+
 }

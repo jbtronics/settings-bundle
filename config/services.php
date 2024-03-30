@@ -228,6 +228,17 @@ return static function (ContainerConfigurator $container) {
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\EnumType::class);
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\DatetimeType::class);
 
+    /***********************************************************************************
+     * Environment variable value resolver
+     ***********************************************************************************/
+
+    $services->set('jbtronics.settings.env_var_value_resolver',
+        \Jbtronics\SettingsBundle\Manager\EnvVarValueResolver::class)
+        ->args([
+            '$getEnvClosure' => service('container.getenv'),
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Manager\EnvVarValueResolverInterface::class, 'jbtronics.settings.env_var_value_resolver');
+
     /**********************************************************************************
      * Storage Adapters
      **********************************************************************************/

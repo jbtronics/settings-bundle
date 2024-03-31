@@ -51,7 +51,8 @@ class ParameterMetadata
      * @param  string[] $groups The groups, which this parameter should belong to. Groups can be used to only render subsets of the configuration entries in the UI.
      * @param  string|null  $envVar  The name of the environment variable, which should be used to fill this parameter. If not set, the parameter is not filled by an environment variable.
      * @param  EnvVarMode  $envVarMode  The mode in which the environment variable should be used to fill the parameter. Defaults to EnvVarMode::INITIAL
-     * @param  \Closure|string|null  $envVarMapper  A closure, which is used to map the value from the environment variable to the parameter value. It takes the value from the environment variable as argument and returns the mapped value.
+     * @param  \Closure|array|string|null  $envVarMapper  A mapper, which is used to map the value from the environment variable to the parameter value. It can be either a ParameterTypeInterface service, or a callable, which takes the value from the environment variable as argument and returns the mapped value.
+     * @phpstan-param callable(mixed): mixed|class-string<ParameterTypeInterface>|null $envVarMapper
      */
     public function __construct(
         private readonly string $className,
@@ -67,7 +68,7 @@ class ParameterMetadata
         private readonly array $groups = [],
         private readonly ?string $envVar = null,
         private readonly EnvVarMode $envVarMode = EnvVarMode::INITIAL,
-        private readonly \Closure|string|null $envVarMapper = null,
+        private readonly \Closure|array|string|null $envVarMapper = null,
     ) {
     }
 
@@ -157,9 +158,10 @@ class ParameterMetadata
      * Returns the mapper, which is used to map the value from the environment variable to the parameter value.
      * This can be a closure or the name of the ParameterType service, which should be used to map the value.
      * Null if no mapping function is set.
-     * @return \Closure|string|null
+     * @return \Closure|array|string|null
+     * @phpstan-return callable(mixed): mixed|array|class-string<ParameterTypeInterface>|null
      */
-    public function getEnvVarMapper(): \Closure|string|null
+    public function getEnvVarMapper(): \Closure|array|string|null
     {
         return $this->envVarMapper;
     }

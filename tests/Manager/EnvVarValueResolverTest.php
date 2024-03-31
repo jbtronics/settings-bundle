@@ -86,6 +86,22 @@ class EnvVarValueResolverTest extends KernelTestCase
         $this->assertSame(120.23, $this->service->getValue($paramMetadata));
     }
 
+    public static function mappingFunction($value): float
+    {
+        return 120.23;
+    }
+
+    public function testGetValueMappingArrayCallable(): void
+    {
+        $_ENV['TEST_ENV'] = "true";
+
+        $paramMetadata = new ParameterMetadata(SimpleSettings::class, 'bar', StringType::class, false,
+            envVar: 'TEST_ENV', envVarMapper: [self::class, 'mappingFunction']);
+
+        $this->assertTrue($this->service->hasValue($paramMetadata));
+        $this->assertSame(120.23, $this->service->getValue($paramMetadata));
+    }
+
     public function testGetValueMappingParamType(): void
     {
         $_ENV['TEST_ENV'] = "true";

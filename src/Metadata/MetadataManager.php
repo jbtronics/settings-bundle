@@ -255,6 +255,9 @@ final class MetadataManager implements MetadataManagerInterface
             formType: $attribute->formType,
             formOptions: $attribute->formOptions,
             groups: $attribute->groups ?? $classAttribute->groups ?? [],
+            envVar: $attribute->envVar,
+            envVarMode: $attribute->envVarMode,
+            envVarMapper: $attribute->envVarMapper,
         );
     }
 

@@ -26,6 +26,7 @@
 namespace Jbtronics\SettingsBundle\Tests\Metadata;
 
 use DateTime;
+use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
@@ -33,6 +34,7 @@ use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
@@ -184,5 +186,16 @@ class MetadataManagerTest extends KernelTestCase
             CircularEmbedSettings::class,
             GuessableSettings::class,
         ], $cascade);
+    }
+
+    public function testEnvVarOptions(): void
+    {
+        $schema = $this->metadataManager->getSettingsMetadata(EnvVarSettings::class);
+
+        $value3 = $schema->getParameter('value3');
+        $this->assertEquals('value3', $value3->getName());
+        $this->assertSame('ENV_VALUE3', $value3->getEnvVar());
+        $this->assertSame([EnvVarSettings::class, 'envVarMapper'], $value3->getEnvVarMapper());
+        $this->assertSame(EnvVarMode::INITIAL, $value3->getEnvVarMode());
     }
 }

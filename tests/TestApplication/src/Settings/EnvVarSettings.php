@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 
+use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
@@ -43,6 +44,9 @@ class EnvVarSettings
 
     #[SettingsParameter(envVar: 'ENV_VALUE3', envVarMapper: [self::class, 'envVarMapper'])]
     public float $value3 = 0.0;
+
+    #[SettingsParameter(envVar: 'ENV_VALUE4', envVarMapper: BoolType::class)]
+    public bool $value4 = false;
 
 
     public static function envVarMapper(mixed $value): mixed

@@ -27,6 +27,7 @@ namespace Jbtronics\SettingsBundle\Tests\Metadata;
 
 use DateTime;
 use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
+use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
@@ -192,10 +193,18 @@ class MetadataManagerTest extends KernelTestCase
     {
         $schema = $this->metadataManager->getSettingsMetadata(EnvVarSettings::class);
 
+        // Test if closures are correctly resolved
         $value3 = $schema->getParameter('value3');
         $this->assertEquals('value3', $value3->getName());
         $this->assertSame('ENV_VALUE3', $value3->getEnvVar());
-        $this->assertSame([EnvVarSettings::class, 'envVarMapper'], $value3->getEnvVarMapper());
+        //The env var mapper must return a closure, which calls the defined method
+        $this->assertInstanceOf(\Closure::class, $value3->getEnvVarMapper());
+        $this->assertSame(123.4, ($value3->getEnvVarMapper())("test"));
         $this->assertSame(EnvVarMode::INITIAL, $value3->getEnvVarMode());
+
+        //Test if the parameter type service id is correctly resolved
+        $value4 = $schema->getParameter('value4');
+        $this->assertSame('ENV_VALUE4', $value4->getEnvVar());
+        $this->assertSame(BoolType::class, $value4->getEnvVarMapper());
     }
 }

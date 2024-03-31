@@ -29,10 +29,15 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
+use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 
 class EnvVarValueResolver implements EnvVarValueResolverInterface
 {
-    public function __construct(private readonly \Closure $getEnvClosure)
+    public function __construct(
+        private readonly \Closure $getEnvClosure,
+        private readonly ParameterTypeRegistryInterface $parameterTypeRegistry
+    )
     {
     }
 
@@ -47,15 +52,26 @@ class EnvVarValueResolver implements EnvVarValueResolverInterface
         //Try to resolve the value from the environment variable
         $result = $this->getEnv($metadata->getEnvVar());
 
+        $mapper = $metadata->getEnvVarMapper();
+
         //If no mapping function is set, return the value as is
-        if ($metadata->getEnvVarMapper() === null) {
+        if ($mapper === null) {
             return $result;
         }
 
         //If the mapping function is a callable, call it
-        if (is_callable($metadata->getEnvVarMapper())) {
+        if (is_callable($mapper)) {
             //Otherwise, apply the mapping function
             return ($metadata->getEnvVarMapper())($result);
+        }
+
+        if (is_string($mapper)) {
+            //If the mapping function is a string, try to resolve it from the parameter type registry and apply it
+            if (is_a($mapper, ParameterTypeInterface::class, true)) {
+                return $this->parameterTypeRegistry->getParameterType($mapper)->convertNormalizedToPHP($result, $metadata);
+            }
+
+            throw new \LogicException("The string provided as a mapping function must be a class implementing ParameterTypeInterface!");
         }
 
         throw new \RuntimeException("Unknown mapping function type!");

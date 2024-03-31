@@ -28,6 +28,7 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 use Jbtronics\SettingsBundle\Manager\EnvVarValueResolver;
 use Jbtronics\SettingsBundle\Manager\EnvVarValueResolverInterface;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -83,6 +84,17 @@ class EnvVarValueResolverTest extends KernelTestCase
 
         $this->assertTrue($this->service->hasValue($paramMetadata));
         $this->assertSame(120.23, $this->service->getValue($paramMetadata));
+    }
+
+    public function testGetValueMappingParamType(): void
+    {
+        $_ENV['TEST_ENV'] = "true";
+
+        $paramMetadata = new ParameterMetadata(SimpleSettings::class, 'bar', StringType::class, false,
+            envVar: 'TEST_ENV', envVarMapper: BoolType::class);
+
+        $this->assertTrue($this->service->hasValue($paramMetadata));
+        $this->assertTrue($this->service->getValue($paramMetadata));
     }
 
     public function testGetValueNoEnvVarDefinedOnMetadata(): void

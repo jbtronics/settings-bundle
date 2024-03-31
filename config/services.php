@@ -236,6 +236,7 @@ return static function (ContainerConfigurator $container) {
         \Jbtronics\SettingsBundle\Manager\EnvVarValueResolver::class)
         ->args([
             '$getEnvClosure' => service('container.getenv'),
+            '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Manager\EnvVarValueResolverInterface::class, 'jbtronics.settings.env_var_value_resolver');
 

@@ -158,6 +158,18 @@
                 <td>{{ dump(parameterSchema.groups) }}</td>
             </tr>
             <tr>
+                <td>Env Var</td>
+                <td>{{ dump(parameterSchema.envVar) }}</td>
+            </tr>
+            <tr>
+                <td>Env Var mode</td>
+                <td>{{ dump(parameterSchema.envVarMode) }}</td>
+            </tr>
+            <tr>
+                <td>Env Var Mapper</td>
+                <td>{{ dump(parameterSchema.envVarMapper) }}</td>
+            </tr>
+            <tr>
                 <td>Value</td>
                 <td>{{ dump(collector.settingsParameterValue(class, parameterSchema.propertyName)) }}</td>
             </tr>

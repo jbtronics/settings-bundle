@@ -165,7 +165,7 @@ class ParameterMetadata
      * Returns the mapper, which is used to map the value from the environment variable to the parameter value.
      * This can be a closure or the name of the ParameterType service, which should be used to map the value.
      * Null if no mapping function is set.
-     * @return \Closure|array|string|null
+     * @return \Closure|string|null
      * @phpstan-return \Closure(mixed): mixed|class-string<ParameterTypeInterface>|null
      */
     public function getEnvVarMapper(): \Closure|string|null

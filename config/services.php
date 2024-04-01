@@ -118,7 +118,10 @@ return static function (ContainerConfigurator $container) {
         ]);
     $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');
 
-    $services->set('jbtronics.settings.settings_resetter', SettingsResetter::class);
+    $services->set('jbtronics.settings.settings_resetter', SettingsResetter::class)
+        ->args([
+            '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
+        ]);
     $services->alias(SettingsResetterInterface::class, 'jbtronics.settings.settings_resetter');
 
     $services->set('jbtronics.settings.settings_validator', \Jbtronics\SettingsBundle\Manager\SettingsValidator::class)

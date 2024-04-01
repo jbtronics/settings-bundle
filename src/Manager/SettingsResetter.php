@@ -31,6 +31,10 @@ use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 
 class SettingsResetter implements SettingsResetterInterface
 {
+    public function __construct(private readonly EnvVarValueResolverInterface $envVarValueResolver)
+    {
+    }
+
     public function resetSettings(object $settings, SettingsMetadata $metadata): object
     {
         //Ensure that the given metadata is for the given settings class
@@ -51,6 +55,9 @@ class SettingsResetter implements SettingsResetterInterface
         if (is_a($settings, ResettableSettingsInterface::class)) {
             $settings->resetToDefaultValues();
         }
+
+        //Apply the environment variables to the instance
+        $this->applyEnvVars($metadata, $settings);
 
         //The instance should now be resetted to its default values
         return $settings;
@@ -89,6 +96,24 @@ class SettingsResetter implements SettingsResetterInterface
         $reflectionProperty->setValue($settings, $defaultValue);
     }
 
+    private function applyEnvVars(SettingsMetadata $metadata, object $settings): void
+    {
+        //Iterate over all parameters, which should be set by an environment variable and set them
+        //Here it does not matter, which mode is set. The differences only matter for hydration/dehydration
+        foreach ($metadata->getParametersWithEnvVar() as $parameterMetadata) {
+            //Skip the parameter, if the environment variable is not set
+            if (!$this->envVarValueResolver->hasValue($parameterMetadata)) {
+                continue;
+            }
+
+            //Retrieve the value from the environment variable
+            $value = $this->envVarValueResolver->getValue($parameterMetadata);
+
+            //Set the value to the property
+            PropertyAccessHelper::setProperty($settings, $parameterMetadata->getPropertyName(), $value);
+        }
+    }
+
     public function newInstance(SettingsMetadata $metadata): object
     {
         $settingsClass = $metadata->getClassName();
@@ -100,6 +125,9 @@ class SettingsResetter implements SettingsResetterInterface
         if (is_a($settingsClass, ResettableSettingsInterface::class, true)) {
             $instance->resetToDefaultValues();
         }
+
+        //Apply the environment variables to the instance
+        $this->applyEnvVars($metadata, $instance);
 
 
         return $instance;

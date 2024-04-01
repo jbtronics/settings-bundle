@@ -27,6 +27,7 @@ namespace Jbtronics\SettingsBundle\Tests\Metadata;
 
 use InvalidArgumentException;
 use Jbtronics\SettingsBundle\Metadata\EmbeddedSettingsMetadata;
+use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
@@ -49,8 +50,8 @@ class SettingsMetadataTest extends TestCase
     public function setUp(): void
     {
         $this->parameterMetadata = [
-            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true, groups: ['group1']),
-            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2']),
+            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true, groups: ['group1'], envVar: 'ENV_VAR1'),
+            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2'], envVar: 'ENV_VAR2', envVarMode: EnvVarMode::OVERRIDE),
             new ParameterMetadata(self::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
         ];
 
@@ -349,5 +350,37 @@ class SettingsMetadataTest extends TestCase
             [],
             $this->configSchema->getEmbeddedSettingsWithOneOfGroups(['group3'])
         );
+    }
+
+    public function testGetParametersWithEnvVar(): void
+    {
+        //For null all parameters with env vars should be returned
+        $params = $this->configSchema->getParametersWithEnvVar();
+        $this->assertEquals([
+            'property1' => $this->parameterMetadata[0],
+            'name2' => $this->parameterMetadata[1],
+        ], $params);
+
+
+        //For a specific env var only the parameter with this env var should be returned
+        $params = $this->configSchema->getParametersWithEnvVar(EnvVarMode::INITIAL);
+        $this->assertEquals([
+            'property1' => $this->parameterMetadata[0],
+        ], $params);
+
+        //If we give an array, we should get all parameters with the given env vars
+        $params = $this->configSchema->getParametersWithEnvVar([EnvVarMode::INITIAL, EnvVarMode::OVERRIDE]);
+        $this->assertEquals([
+            'property1' => $this->parameterMetadata[0],
+            'name2' => $this->parameterMetadata[1],
+        ], $params);
+
+        //If we give an mode, which is not used, we should get an empty array
+        $params = $this->configSchema->getParametersWithEnvVar(EnvVarMode::OVERRIDE_PERSIST);
+        $this->assertEmpty($params);
+
+        //If we give an array with a mode, which is not used, we should get an empty array
+        $params = $this->configSchema->getParametersWithEnvVar([EnvVarMode::OVERRIDE_PERSIST]);
+        $this->assertEmpty($params);
     }
 }

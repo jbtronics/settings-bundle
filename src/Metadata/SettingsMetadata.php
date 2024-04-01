@@ -64,18 +64,24 @@ class SettingsMetadata
     private readonly array $embeddedsByGroups;
 
     /**
+     * @var ParameterMetadata[][]
+     * @phpstan-var array<string, array<string, ParameterMetadata>>
+     */
+    private readonly array $parametersWithEnvVars;
+
+    /**
      * Create a new settings metadata instance
-     * @param  string  $className The class name of the settings class.
-     * @phpstan-param  class-string<T>  $className
-     * @param  ParameterMetadata[]  $parameterMetadata The parameter metadata of the settings class.
-     * @param  string  $storageAdapter The storage adapter, which should be used to store the settings of this class.
+     * @param  string  $className  The class name of the settings class.
+     * @phpstan-param  class-string<T> $className
+     * @param  ParameterMetadata[]  $parameterMetadata  The parameter metadata of the settings class.
+     * @param  string  $storageAdapter  The storage adapter, which should be used to store the settings of this class.
      * @phpstan-param class-string<StorageAdapterInterface> $storageAdapter
-     * @param  string  $name The (short) name of the settings class.
-     * @param  string[]  $defaultGroups The default groups, which the parameters of this settings class should belong too, if they are not explicitly set.
-     * @param  int|null  $version The current version of the settings class. Null, if the settings should not be versioned. If set, you have to set a migrator service too.
-     * @param  string|null $migrationService The service id of the migration service, which should be used to migrate the settings from one version to another.
-     * @param  array  $storageAdapterOptions An array of options, which should be passed to the storage adapter.
-     * @param  EmbeddedSettingsMetadata[]  $embeddedMetadata The embedded metadata of the settings class.
+     * @param  string  $name  The (short) name of the settings class.
+     * @param  string[]  $defaultGroups  The default groups, which the parameters of this settings class should belong too, if they are not explicitly set.
+     * @param  int|null  $version  The current version of the settings class. Null, if the settings should not be versioned. If set, you have to set a migrator service too.
+     * @param  string|null  $migrationService  The service id of the migration service, which should be used to migrate the settings from one version to another.
+     * @param  array  $storageAdapterOptions  An array of options, which should be passed to the storage adapter.
+     * @param  EmbeddedSettingsMetadata[]  $embeddedMetadata  The embedded metadata of the settings class.
      */
     public function __construct(
         private readonly string $className,
@@ -87,11 +93,11 @@ class SettingsMetadata
         private readonly ?string $migrationService = null,
         private readonly array $storageAdapterOptions = [],
         array $embeddedMetadata = []
-    )
-    {
+    ) {
         //Ensure that the migrator service is set, if the version is set
         if ($this->version !== null && $this->migrationService === null) {
-            throw new \LogicException(sprintf('The migration service must be set, if you want to use versioning on settings class "%s"', $this->className));
+            throw new \LogicException(sprintf('The migration service must be set, if you want to use versioning on settings class "%s"',
+                $this->className));
         }
 
         //Sort the parameters by their property names and names
@@ -127,6 +133,19 @@ class SettingsMetadata
 
         $this->embeddedsByPropertyNames = $embedsByPropertyName;
         $this->embeddedsByGroups = $embedsByGroups;
+
+        //Sort all parameters, which have an envvar defined by their mode
+        $parametersWithEnvVars = [];
+        foreach ($parameterMetadata as $parameterMetadatum) {
+            //Skip if the parameter has no envvar defined
+            if (!$parameterMetadatum->getEnvVar()) {
+                continue;
+            }
+
+            $mode = $parameterMetadatum->getEnvVarMode();
+            $parametersWithEnvVars[$mode->name][$parameterMetadatum->getName()] = $parameterMetadatum;
+        }
+        $this->parametersWithEnvVars = $parametersWithEnvVars;
     }
 
     /**
@@ -180,7 +199,8 @@ class SettingsMetadata
      */
     public function getParameter(string $name): ParameterMetadata
     {
-        return $this->parametersByName[$name] ?? throw new \InvalidArgumentException(sprintf('The parameter "%s" does not exist in the settings class "%s"', $name, $this->className));
+        return $this->parametersByName[$name] ?? throw new \InvalidArgumentException(sprintf('The parameter "%s" does not exist in the settings class "%s"',
+            $name, $this->className));
     }
 
     /**
@@ -200,7 +220,8 @@ class SettingsMetadata
      */
     public function getParameterByPropertyName(string $name): ParameterMetadata
     {
-        return $this->parametersByPropertyNames[$name] ?? throw new \InvalidArgumentException(sprintf('The parameter with the property name "%s" does not exist in the settings class "%s"', $name, $this->className));
+        return $this->parametersByPropertyNames[$name] ?? throw new \InvalidArgumentException(sprintf('The parameter with the property name "%s" does not exist in the settings class "%s"',
+            $name, $this->className));
     }
 
     /**
@@ -327,7 +348,8 @@ class SettingsMetadata
      */
     public function getEmbeddedSettingByPropertyName(string $name): EmbeddedSettingsMetadata
     {
-        return $this->embeddedsByPropertyNames[$name] ?? throw new \InvalidArgumentException(sprintf('The embed with the property name "%s" does not exist in the settings class "%s"', $name, $this->className));
+        return $this->embeddedsByPropertyNames[$name] ?? throw new \InvalidArgumentException(sprintf('The embed with the property name "%s" does not exist in the settings class "%s"',
+            $name, $this->className));
     }
 
     /**
@@ -356,5 +378,28 @@ class SettingsMetadata
         }
 
         return $tmp;
+    }
+
+    /**
+     * Returns a list of all parameters, which have an envvar defined.
+     * If $mode is set, only the parameters with the given mode are returned.
+     * If null is passed, all parameters with an envvar are returned, no matter which mode they have.
+     * @param  EnvVarMode|EnvVarMode[]|null  $mode The mode of the envvar, which should be used to filter the parameters.
+     * @return ParameterMetadata[]
+     */
+    public function getParametersWithEnvVar(EnvVarMode|array|null $mode = null): array
+    {
+        if ($mode === null) {
+            return array_merge(...array_values($this->parametersWithEnvVars));
+
+        }
+
+        if (is_array($mode)) {
+            return array_merge(...array_map(fn(EnvVarMode $m) => $this->parametersWithEnvVars[$m->name] ?? [], $mode));
+        }
+
+        if ($mode instanceof EnvVarMode) {
+            return $this->parametersWithEnvVars[$mode->name] ?? [];
+        }
     }
 }

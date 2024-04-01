@@ -38,4 +38,8 @@ enum EnvVarMode
      * If the parameter is defined in the storage, then the value from the storage is used.
      */
     case INITIAL;
+
+    case OVERRIDE;
+
+    case OVERRIDE_PERSIST;
 }

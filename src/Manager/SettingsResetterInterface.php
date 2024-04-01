@@ -44,4 +44,15 @@ interface SettingsResetterInterface
      * @phpstan-return T
      */
     public function resetSettings(object $settings, SettingsMetadata $metadata): object;
+
+    /**
+     * Creates a new instance of the given settings class with the default values set. The instance is not tracked
+     * by the SettingsManager!
+     * @template T of object
+     * @param  SettingsMetadata  $metadata
+     * @phpstan-param SettingsMetadata<T> $metadata
+     * @return object
+     * @phpstan-return T
+     */
+    public function newInstance(SettingsMetadata $metadata): object;
 }

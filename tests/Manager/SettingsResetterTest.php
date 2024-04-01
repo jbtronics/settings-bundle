@@ -29,6 +29,7 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 
 use Jbtronics\SettingsBundle\Manager\SettingsResetter;
 use Jbtronics\SettingsBundle\Manager\SettingsResetterInterface;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
@@ -38,16 +39,19 @@ use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use LogicException;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class SettingsResetterTest extends TestCase
+class SettingsResetterTest extends KernelTestCase
 {
 
     private SettingsResetterInterface $service;
+    private MetadataManagerInterface $metadataManager;
 
     public function setUp(): void
     {
         $this->service = new SettingsResetter();
+        self::bootKernel();
+        $this->metadataManager = self::getContainer()->get(MetadataManagerInterface::class);
     }
 
     public function testResetSettingsOnlyProperties(): void
@@ -160,4 +164,59 @@ class SettingsResetterTest extends TestCase
 
         $this->service->resetSettings($settings, $schema);
     }
+
+    public function testNewInstanceOnlyProperties(): void
+    {
+        $metadata = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
+        $settings = $this->service->newInstance($metadata);
+
+        $this->assertEquals('default', $settings->getValue1());
+        $this->assertNull($settings->getValue2());
+        $this->assertFalse($settings->getValue3());
+    }
+
+    public function testNewInstanceResettableInterface(): void
+    {
+        $this->service = new SettingsResetter();
+
+        $settings = new class implements ResettableSettingsInterface {
+
+            public string $value1 = 'default';
+            public int $value2;
+            public ?bool $value3;
+
+            public bool $wasResetted = false;
+
+            public function resetToDefaultValues(): void
+            {
+                //Set the default value of value 2
+                $this->value2 = 42;
+
+                //Mark that this class was resetted
+                $this->wasResetted = true;
+            }
+        };
+
+        //Create a schema with all properties
+        $schema = new SettingsMetadata(
+            className: get_class($settings),
+            parameterMetadata: [
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value1', type: StringType::class, nullable: true),
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value2', type: IntType::class,  nullable: true),
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value3', type: BoolType::class, nullable: true),
+            ],
+            storageAdapter: InMemoryStorageAdapter::class,
+            name: 'test'
+        );
+
+        $settings = $this->service->newInstance($schema);
+
+        //The reset method should have been called
+        $this->assertTrue($settings->wasResetted);
+
+        //And the properties should have been resetted
+        $this->assertEquals('default', $settings->value1);
+        $this->assertSame(42, $settings->value2);
+    }
+
 }

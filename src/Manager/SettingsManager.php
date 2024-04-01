@@ -87,8 +87,10 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
 
     private function getInitializedVersion(string $settingsClass): object
     {
-        $settings = $this->getNewInstance($settingsClass);
-        $this->settingsHydrator->hydrate($settings, $this->metadataManager->getSettingsMetadata($settingsClass));
+        $metadata = $this->metadataManager->getSettingsMetadata($settingsClass);
+
+        $settings = $this->settingsResetter->newInstance($metadata);
+        $this->settingsHydrator->hydrate($settings, $metadata);
 
         //Fill the embedded settings with a lazy loaded instance
         foreach ($this->metadataManager->getSettingsMetadata($settingsClass)->getEmbeddedSettings() as $embeddedSettingsMetadata) {
@@ -202,24 +204,6 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
 
         //Reset the settings class to its default values
         $this->settingsResetter->resetSettings($settings, $this->metadataManager->getSettingsMetadata($settings));
-    }
-
-    /**
-     * Creates a new instance of the given settings class.
-     * @param  string  $settingsClass
-     * @return object
-     */
-    private function getNewInstance(string $settingsClass): object
-    {
-        $reflectionClass = new \ReflectionClass($settingsClass);
-        $instance = $reflectionClass->newInstanceWithoutConstructor();
-
-        //If the class is resettable, we call the reset method
-        if (is_a($settingsClass, ResettableSettingsInterface::class, true)) {
-            $instance->resetToDefaultValues();
-        }
-
-        return $instance;
     }
 
     public function reset(): void

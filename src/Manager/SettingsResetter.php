@@ -88,4 +88,20 @@ class SettingsResetter implements SettingsResetterInterface
         //And set it to the property
         $reflectionProperty->setValue($settings, $defaultValue);
     }
+
+    public function newInstance(SettingsMetadata $metadata): object
+    {
+        $settingsClass = $metadata->getClassName();
+
+        $reflectionClass = new \ReflectionClass($settingsClass);
+        $instance = $reflectionClass->newInstanceWithoutConstructor();
+
+        //If the class is resettable, we call the reset method
+        if (is_a($settingsClass, ResettableSettingsInterface::class, true)) {
+            $instance->resetToDefaultValues();
+        }
+
+
+        return $instance;
+    }
 }

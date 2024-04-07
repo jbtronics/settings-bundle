@@ -28,7 +28,9 @@ namespace Jbtronics\SettingsBundle\Manager;
 use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
+use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
@@ -46,7 +48,8 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         private readonly SettingsResetterInterface $settingsResetter,
         private readonly SettingsValidatorInterface $settingsValidator,
         private readonly SettingsRegistryInterface $settingsRegistry,
-        private readonly ProxyFactoryInterface $proxyFactory
+        private readonly ProxyFactoryInterface $proxyFactory,
+        private readonly EnvVarValueResolverInterface $envVarValueResolver,
     )
     {
 
@@ -210,5 +213,40 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
     {
         //Reset all cached settings classes, to trigger a reload on new requests
         $this->settings_by_class = [];
+    }
+
+    public function isEnvVarOverwritten(
+        object|string $settings,
+        ParameterMetadata|string|\ReflectionProperty $property
+    ): bool {
+        $settingsMetadata = $this->metadataManager->getSettingsMetadata($settings);
+
+        //Resolve the property to a ParameterMetadata instance
+        if ($property instanceof ParameterMetadata) {
+            //Ensure that the parameter is part of the settings class
+            if ($property->getClassName() !== $settingsMetadata->getClassName()) {
+                throw new \InvalidArgumentException(sprintf('The parameter "%s" is not part of the settings class "%s".',
+                    $property->getName(), $settingsMetadata->getClassName()));
+            }
+        } elseif ($property instanceof \ReflectionProperty) {
+            //Ensure that the property is part of the settings class
+            if ($property->getDeclaringClass()->getName() !== $settingsMetadata->getClassName()) {
+                throw new \InvalidArgumentException(sprintf('The property "%s" is not part of the settings class "%s".',
+                    $property->getName(), $settingsMetadata->getClassName()));
+            }
+
+            $property = $settingsMetadata->getParameterByPropertyName($property->getName());
+        } elseif (is_string($property)) {
+            $property = $settingsMetadata->getParameterByPropertyName($property);
+        }
+
+        //If the property has no env var defined, or its mode is neither OVERWRITE or OVERWRITE_PERSIST, then it is not overwritten
+        if ($property->getEnvVar() === null
+            || !in_array($property->getEnvVarMode(), [EnvVarMode::OVERWRITE, EnvVarMode::OVERWRITE_PERSIST], true)) {
+            return false;
+        }
+
+        //Otherwise we assume that the hydrator has overwritten the property, when the env var is set
+        return $this->envVarValueResolver->hasValue($property);
     }
 }

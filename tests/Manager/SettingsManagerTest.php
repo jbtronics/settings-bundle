@@ -30,6 +30,7 @@ use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\VarExporter\LazyObjectInterface;
@@ -225,5 +226,38 @@ class SettingsManagerTest extends KernelTestCase
 
         //If the cascade is true, the embedded settings should be reloaded and the value should be the default value
         $this->assertEquals('default', $settings->simpleSettings->getValue1());
+    }
+
+    public function testIsEnvVarOverwritten(): void
+    {
+        $settings = $this->service->get(SimpleSettings::class);
+        //Env vars should not be overwritten, if no env var is set
+        $this->assertFalse($this->service->isEnvVarOverwritten($settings, 'value1'));
+        $this->assertFalse($this->service->isEnvVarOverwritten($settings, new \ReflectionProperty(SimpleSettings::class, 'value2')));
+        $this->assertFalse($this->service->isEnvVarOverwritten($settings, new \ReflectionProperty(SimpleSettings::class, 'value3')));
+
+        //The same goes for EnvVar parameters, as long as the env var is not set
+        $settings = $this->service->get(EnvVarSettings::class);
+        $this->assertFalse($this->service->isEnvVarOverwritten($settings, 'value1'));
+        $this->assertFalse($this->service->isEnvVarOverwritten($settings, new \ReflectionProperty(EnvVarSettings::class, 'value2')));
+        $this->assertFalse($this->service->isEnvVarOverwritten($settings, new \ReflectionProperty(EnvVarSettings::class, 'value3')));
+        $this->assertFalse($this->service->isEnvVarOverwritten($settings, 'value4'));
+
+        //Define some env vars
+        $_ENV['ENV_VALUE1'] = "should not be applied";
+        $_ENV['ENV_VALUE2'] = 'true';
+        $_ENV['ENV_VALUE3'] = 'dont matter';
+        $_ENV['ENV_VALUE4'] = "1";
+
+        //The INITIAL value means not overwritten by an env var
+        $this->assertFalse($this->service->isEnvVarOverwritten($settings, 'value1'));
+        //The OVERRIDE modes must be marked as overwritten
+        $this->assertTrue($this->service->isEnvVarOverwritten($settings, new \ReflectionProperty(EnvVarSettings::class, 'value2')));
+        $this->assertTrue($this->service->isEnvVarOverwritten($settings, new \ReflectionProperty(EnvVarSettings::class, 'value3')));
+        //The OVERRIDE_PERSIST mode must be marked as overwritten
+        $this->assertTrue($this->service->isEnvVarOverwritten($settings, 'value4'));
+
+        //Unset the env vars to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);  
     }
 }

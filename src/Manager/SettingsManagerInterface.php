@@ -25,6 +25,10 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+
 /**
  * This interface defines the contracts of the configuration manager, which is responsible for managing the configuration
  * and its values.
@@ -70,4 +74,15 @@ interface SettingsManagerInterface
      * @return void
      */
     public function resetToDefaultValues(object|string $settings): void;
+
+    /**
+     * Checks if the given property of the given settings class was overwritten by an environment variable.
+     * This only affects parameters with the EnvVarMode::OVERRIDE or OVERRIDE_PERSIST mode.
+     * @template T of object
+     * @param  object|string  $settings The settings class or name of a settings class
+     * @phpstan-param class-string<T>|T $settings
+     * @param  string|ParameterMetadata|\ReflectionProperty  $property The property name or the parameter metadata, which should be checked
+     * @return bool True if the property was overwritten by an environment variable, false otherwise
+     */
+    public function isEnvVarOverwritten(object|string $settings, string|ParameterMetadata|\ReflectionProperty $property): bool;
 }

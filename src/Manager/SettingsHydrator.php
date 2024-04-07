@@ -161,7 +161,7 @@ class SettingsHydrator implements SettingsHydratorInterface
             $parameterName = $parameterMetadata->getName();
 
             //Skip parameters which are not present in the normalized representation.
-            if (!isset($normalizedRepresentation[$parameterName])) {
+            if (!array_key_exists($parameterName, $normalizedRepresentation)) {
                 continue;
             }
 

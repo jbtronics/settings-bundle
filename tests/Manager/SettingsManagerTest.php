@@ -25,6 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Manager;
 
+use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Manager\SettingsManager;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
@@ -258,6 +259,64 @@ class SettingsManagerTest extends KernelTestCase
         $this->assertTrue($this->service->isEnvVarOverwritten($settings, 'value4'));
 
         //Unset the env vars to prevent side effects
-        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);  
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
+    }
+
+    public function testEnvVarHandling(): void
+    {
+        //Define some env vars
+        $_ENV['ENV_VALUE1'] = "new initial value";
+        $_ENV['ENV_VALUE2'] = 'true';
+        $_ENV['ENV_VALUE3'] = 'dont matter';
+        $_ENV['ENV_VALUE4'] = "1";
+
+        /** @var EnvVarSettings $settings */
+        $settings = $this->service->get(EnvVarSettings::class);
+        //With the env vars in place, the values should be set when retrieving a new instance (without having the values in memory yet)
+        $this->assertSame('new initial value', $settings->value1);
+        $this->assertSame(true, $settings->value2);
+        $this->assertSame(123.4, $settings->value3);
+        $this->assertSame(true, $settings->value4);
+
+        //Try to change some values
+        $settings->value1 = 'changed';
+        $settings->value2 = false;
+        $settings->value3 = 432.1;
+        $settings->value4 = null;
+
+        //Persist the values to memory
+        $this->service->save($settings);
+
+        //If we load the settings from storage, the overwrite values should be like in the env vars, and the INITIAL values should be our set value
+        $this->service->reload($settings);
+        $this->assertSame('changed', $settings->value1);   //INITIAL
+        $this->assertSame(true, $settings->value2); //Overwritten by env var
+        $this->assertSame(123.4, $settings->value3); //Overwritten by env var
+        $this->assertSame(true, $settings->value4); //Overwritten by env var
+
+        //If we reset the values to default, the env vars should be applied againg (even the INITIAL ones)
+        $settings->value3 = 432.1;
+        $this->service->resetToDefaultValues($settings);
+        $this->assertSame('new initial value', $settings->value1);   //Overwritten by env var
+        $this->assertSame(true, $settings->value2); //Overwritten by env var
+        $this->assertSame(123.4, $settings->value3); //Overwritten by env var
+        $this->assertSame(true, $settings->value4); //Overwritten by env var
+
+        //If we now unset the env vars and reload the settings, only the INITIAL and OVERRIDE_PERSIST values should be set,
+        //as the OVERWRITE values were not persisted
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
+
+        //Clear the internal envCache of the container to ensure that the env vars are reloaded
+        //This is pretty hacky, but the only way to ensure that the env vars are reloaded
+        $container = self::$kernel->getContainer(); //We can not use the getContainer method, as it returns a different container instance
+        PropertyAccessHelper::setProperty( $container, 'envCache', []);
+
+
+        $this->service->reload($settings);
+        $this->assertSame('changed', $settings->value1);   //From memory
+        $this->assertSame(false, $settings->value2); //Default value
+        $this->assertSame(0.0, $settings->value3); //Default value
+        $this->assertSame(null, $settings->value4); //The envVar value which was persisted
+
     }
 }

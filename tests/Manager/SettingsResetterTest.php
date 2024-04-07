@@ -243,6 +243,9 @@ class SettingsResetterTest extends KernelTestCase
         $this->assertEquals('new_default', $settings->value1);
         $this->assertTrue($settings->value2);
         $this->assertSame(123.4, $settings->value3);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
     }
 
 }

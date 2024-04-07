@@ -200,7 +200,7 @@ class MetadataManagerTest extends KernelTestCase
         //The env var mapper must return a closure, which calls the defined method
         $this->assertInstanceOf(\Closure::class, $value3->getEnvVarMapper());
         $this->assertSame(123.4, ($value3->getEnvVarMapper())("test"));
-        $this->assertSame(EnvVarMode::INITIAL, $value3->getEnvVarMode());
+        $this->assertSame(EnvVarMode::OVERWRITE, $value3->getEnvVarMode());
 
         //Test if the parameter type service id is correctly resolved
         $value4 = $schema->getParameter('value4');

@@ -66,6 +66,9 @@ class EnvVarValueResolverTest extends KernelTestCase
             envVar: 'not:bool:TEST_ENV');
         $this->assertTrue($this->service->hasValue($paramMetadata));
         $this->assertFalse($this->service->getValue($paramMetadata));
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['TEST_ENV']);
     }
 
     public function testGetValueMappingClosure(): void
@@ -84,6 +87,9 @@ class EnvVarValueResolverTest extends KernelTestCase
 
         $this->assertTrue($this->service->hasValue($paramMetadata));
         $this->assertSame(120.23, $this->service->getValue($paramMetadata));
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['TEST_ENV']);
     }
 
     public static function mappingFunction($value): float

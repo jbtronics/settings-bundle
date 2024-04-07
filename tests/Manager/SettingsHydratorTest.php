@@ -203,6 +203,9 @@ class SettingsHydratorTest extends WebTestCase
         $this->assertTrue($test->value2);
 
         $this->assertTrue($test->value4);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
     }
 
     public function testPersistEnvVars(): void
@@ -238,6 +241,9 @@ class SettingsHydratorTest extends WebTestCase
             'value3' => -123,
             'value4' => true,
         ], $data);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
     }
 
     public function testApplyEnvVariableOverwrites(): void
@@ -259,6 +265,9 @@ class SettingsHydratorTest extends WebTestCase
         $this->assertTrue($test->value2);
         $this->assertSame(123.4, $test->value3);
         $this->assertTrue($test->value4);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
     }
 
     public function testUndoEnvVariableOverwrites(): void
@@ -300,5 +309,8 @@ class SettingsHydratorTest extends WebTestCase
 
         //For value4 the mode is OVERWRITE_PERSIST, so the modified data should be returned so that it gets persisted
         $this->assertSame($data['value4'], $modified['value4']);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
     }
 }

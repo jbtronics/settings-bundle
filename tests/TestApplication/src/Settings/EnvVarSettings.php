@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 
+use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
@@ -39,13 +40,13 @@ class EnvVarSettings
     #[SettingsParameter(envVar: 'ENV_VALUE1')]
     public string $value1 = 'default';
 
-    #[SettingsParameter(envVar: 'bool:ENV_VALUE2')]
+    #[SettingsParameter(envVar: 'bool:ENV_VALUE2', envVarMode: EnvVarMode::OVERRIDE)]
     public bool $value2 = false;
 
-    #[SettingsParameter(envVar: 'ENV_VALUE3', envVarMapper: [self::class, 'envVarMapper'])]
+    #[SettingsParameter(envVar: 'ENV_VALUE3', envVarMode: EnvVarMode::OVERRIDE, envVarMapper: [self::class, 'envVarMapper'])]
     public float $value3 = 0.0;
 
-    #[SettingsParameter(envVar: 'ENV_VALUE4', envVarMapper: BoolType::class)]
+    #[SettingsParameter(envVar: 'ENV_VALUE4', envVarMode: EnvVarMode::OVERRIDE_PERSIST, envVarMapper: BoolType::class)]
     public bool $value4 = false;
 
 

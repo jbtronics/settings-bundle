@@ -114,6 +114,7 @@ return static function (ContainerConfigurator $container) {
             '$storageAdapterRegistry' => service('jbtronics.settings.storage_adapter_registry'),
             '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
             '$migrationsManager' => service('jbtronics.settings.settings_migration_manager'),
+            '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
             '$saveAfterMigration' => '%jbtronics.settings.save_after_migration%',
         ]);
     $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');

@@ -34,11 +34,18 @@ use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 
 class EnvVarValueResolver implements EnvVarValueResolverInterface
 {
+    /**
+     * @var \SplObjectStorage A cache to store the resolved environment variables values
+     * @phpstan-var \SplObjectStorage<ParameterMetadata, mixed>
+     */
+    private \SplObjectStorage $envValueCache;
+
     public function __construct(
         private readonly \Closure $getEnvClosure,
         private readonly ParameterTypeRegistryInterface $parameterTypeRegistry
     )
     {
+        $this->envValueCache = new \SplObjectStorage();
     }
 
     public function getValue(ParameterMetadata $metadata): mixed
@@ -49,32 +56,37 @@ class EnvVarValueResolver implements EnvVarValueResolverInterface
                 $metadata->getName(), $metadata->getClassName()));
         }
 
+        //Check if the value is already resolved and cached
+        if ($this->envValueCache->offsetExists($metadata)) {
+            return $this->envValueCache[$metadata];
+        }
+
+
         //Try to resolve the value from the environment variable
-        $result = $this->getEnv($metadata->getEnvVar());
+        $envValue = $this->getEnv($metadata->getEnvVar());
 
         $mapper = $metadata->getEnvVarMapper();
 
         //If no mapping function is set, return the value as is
         if ($mapper === null) {
-            return $result;
-        }
-
-        //If the mapping function is a callable, call it
-        if (is_callable($mapper)) {
+            $result = $envValue;
+        } elseif (is_callable($mapper)) { //If the mapping function is a callable, call it
             //Otherwise, apply the mapping function
-            return ($metadata->getEnvVarMapper())($result);
-        }
-
-        if (is_string($mapper)) {
+            $result = ($metadata->getEnvVarMapper())($envValue);
+        } elseif (is_string($mapper)) {
             //If the mapping function is a string, try to resolve it from the parameter type registry and apply it
             if (is_a($mapper, ParameterTypeInterface::class, true)) {
-                return $this->parameterTypeRegistry->getParameterType($mapper)->convertNormalizedToPHP($result, $metadata);
+                $result = $this->parameterTypeRegistry->getParameterType($mapper)->convertNormalizedToPHP($envValue, $metadata);
+            } else {
+                throw new \LogicException("The string provided as a mapping function must be a class implementing ParameterTypeInterface!");
             }
-
-            throw new \LogicException("The string provided as a mapping function must be a class implementing ParameterTypeInterface!");
+        } else {
+            throw new \RuntimeException("Unknown mapping function type!");
         }
 
-        throw new \RuntimeException("Unknown mapping function type!");
+        //Cache the resolved value
+        $this->envValueCache[$metadata] = $result;
+        return $result;
     }
 
     public function hasValue(ParameterMetadata $metadata): bool

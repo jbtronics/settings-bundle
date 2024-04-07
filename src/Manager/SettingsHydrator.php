@@ -234,7 +234,7 @@ class SettingsHydrator implements SettingsHydratorInterface
             $parameterName = $parameterMetadata->getName();
 
             //Check if the parameter is present in the old data. Then unset it in the normalized data.
-            if (!isset($oldData[$parameterName])) {
+            if ($oldData === null || !array_key_exists($parameterName, $oldData)) {
                 unset($normalizedData[$parameterName]);
             } else { //Otherwise set the old data to the normalized data
                 $normalizedData[$parameterName] = $oldData[$parameterName];

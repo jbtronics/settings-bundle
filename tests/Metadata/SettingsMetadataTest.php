@@ -51,7 +51,7 @@ class SettingsMetadataTest extends TestCase
     {
         $this->parameterMetadata = [
             new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true, groups: ['group1'], envVar: 'ENV_VAR1'),
-            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2'], envVar: 'ENV_VAR2', envVarMode: EnvVarMode::OVERRIDE),
+            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2'], envVar: 'ENV_VAR2', envVarMode: EnvVarMode::OVERWRITE),
             new ParameterMetadata(self::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
         ];
 
@@ -369,18 +369,18 @@ class SettingsMetadataTest extends TestCase
         ], $params);
 
         //If we give an array, we should get all parameters with the given env vars
-        $params = $this->configSchema->getParametersWithEnvVar([EnvVarMode::INITIAL, EnvVarMode::OVERRIDE]);
+        $params = $this->configSchema->getParametersWithEnvVar([EnvVarMode::INITIAL, EnvVarMode::OVERWRITE]);
         $this->assertEquals([
             'property1' => $this->parameterMetadata[0],
             'name2' => $this->parameterMetadata[1],
         ], $params);
 
         //If we give an mode, which is not used, we should get an empty array
-        $params = $this->configSchema->getParametersWithEnvVar(EnvVarMode::OVERRIDE_PERSIST);
+        $params = $this->configSchema->getParametersWithEnvVar(EnvVarMode::OVERWRITE_PERSIST);
         $this->assertEmpty($params);
 
         //If we give an array with a mode, which is not used, we should get an empty array
-        $params = $this->configSchema->getParametersWithEnvVar([EnvVarMode::OVERRIDE_PERSIST]);
+        $params = $this->configSchema->getParametersWithEnvVar([EnvVarMode::OVERWRITE_PERSIST]);
         $this->assertEmpty($params);
     }
 }

@@ -188,7 +188,7 @@ class SettingsHydrator implements SettingsHydratorInterface
      */
     public function applyEnvVariableOverwrites(object $settings, SettingsMetadata $metadata): object
     {
-        foreach ($metadata->getParametersWithEnvVar([EnvVarMode::OVERRIDE, EnvVarMode::OVERRIDE_PERSIST]) as $parameterMetadata) {
+        foreach ($metadata->getParametersWithEnvVar([EnvVarMode::OVERWRITE, EnvVarMode::OVERWRITE_PERSIST]) as $parameterMetadata) {
             //Skip the parameter, if the environment variable is not set
             if (!$this->envVarValueResolver->hasValue($parameterMetadata)) {
                 continue;
@@ -218,7 +218,7 @@ class SettingsHydrator implements SettingsHydratorInterface
     public function undoEnvVariableOverwrites(SettingsMetadata $metadata, array $normalizedData, ?array $oldData): array
     {
         //Check for every overwritten parameter, if the environment variable is set and the mode is overwritten (not persist)
-        foreach ($metadata->getParametersWithEnvVar(EnvVarMode::OVERRIDE) as $parameterMetadata) {
+        foreach ($metadata->getParametersWithEnvVar(EnvVarMode::OVERWRITE) as $parameterMetadata) {
             //Skip if the environment variable is not set, and therefore the parameter was not overwritten
             if (!$this->envVarValueResolver->hasValue($parameterMetadata)) {
                 continue;

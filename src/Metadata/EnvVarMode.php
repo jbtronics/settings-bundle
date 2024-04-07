@@ -39,7 +39,17 @@ enum EnvVarMode
      */
     case INITIAL;
 
-    case OVERRIDE;
+    /**
+     * The value from the environment variable will always overwrite the value from the storage, no matter if the
+     * parameter data was saved in the storage before. The overwritten value however will never be written back to the
+     * storage.
+     */
+    case OVERWRITE;
 
-    case OVERRIDE_PERSIST;
+    /**
+     * The value from the environment variable will always overwrite the value from the storage, no matter if the
+     * parameter data was saved in the storage before. The difference to OVERWRITE is, that the overwritten value will
+     * be written back to the storage on the next persist operation.
+     */
+    case OVERWRITE_PERSIST;
 }

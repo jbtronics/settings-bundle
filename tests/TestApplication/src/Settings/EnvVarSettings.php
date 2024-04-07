@@ -40,13 +40,13 @@ class EnvVarSettings
     #[SettingsParameter(envVar: 'ENV_VALUE1')]
     public string $value1 = 'default';
 
-    #[SettingsParameter(envVar: 'bool:ENV_VALUE2', envVarMode: EnvVarMode::OVERRIDE)]
+    #[SettingsParameter(envVar: 'bool:ENV_VALUE2', envVarMode: EnvVarMode::OVERWRITE)]
     public bool $value2 = false;
 
-    #[SettingsParameter(envVar: 'ENV_VALUE3', envVarMode: EnvVarMode::OVERRIDE, envVarMapper: [self::class, 'envVarMapper'])]
+    #[SettingsParameter(envVar: 'ENV_VALUE3', envVarMode: EnvVarMode::OVERWRITE, envVarMapper: [self::class, 'envVarMapper'])]
     public float $value3 = 0.0;
 
-    #[SettingsParameter(envVar: 'ENV_VALUE4', envVarMode: EnvVarMode::OVERRIDE_PERSIST, envVarMapper: BoolType::class)]
+    #[SettingsParameter(envVar: 'ENV_VALUE4', envVarMode: EnvVarMode::OVERWRITE_PERSIST, envVarMapper: BoolType::class)]
     public bool $value4 = false;
 
 

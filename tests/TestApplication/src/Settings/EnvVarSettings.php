@@ -47,7 +47,7 @@ class EnvVarSettings
     public float $value3 = 0.0;
 
     #[SettingsParameter(envVar: 'ENV_VALUE4', envVarMode: EnvVarMode::OVERWRITE_PERSIST, envVarMapper: BoolType::class)]
-    public bool $value4 = false;
+    public ?bool $value4 = false;
 
 
     public static function envVarMapper(mixed $value): mixed

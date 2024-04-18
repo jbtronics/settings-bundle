@@ -101,11 +101,11 @@ final class MetadataManager implements MetadataManagerInterface
         $attributes = $reflClass->getAttributes(Settings::class);
 
         if (count($attributes) < 1) {
-            throw new \LogicException(sprintf('The class "%s" is not a config class. Add the #[ConfigClass] attribute to the class.',
+            throw new \LogicException(sprintf('The class "%s" is not a config class. Add the #[Settings] attribute to the class.',
                 $className));
         }
         if (count($attributes) > 1) {
-            throw new \LogicException(sprintf('The class "%s" has more than one ConfigClass atrributes! Only one is allowed',
+            throw new \LogicException(sprintf('The class "%s" has more than one Settings atrributes! Only one is allowed',
                 $className));
         }
 

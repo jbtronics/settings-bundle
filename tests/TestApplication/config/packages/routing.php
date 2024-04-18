@@ -23,8 +23,6 @@
  * SOFTWARE.
  */
 
-$container->loadFromExtension('framework', [
-    'router' => [
-        'utf8' => true,
-    ],
-]);
+return static function (\Symfony\Config\FrameworkConfig $framework) {
+    $framework->router()->utf8(true);
+};

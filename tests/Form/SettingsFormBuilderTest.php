@@ -74,13 +74,13 @@ class SettingsFormBuilderTest extends KernelTestCase
     public function testAddSettingsFormWithAllParameters(): void
     {
         $parameterMetadata = [
-            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true, groups: ['group1']),
-            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2']),
-            new ParameterMetadata(self::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
+            new ParameterMetadata(SimpleSettings::class, 'property1', IntType::class, nullable: true, groups: ['group1']),
+            new ParameterMetadata(SimpleSettings::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2']),
+            new ParameterMetadata(SimpleSettings::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
         ];
 
         $schema =  new SettingsMetadata(
-            className: self::class,
+            className: SimpleSettings::class,
             parameterMetadata:  $parameterMetadata,
             storageAdapter: InMemoryStorageAdapter::class,
             name: 'test',
@@ -102,13 +102,13 @@ class SettingsFormBuilderTest extends KernelTestCase
     public function testBuildSettingsFormForGroups(): void
     {
         $parameterMetadata = [
-            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true, groups: ['group1']),
-            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2']),
-            new ParameterMetadata(self::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
+            new ParameterMetadata(SimpleSettings::class, 'property1', IntType::class, nullable: true, groups: ['group1']),
+            new ParameterMetadata(SimpleSettings::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2']),
+            new ParameterMetadata(SimpleSettings::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
         ];
 
         $schema =  new SettingsMetadata(
-            className: self::class,
+            className: SimpleSettings::class,
             parameterMetadata:  $parameterMetadata,
             storageAdapter: InMemoryStorageAdapter::class,
             name: 'test',

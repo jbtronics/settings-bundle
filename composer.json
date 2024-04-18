@@ -34,7 +34,7 @@
     "symfony/form": "^6.4|^7.0",
     "symfony/var-exporter": "^6.4|^7.0",
     "ergebnis/classy": "^1.6",
-    "symfony/translation": "^7.0"
+    "symfony/translation": "^7.0|^6.4"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest",

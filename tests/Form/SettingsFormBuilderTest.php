@@ -246,7 +246,7 @@ class SettingsFormBuilderTest extends KernelTestCase
         $translator = self::getContainer()->get(TranslatorInterface::class);
         /** @var TranslatableInterface $message */
         $message = $option2['help'];
-        $this->assertEquals('This value of this parameter is overridden by an server environment variable. Unset the environment variable "bool:ENV_VALUE2" to allow changes via the WebUI.', $message->trans($translator));
+        $this->assertEquals('This value of this parameter is overridden by an server environment variable. Unset the environment variable "ENV_VALUE2" to allow changes via the WebUI.', $message->trans($translator));
 
 
         //Unset the env vars to prevent side effects in other tests

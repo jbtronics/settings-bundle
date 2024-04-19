@@ -158,7 +158,7 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
             $resolved['disabled'] = true;
             //And override the help text to show that the value is overridden
             $resolved['help'] = new TranslatableMessage('form.parameter_env_var_overridden.help', [
-                '%env_var%' => $parameterMetadata->getEnvVar(),
+                '%env_var%' => $parameterMetadata->getBaseEnvVar(),
             ], domain: 'JbtronicsSettingsBundle');
         }
 

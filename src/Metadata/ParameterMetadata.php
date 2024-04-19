@@ -153,6 +153,27 @@ class ParameterMetadata
     }
 
     /**
+     * If the environment variable is set, this method returns the base env var, which is the last part of the expression.
+     * So if the env var expression is bool:FOO_BAR, the base env var is FOO_BAR.
+     * If no environment variable is set, this method returns null.
+     * @return string|null
+     */
+    public function getBaseEnvVar(): ?string
+    {
+        if ($this->envVar === null){
+            return null;
+        }
+
+        //If the expressions dont contain any colons, the base env var is the same as the expression
+        if (!str_contains($this->envVar, ':')) {
+            return $this->envVar;
+        }
+
+        //We assume that all env var expressions are using the prefix syntax, and therefore the base env var is the last part
+        return substr($this->envVar, strrpos($this->envVar, ':') + 1);
+    }
+
+    /**
      * Returns the mode in which the environment variable should be used to fill the parameter.
      * @return EnvVarMode
      */

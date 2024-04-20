@@ -26,6 +26,7 @@ All relevant definitions of settings are done directly in the settings class via
 * Easy possibility to version settings and automatically migrate old stored data to the current format
 * Possibility to lazy load settings, so that only the settings, which are really needed, are loaded
 * Profiler integration for easy debugging
+* Ability to use environment variables for easy configuration on automated deployments
 
 ## Requirements
 * PHP 8.1 or higher

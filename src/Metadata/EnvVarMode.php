@@ -1,7 +1,7 @@
 <?php
-
-
 /*
+ * This file is part of jbtronics/settings-bundle (https://github.com/jbtronics/settings-bundle).
+ *
  * Copyright (c) 2024 Jan Böhmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,36 +23,33 @@
  * SOFTWARE.
  */
 
-namespace Jbtronics\SettingsBundle\Manager;
+declare(strict_types=1);
 
-use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
+
+namespace Jbtronics\SettingsBundle\Metadata;
 
 /**
- * This interface is used to reset a settings instance to their default values.
+ * This enum represents the different modes in which the environment variables can be used to fill parameters.
  */
-interface SettingsResetterInterface
+enum EnvVarMode
 {
     /**
-     * Resets the settings instance to their default values.
-     * The instance is returned.
-     * @template T of object
-     * @param  object  $settings
-     * @phpstan-param T $settings
-     * @param SettingsMetadata $metadata The metadata, that should be used to reset the settings
-     * @phpstan-param SettingsMetadata<T> $metadata
-     * @return object
-     * @phpstan-return T
+     * The value from the environment variable is used as initialisation value, if the parameter was not defined before.
+     * If the parameter is defined in the storage, then the value from the storage is used.
      */
-    public function resetSettings(object $settings, SettingsMetadata $metadata): object;
+    case INITIAL;
 
     /**
-     * Creates a new instance of the given settings class with the default values set. The instance is not tracked
-     * by the SettingsManager!
-     * @template T of object
-     * @param  SettingsMetadata  $metadata
-     * @phpstan-param SettingsMetadata<T> $metadata
-     * @return object
-     * @phpstan-return T
+     * The value from the environment variable will always overwrite the value from the storage, no matter if the
+     * parameter data was saved in the storage before. The overwritten value however will never be written back to the
+     * storage.
      */
-    public function newInstance(SettingsMetadata $metadata): object;
+    case OVERWRITE;
+
+    /**
+     * The value from the environment variable will always overwrite the value from the storage, no matter if the
+     * parameter data was saved in the storage before. The difference to OVERWRITE is, that the overwritten value will
+     * be written back to the storage on the next persist operation.
+     */
+    case OVERWRITE_PERSIST;
 }

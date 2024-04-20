@@ -25,6 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Settings;
 
+use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Contracts\Translation\TranslatableInterface;
@@ -38,11 +39,13 @@ use Symfony\Contracts\Translation\TranslatableInterface;
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class SettingsParameter
 {
+    public readonly \Closure|string|null $envVarMapper;
+
     /**
      * @param  string|null  $type  The type of this configuration entry. This must be a class string of a service implementing ParameterTypeInterface. If it is not set, the type is guessed from the property type.
      * @phpstan-param class-string<ParameterTypeInterface> $type
      * @param  string|null  $name  The optional name of this configuration entry. If not set, the name of the property is used.
-     * @param  string|TranslatableInterface|null  $label  A user friendly label for this configuration entry, which is shown in the UI.
+     * @param  string|TranslatableInterface|null  $label  A user-friendly label for this configuration entry, which is shown in the UI.
      * @param  string|TranslatableInterface|null  $description  A small description for this configuration entry, which is shown in the UI.
      * @param  array  $options  An array of extra options, which can detail configure the behavior of the ParameterType.
      * @param  string|null  $formType  The form type to use for this configuration entry. If not set, the form type is guessed from the parameter type.
@@ -50,6 +53,10 @@ final class SettingsParameter
      * @param  array  $formOptions  An array of extra options, which are passed to the form type.
      * @param  bool|null  $nullable  Whether the value of the property can be null. If not set, the value is guessed from the property type.
      * @param  string[]|null  $groups  The groups, which this parameter should belong to. Groups can be used to only render subsets of the configuration entries in the UI. If not set, the parameter is assigned to the default group set in the settings class.
+     * @param  string|null  $envVar  The name of the environment variable, which should be used to fill this parameter. If not set, the parameter is not filled by an environment variable.
+     * @param  EnvVarMode  $envVarMode  The mode in which the environment variable should be used to fill the parameter. Defaults to EnvVarMode::INITIAL
+     * @param  callable|string|null  $envVarMapper  A mapper, which is used to map the value from the environment variable to the parameter value. It can be either a ParameterTypeInterface service, or a callable, which takes the value from the environment variable as argument and returns the mapped value.
+     * @phpstan-param callable(mixed): mixed|class-string<ParameterTypeInterface>|null $envVarMapper
      */
     public function __construct(
         public readonly ?string $type = null,
@@ -61,7 +68,15 @@ final class SettingsParameter
         public readonly array $formOptions = [],
         public readonly ?bool $nullable = null,
         public readonly ?array $groups = null,
+        public readonly ?string $envVar = null,
+        public readonly EnvVarMode $envVarMode = EnvVarMode::INITIAL,
+        callable|string|null $envVarMapper = null,
     ) {
+        if (is_callable($envVarMapper)) {
+            $envVarMapper = $envVarMapper(...);
+        }
+
+        $this->envVarMapper = $envVarMapper;
     }
 
 

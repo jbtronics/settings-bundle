@@ -92,6 +92,7 @@ return static function (ContainerConfigurator $container) {
             '$settingsValidator' => service('jbtronics.settings.settings_validator'),
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
+            '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
     ;
@@ -114,11 +115,15 @@ return static function (ContainerConfigurator $container) {
             '$storageAdapterRegistry' => service('jbtronics.settings.storage_adapter_registry'),
             '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
             '$migrationsManager' => service('jbtronics.settings.settings_migration_manager'),
+            '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
             '$saveAfterMigration' => '%jbtronics.settings.save_after_migration%',
         ]);
     $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');
 
-    $services->set('jbtronics.settings.settings_resetter', SettingsResetter::class);
+    $services->set('jbtronics.settings.settings_resetter', SettingsResetter::class)
+        ->args([
+            '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
+        ]);
     $services->alias(SettingsResetterInterface::class, 'jbtronics.settings.settings_resetter');
 
     $services->set('jbtronics.settings.settings_validator', \Jbtronics\SettingsBundle\Manager\SettingsValidator::class)
@@ -191,6 +196,7 @@ return static function (ContainerConfigurator $container) {
         ->args([
             '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
             '$metadataManager' => service('jbtronics.settings.metadata_manager'),
+            '$settingsManager' => service('jbtronics.settings.settings_manager'),
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Form\SettingsFormBuilderInterface::class,
         'jbtronics.settings.settings_form_builder');
@@ -227,6 +233,18 @@ return static function (ContainerConfigurator $container) {
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\FloatType::class);
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\EnumType::class);
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\DatetimeType::class);
+
+    /***********************************************************************************
+     * Environment variable value resolver
+     ***********************************************************************************/
+
+    $services->set('jbtronics.settings.env_var_value_resolver',
+        \Jbtronics\SettingsBundle\Manager\EnvVarValueResolver::class)
+        ->args([
+            '$getEnvClosure' => service('container.getenv'),
+            '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Manager\EnvVarValueResolverInterface::class, 'jbtronics.settings.env_var_value_resolver');
 
     /**********************************************************************************
      * Storage Adapters

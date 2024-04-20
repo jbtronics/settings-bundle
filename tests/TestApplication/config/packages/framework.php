@@ -23,15 +23,15 @@
  * SOFTWARE.
  */
 
-$configuration = [
-    'secret' => 'F00',
-    'csrf_protection' => true,
-    'http_method_override' => true,
-    'session' => [
-        'handler_id' => null,
-        'storage_factory_id' => 'session.storage.factory.mock_file',
-    ],
-    'test' => true,
-];
+use Symfony\Config\FrameworkConfig;
 
-$container->loadFromExtension('framework', $configuration);
+return static function(FrameworkConfig $framework): void {
+    $framework->secret('F00');
+    $framework->csrfProtection()->enabled(true);
+    $framework->httpMethodOverride(true);
+    $framework->session()
+        ->handlerId(null)
+        ->storageFactoryId('session.storage.factory.mock_file');
+
+    $framework->test(true);
+};

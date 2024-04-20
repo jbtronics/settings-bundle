@@ -1,7 +1,7 @@
 <?php
-
-
 /*
+ * This file is part of jbtronics/settings-bundle (https://github.com/jbtronics/settings-bundle).
+ *
  * Copyright (c) 2024 Jan Böhmer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,6 +23,14 @@
  * SOFTWARE.
  */
 
-return static function (\Symfony\Config\FrameworkConfig $framework) {
-    $framework->router()->utf8(true);
-};
+declare(strict_types=1);
+
+return [
+    //The nested arrays form the translation keys, seperated by dots
+
+    'form' => [
+        'parameter_env_var_overridden' => [
+            'help' => 'This value of this parameter is overridden by an server environment variable. Unset the environment variable "%env_var%" to allow changes via the WebUI.'
+        ],
+    ]
+];

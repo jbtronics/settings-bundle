@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Form;
 
+use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\EmbeddedSettingsMetadata;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
@@ -38,12 +39,14 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Valid;
+use Symfony\Component\Translation\TranslatableMessage;
 
 class SettingsFormBuilder implements SettingsFormBuilderInterface
 {
     public function __construct(
         private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
         private readonly MetadataManagerInterface $metadataManager,
+        private readonly SettingsManagerInterface $settingsManager,
     )
     {
     }
@@ -146,8 +149,19 @@ class SettingsFormBuilder implements SettingsFormBuilderInterface
         //Then add the defaults from the parameter metadata
         $optionsResolver->setDefaults($parameterMetadata->getFormOptions());
 
-
         //Finally resolve the options
-        return $optionsResolver->resolve($options);
+        $resolved = $optionsResolver->resolve($options);
+
+        //Check if the given parameter is overridden by an environment variable
+        if ($this->settingsManager->isEnvVarOverwritten($parameterMetadata->getClassName(), $parameterMetadata)) {
+            //Then disable the field in the form
+            $resolved['disabled'] = true;
+            //And override the help text to show that the value is overridden
+            $resolved['help'] = new TranslatableMessage('form.parameter_env_var_overridden.help', [
+                '%env_var%' => $parameterMetadata->getBaseEnvVar(),
+            ], domain: 'JbtronicsSettingsBundle');
+        }
+
+        return $resolved;
     }
 }

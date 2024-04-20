@@ -29,6 +29,7 @@ use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -172,4 +173,144 @@ class SettingsHydratorTest extends WebTestCase
         ], $data);
     }
 
+    public function testHydrateEnvVars(): void
+    {
+        //Set Env vars
+        $_ENV['ENV_VALUE1'] = "should not be applied";
+        $_ENV['ENV_VALUE2'] = 'true';
+        $_ENV['ENV_VALUE3'] = 'dont matter';
+        $_ENV['ENV_VALUE4'] = "1";
+
+
+        $test = new EnvVarSettings();
+        $schema = $this->schemaManager->getSettingsMetadata(EnvVarSettings::class);
+
+        //Prepare the storage adapter with some dummy data to migrate
+        $this->storageAdapter->save($schema->getStorageKey(), [
+            'value1' => "stored",
+            'value3' => -123,
+        ]);
+
+        //Hydrate the settings object. This should work without any errors.
+        $test = $this->service->hydrate($test, $schema);
+
+        //Afterwards the settings object should be hydrated
+        $this->assertEquals('stored', $test->value1);
+        //But the value should be overwritten by the env var
+        $this->assertEquals(123.4, $test->value3);
+
+        //Values which are not in the storage adapter should still have their original values
+        $this->assertTrue($test->value2);
+
+        $this->assertTrue($test->value4);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
+    }
+
+    public function testPersistEnvVars(): void
+    {
+        //Set Env vars
+        $_ENV['ENV_VALUE1'] = "should not be applied";
+        $_ENV['ENV_VALUE2'] = 'true';
+        $_ENV['ENV_VALUE3'] = 'dont matter';
+        $_ENV['ENV_VALUE4'] = "1";
+
+        $schema = $this->schemaManager->getSettingsMetadata(EnvVarSettings::class);
+
+        //Prepare the storage adapter with some dummy data to migrate
+        $this->storageAdapter->save($schema->getStorageKey(), [
+            'value1' => "stored",
+            'value3' => -123,
+            'value4' => null,
+        ]);
+
+        //Hydrate the settings object. This should work without any errors.
+        $test = $this->service->hydrate(new EnvVarSettings(), $schema);
+
+        //Modify the settings object
+        $test->value1 = 'changed';
+
+        //Persist the settings object
+        $this->service->persist($test, $schema);
+
+        //The storage adapter should contain only the modified data and the overwrite persist value
+        $data = $this->storageAdapter->load($schema->getStorageKey());
+        $this->assertEquals([
+            'value1' => 'changed',
+            'value3' => -123,
+            'value4' => true,
+        ], $data);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
+    }
+
+    public function testApplyEnvVariableOverwrites(): void
+    {
+        //Set Env vars
+        $_ENV['ENV_VALUE1'] = "should not be applied";
+        $_ENV['ENV_VALUE2'] = 'true';
+        $_ENV['ENV_VALUE3'] = 'dont matter';
+        $_ENV['ENV_VALUE4'] = "1";
+
+
+        $test = new EnvVarSettings();
+        $schema = $this->schemaManager->getSettingsMetadata(EnvVarSettings::class);
+
+        $this->service->applyEnvVariableOverwrites($test, $schema);
+
+        //Afterwards the settings values should be set to the env vars, only on the variables where the env var is in Overwrite mode
+        $this->assertEquals('default', $test->value1); //not applied here
+        $this->assertTrue($test->value2);
+        $this->assertSame(123.4, $test->value3);
+        $this->assertTrue($test->value4);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
+    }
+
+    public function testUndoEnvVariableOverwrites(): void
+    {
+        $schema = $this->schemaManager->getSettingsMetadata(EnvVarSettings::class);
+
+        $old_data = [
+            'value1' => "stored",
+            //'value2' => false, //not set
+            'value3' => -10.0,
+            'value4' => null,
+        ];
+
+        $data = [
+            'value1' => "stored_new",
+            'value3' => -123,
+            'value4' => true,
+        ];
+
+        // No env vars yet, so we assume that no env vars were overwritten -> nothing should change
+        $this->assertSame($data, $this->service->undoEnvVariableOverwrites($schema, $data, $old_data));
+
+        //Set Env vars
+        $_ENV['ENV_VALUE1'] = "should not be applied";
+        $_ENV['ENV_VALUE2'] = 'true';
+        $_ENV['ENV_VALUE3'] = 'dont matter';
+        $_ENV['ENV_VALUE4'] = "1";
+
+        // Now we have env vars, so we assume that they were overwritten -> the old data should be restored
+        $modified = $this->service->undoEnvVariableOverwrites($schema, $data, $old_data);
+
+        //For value1 the env mode is INITIAL and not OVERWRITE, so it should not be changed
+        $this->assertSame($data['value1'], $modified['value1']);
+
+        //Value2 is not defined in the old data, so it should be removed
+        $this->assertFalse(isset($modified['value2']));
+        //For value2 and value3 the mode is OVERWRITE, so the old data should be restored
+        $this->assertSame($old_data['value3'], $modified['value3']);
+
+        //For value4 the mode is OVERWRITE_PERSIST, so the modified data should be returned so that it gets persisted
+        $this->assertSame($data['value4'], $modified['value4']);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
+    }
 }

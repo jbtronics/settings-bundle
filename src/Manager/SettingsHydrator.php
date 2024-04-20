@@ -26,6 +26,8 @@
 namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
+use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Migrations\MigrationsManager;
 use Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
@@ -43,6 +45,7 @@ class SettingsHydrator implements SettingsHydratorInterface
         private readonly StorageAdapterRegistryInterface $storageAdapterRegistry,
         private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
         private readonly MigrationsManagerInterface $migrationsManager,
+        private readonly EnvVarValueResolverInterface $envVarValueResolver,
         private readonly bool $saveAfterMigration = true,
     ) {
 
@@ -73,6 +76,9 @@ class SettingsHydrator implements SettingsHydratorInterface
         //Apply the normalized representation to the settings object.
         $tmp = $this->applyNormalizedRepresentation($normalizedRepresentation, $settings, $metadata);
 
+        //Apply all environment variable overwrites to the settings object.
+        $this->applyEnvVariableOverwrites($tmp, $metadata);
+
         //If we went here, then the application of the normalized representation was successful.
         //If the settings object was migrated, we save it to the storage adapter, to make later retrievals faster.
         if ($this->saveAfterMigration && $migrated) {
@@ -90,6 +96,10 @@ class SettingsHydrator implements SettingsHydratorInterface
 
         //Generate a normalized representation of the settings object.
         $normalizedRepresentation = $this->toNormalizedRepresentation($settings, $metadata);
+
+        //Undo the eventual environment variable overwrites for the normalized representation.
+        //The null value for the old data will trigger the loading from the storage adapter, if required.
+        $normalizedRepresentation = $this->undoEnvVariableOverwrites($metadata, $normalizedRepresentation, null);
 
         //Persist the normalized representation to the storage adapter.
         $storageAdapter->save($metadata->getStorageKey(), $normalizedRepresentation, $metadata->getStorageAdapterOptions());
@@ -151,7 +161,7 @@ class SettingsHydrator implements SettingsHydratorInterface
             $parameterName = $parameterMetadata->getName();
 
             //Skip parameters which are not present in the normalized representation.
-            if (!isset($normalizedRepresentation[$parameterName])) {
+            if (!array_key_exists($parameterName, $normalizedRepresentation)) {
                 continue;
             }
 
@@ -166,5 +176,71 @@ class SettingsHydrator implements SettingsHydratorInterface
         }
 
         return $settings;
+    }
+
+    /**
+     * Apply the overwrite mode environment variables defined in the parameter metadata to the given settings object.
+     * This means that all parameters with an environment variable defined will be set to the value of the environment
+     * variable.
+     * @param  object  $settings
+     * @param  SettingsMetadata  $metadata
+     * @return object
+     */
+    public function applyEnvVariableOverwrites(object $settings, SettingsMetadata $metadata): object
+    {
+        foreach ($metadata->getParametersWithEnvVar([EnvVarMode::OVERWRITE, EnvVarMode::OVERWRITE_PERSIST]) as $parameterMetadata) {
+            //Skip the parameter, if the environment variable is not set
+            if (!$this->envVarValueResolver->hasValue($parameterMetadata)) {
+                continue;
+            }
+
+            //Retrieve the value from the environment variable
+            $value = $this->envVarValueResolver->getValue($parameterMetadata);
+
+            //Set the value to the property
+            PropertyAccessHelper::setProperty($settings, $parameterMetadata->getPropertyName(), $value);
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Undo the environment variable overwrites for the normalized representation of the settings object using the given
+     * old data and metadata.
+     * If the environment variable is existing and the envVarMode is overwritten (not overwrite_persist), the value will
+     * normalize data of this parameter will be reset to the value from the old data.
+     * If oldData is null, the old data will be retrieved from the storage adapter.
+     * @param  SettingsMetadata  $metadata
+     * @param  array  $normalizedData
+     * @param  ?array  $oldData
+     * @return array
+     */
+    public function undoEnvVariableOverwrites(SettingsMetadata $metadata, array $normalizedData, ?array $oldData): array
+    {
+        //Check for every overwritten parameter, if the environment variable is set and the mode is overwritten (not persist)
+        foreach ($metadata->getParametersWithEnvVar(EnvVarMode::OVERWRITE) as $parameterMetadata) {
+            //Skip if the environment variable is not set, and therefore the parameter was not overwritten
+            if (!$this->envVarValueResolver->hasValue($parameterMetadata)) {
+                continue;
+            }
+
+            //If we go here, we require the old data to reset the parameter. Load it from storage if not given.
+            if ($oldData === null) {
+                $storageAdapter = $this->storageAdapterRegistry->getStorageAdapter($metadata->getStorageAdapter());
+                //Retrieve the currently saved old data from the storage adapter
+                $oldData = $storageAdapter->load($metadata->getStorageKey(), $metadata->getStorageAdapterOptions());
+            }
+
+            $parameterName = $parameterMetadata->getName();
+
+            //Check if the parameter is present in the old data. Then unset it in the normalized data.
+            if ($oldData === null || !array_key_exists($parameterName, $oldData)) {
+                unset($normalizedData[$parameterName]);
+            } else { //Otherwise set the old data to the normalized data
+                $normalizedData[$parameterName] = $oldData[$parameterName];
+            }
+        }
+
+        return $normalizedData;
     }
 }

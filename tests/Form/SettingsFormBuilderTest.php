@@ -35,13 +35,17 @@ use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Component\Validator\Constraints\Valid;
+use Symfony\Contracts\Translation\TranslatableInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SettingsFormBuilderTest extends KernelTestCase
 {
@@ -70,13 +74,13 @@ class SettingsFormBuilderTest extends KernelTestCase
     public function testAddSettingsFormWithAllParameters(): void
     {
         $parameterMetadata = [
-            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true, groups: ['group1']),
-            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2']),
-            new ParameterMetadata(self::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
+            new ParameterMetadata(SimpleSettings::class, 'property1', IntType::class, nullable: true, groups: ['group1']),
+            new ParameterMetadata(SimpleSettings::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2']),
+            new ParameterMetadata(SimpleSettings::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
         ];
 
         $schema =  new SettingsMetadata(
-            className: self::class,
+            className: SimpleSettings::class,
             parameterMetadata:  $parameterMetadata,
             storageAdapter: InMemoryStorageAdapter::class,
             name: 'test',
@@ -98,13 +102,13 @@ class SettingsFormBuilderTest extends KernelTestCase
     public function testBuildSettingsFormForGroups(): void
     {
         $parameterMetadata = [
-            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true, groups: ['group1']),
-            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2']),
-            new ParameterMetadata(self::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
+            new ParameterMetadata(SimpleSettings::class, 'property1', IntType::class, nullable: true, groups: ['group1']),
+            new ParameterMetadata(SimpleSettings::class, 'property2', StringType::class, nullable: true, name: 'name2', groups: ['group1', 'group2']),
+            new ParameterMetadata(SimpleSettings::class, 'property3', BoolType::class, nullable: true, name: 'name3',label:  'label3', description: 'description3', groups: ['group2', 'group3']),
         ];
 
         $schema =  new SettingsMetadata(
-            className: self::class,
+            className: SimpleSettings::class,
             parameterMetadata:  $parameterMetadata,
             storageAdapter: InMemoryStorageAdapter::class,
             name: 'test',
@@ -209,5 +213,43 @@ class SettingsFormBuilderTest extends KernelTestCase
 
         //The text field should not be required
         $this->assertEquals(['label' => 'Name', 'help' => 'Description', 'required' => true, 'test' => 'other'], $this->service->getFormOptions($parameter, ['required' => true, 'test' => 'other']));
+    }
+
+    public function testGetFormOptionsEnvVarOverride(): void
+    {
+        //Define various env vars
+        $_ENV['ENV_VALUE1'] = 'test';
+        $_ENV['ENV_VALUE2'] = 'true';
+
+
+        /** @var MetadataManagerInterface $metadataManger */
+        $metadataManger = self::getContainer()->get(MetadataManagerInterface::class);
+        $metadata = $metadataManger->getSettingsMetadata(EnvVarSettings::class);
+
+        $param1 = $metadata->getParameter('value1');
+        $param2 = $metadata->getParameter('value2');
+        $param3 = $metadata->getParameter('value3');
+
+        //For param1 where the env var mode is INITIAL and param3 where the env is not set, the options should not be changed
+        $option1 = $this->service->getFormOptions($param1);
+        $this->assertTrue(!isset($option1['disabled']) && !isset($option1['help']));
+        $option3 = $this->service->getFormOptions($param3);
+        $this->assertTrue(!isset($option3['disabled']) && !isset($option3['help']));
+
+        //param2 however should be disabled and have a help text
+        $option2 = $this->service->getFormOptions($param2);
+        $this->assertTrue($option2['disabled']);
+        $this->assertInstanceOf(TranslatableInterface::class, $option2['help']);
+
+        //When translating the help text, the env var should be included
+        /** @var TranslatorInterface $translator */
+        $translator = self::getContainer()->get(TranslatorInterface::class);
+        /** @var TranslatableInterface $message */
+        $message = $option2['help'];
+        $this->assertEquals('This value of this parameter is overridden by an server environment variable. Unset the environment variable "ENV_VALUE2" to allow changes via the WebUI.', $message->trans($translator));
+
+
+        //Unset the env vars to prevent side effects in other tests
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2']);
     }
 }

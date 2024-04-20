@@ -29,6 +29,8 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 
 use Jbtronics\SettingsBundle\Manager\SettingsResetter;
 use Jbtronics\SettingsBundle\Manager\SettingsResetterInterface;
+use Jbtronics\SettingsBundle\Metadata\MetadataManager;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
@@ -36,24 +38,26 @@ use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use LogicException;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class SettingsResetterTest extends TestCase
+class SettingsResetterTest extends KernelTestCase
 {
 
     private SettingsResetterInterface $service;
+    private MetadataManagerInterface $metadataManager;
 
     public function setUp(): void
     {
-        $this->service = new SettingsResetter();
+        self::bootKernel();
+        $this->service = self::getContainer()->get(SettingsResetterInterface::class);
+        $this->metadataManager = self::getContainer()->get(MetadataManagerInterface::class);
     }
 
     public function testResetSettingsOnlyProperties(): void
     {
-        $this->service = new SettingsResetter();
-
         $settings = new SimpleSettings();
         $settings->setValue1('changed');
         $settings->setValue2(42);
@@ -82,8 +86,6 @@ class SettingsResetterTest extends TestCase
 
     public function testResetSettingsResettableInterface(): void
     {
-        $this->service = new SettingsResetter();
-
         $settings = new class implements ResettableSettingsInterface {
 
             public string $value1 = 'default';
@@ -160,4 +162,90 @@ class SettingsResetterTest extends TestCase
 
         $this->service->resetSettings($settings, $schema);
     }
+
+    public function testNewInstanceOnlyProperties(): void
+    {
+        $metadata = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
+        $settings = $this->service->newInstance($metadata);
+
+        $this->assertEquals('default', $settings->getValue1());
+        $this->assertNull($settings->getValue2());
+        $this->assertFalse($settings->getValue3());
+    }
+
+    public function testNewInstanceResettableInterface(): void
+    {
+        $settings = new class implements ResettableSettingsInterface {
+
+            public string $value1 = 'default';
+            public int $value2;
+            public ?bool $value3;
+
+            public bool $wasResetted = false;
+
+            public function resetToDefaultValues(): void
+            {
+                //Set the default value of value 2
+                $this->value2 = 42;
+
+                //Mark that this class was resetted
+                $this->wasResetted = true;
+            }
+        };
+
+        //Create a schema with all properties
+        $schema = new SettingsMetadata(
+            className: get_class($settings),
+            parameterMetadata: [
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value1', type: StringType::class, nullable: true),
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value2', type: IntType::class,  nullable: true),
+                new ParameterMetadata(className: get_class($settings), propertyName: 'value3', type: BoolType::class, nullable: true),
+            ],
+            storageAdapter: InMemoryStorageAdapter::class,
+            name: 'test'
+        );
+
+        $settings = $this->service->newInstance($schema);
+
+        //The reset method should have been called
+        $this->assertTrue($settings->wasResetted);
+
+        //And the properties should have been resetted
+        $this->assertEquals('default', $settings->value1);
+        $this->assertSame(42, $settings->value2);
+    }
+
+    public function testEnvVarsApplied(): void
+    {
+        //Set the environment variables
+        $_ENV['ENV_VALUE1'] = 'new_default';
+        $_ENV['ENV_VALUE2'] = 'true';
+        $_ENV['ENV_VALUE3'] = 'does not matter';
+
+        /** @var SettingsMetadata $metadata */
+        $metadata = $this->metadataManager->getSettingsMetadata(EnvVarSettings::class);
+
+        $settings = $this->service->newInstance($metadata);
+
+        //The environment variables should have overwritten the default values
+        $this->assertEquals('new_default', $settings->value1);
+        $this->assertTrue($settings->value2);
+        $this->assertSame(123.4, $settings->value3);
+        //On the other hand, the default value of value4 should not have been overwritten, as the environment variable is not set
+        $this->assertFalse($settings->value4);
+
+        //When we change the values, the reset method should reset them to the values from the environment variables
+        $settings->value1 = 'changed';
+        $settings->value2 = false;
+        $settings->value3 = 42.0;
+
+        $this->service->resetSettings($settings, $metadata);
+        $this->assertEquals('new_default', $settings->value1);
+        $this->assertTrue($settings->value2);
+        $this->assertSame(123.4, $settings->value3);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
+    }
+
 }

@@ -57,6 +57,7 @@ final class SettingsParameter
      * @param  EnvVarMode  $envVarMode  The mode in which the environment variable should be used to fill the parameter. Defaults to EnvVarMode::INITIAL
      * @param  callable|string|null  $envVarMapper  A mapper, which is used to map the value from the environment variable to the parameter value. It can be either a ParameterTypeInterface service, or a callable, which takes the value from the environment variable as argument and returns the mapped value.
      * @phpstan-param callable(mixed): mixed|class-string<ParameterTypeInterface>|null $envVarMapper
+     * @param  bool $cloneable Whether this property should be cloned (a new instance is created), when the settings class is cloned. If false, the property instance is shared between the original and the cloned settings class. This does only affect object properties.
      */
     public function __construct(
         public readonly ?string $type = null,
@@ -71,6 +72,7 @@ final class SettingsParameter
         public readonly ?string $envVar = null,
         public readonly EnvVarMode $envVarMode = EnvVarMode::INITIAL,
         callable|string|null $envVarMapper = null,
+        public readonly bool $cloneable = true,
     ) {
         if (is_callable($envVarMapper)) {
             $envVarMapper = $envVarMapper(...);

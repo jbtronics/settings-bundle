@@ -175,7 +175,7 @@ class SettingsCloner implements SettingsClonerInterface
             return false;
         }
 
-        //Otherwise assume all objects as cloneable
-        return true;
+        //Otherwise use the cloneable flag from the parameter metadata
+        return $parameterMetadata->isCloneable();
     }
 }

@@ -258,6 +258,7 @@ final class MetadataManager implements MetadataManagerInterface
             envVar: $attribute->envVar,
             envVarMode: $attribute->envVarMode,
             envVarMapper: $attribute->envVarMapper,
+            cloneable: $attribute->cloneable,
         );
     }
 

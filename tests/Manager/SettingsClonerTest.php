@@ -125,6 +125,8 @@ class SettingsClonerTest extends KernelTestCase
         //Ensure that new instances were created
         $this->assertNotSame($settings, $clone);
         $this->assertNotSame($settings->dateTime1, $clone->dateTime1);
+        //Datetime2 must be the same instance, as it was marked as not cloneable
+        $this->assertSame($settings->dateTime2, $clone->dateTime2);
 
         //Ensure that the afterSettingsClone method was called, with the original settings instance as argument
         $this->assertSame($settings, $clone->cloneCalled);

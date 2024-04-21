@@ -42,12 +42,10 @@ class MergeableSettings implements ResettableSettingsInterface, CloneAndMergeAwa
     #[SettingsParameter]
     public bool $bool = true;
 
-    /** @var \DateTime $dateTime */
     #[SettingsParameter]
     public \DateTime $dateTime1;
 
-    /** @var \DateTime $dateTime */
-    #[SettingsParameter]
+    #[SettingsParameter(cloneable: false)]
     public \DateTime $dateTime2;
 
     /**

@@ -97,8 +97,8 @@ interface SettingsManagerInterface
 
     /**
      * Merges the temporary copy of the given settings class back to the original settings instance.
-     * @param  object|string  $settings
+     * @param  object|string  $copy
      * @return void
      */
-    public function mergeTemporaryCopy(object|string $settings): void;
+    public function mergeTemporaryCopy(object|string $copy, bool $recursive = true): void;
 }

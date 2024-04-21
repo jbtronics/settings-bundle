@@ -253,12 +253,31 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
 
     public function createTemporaryCopy(object|string $settings): object
     {
-        //Retrieve the current settings instance
+        //Retrieve the original settings instance, managed by this service
+        $original = $this->get($settings);
 
+        //Use the cloner service to create a temporary copy
+        return $this->settingsCloner->createClone($original);
     }
 
-    public function mergeTemporaryCopy(object|string $settings): void
+    public function mergeTemporaryCopy(object|string $copy, bool $recursive = true): void
     {
-        throw new \LogicException('Not implemented yet');
+        //Retrieve the original settings instance, managed by this service
+        $original = $this->get($copy);
+
+        //If the original and the temporary copy are the same, we do not need to merge
+        if ($original === $copy) {
+            return;
+        }
+
+        //Ensure that the copy is valid
+        $errors = $this->settingsValidator->validate($copy);
+
+        if ($errors) {
+            throw new SettingsNotValidException($errors);
+        }
+
+        //Use the cloner service to merge the temporary copy back to the original instance
+        $this->settingsCloner->mergeCopy($copy, $original, $recursive);
     }
 }

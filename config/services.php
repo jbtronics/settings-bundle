@@ -159,6 +159,13 @@ return static function (ContainerConfigurator $container) {
             ]);
     }
 
+    $services->set('jbtronics.settings.settings_cloner', \Jbtronics\SettingsBundle\Manager\SettingsCloner::class)
+        ->args([
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
+            '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Manager\SettingsClonerInterface::class, 'jbtronics.settings.settings_cloner');
+
     $services->set('jbtronics.settings.env_processor',
         \Jbtronics\SettingsBundle\DependencyInjection\SettingsEnvProcessor::class)
         ->tag('container.env_var_processor')

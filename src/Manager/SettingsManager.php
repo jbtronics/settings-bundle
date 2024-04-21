@@ -249,4 +249,15 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         //Otherwise we assume that the hydrator has overwritten the property, when the env var is set
         return $this->envVarValueResolver->hasValue($property);
     }
+
+    public function createTemporaryCopy(object|string $settings): object
+    {
+        //Retrieve the current settings instance
+
+    }
+
+    public function mergeTemporaryCopy(object|string $settings): void
+    {
+        throw new \LogicException('Not implemented yet');
+    }
 }

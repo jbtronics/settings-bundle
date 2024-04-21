@@ -85,4 +85,20 @@ interface SettingsManagerInterface
      * @return bool True if the property was overwritten by an environment variable, false otherwise
      */
     public function isEnvVarOverwritten(object|string $settings, string|ParameterMetadata|\ReflectionProperty $property): bool;
+
+    /**
+     * Creates a temporary copy of the given settings class as a new instance, which can be modified without affecting
+     * the original settings class. Call mergeTemporaryCopy() to apply the changes to the original settings instance,
+     * shared across the application.
+     * @param  object|string  $settings
+     * @return object
+     */
+    public function createTemporaryCopy(object|string $settings): object;
+
+    /**
+     * Merges the temporary copy of the given settings class back to the original settings instance.
+     * @param  object|string  $settings
+     * @return void
+     */
+    public function mergeTemporaryCopy(object|string $settings): void;
 }

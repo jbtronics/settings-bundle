@@ -28,6 +28,7 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\MergeableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
@@ -55,7 +56,8 @@ class SettingsRegistryTest extends TestCase
             'versioned' => VersionedSettings::class,
             'circularembed' => CircularEmbedSettings::class,
             'embed' => EmbedSettings::class,
-            'envvar' => EnvVarSettings::class
+            'envvar' => EnvVarSettings::class,
+            'mergeable' => MergeableSettings::class
         ], $configurationRegistry->getSettingsClasses());
     }
 

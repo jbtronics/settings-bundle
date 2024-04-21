@@ -93,6 +93,7 @@ return static function (ContainerConfigurator $container) {
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
             '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
+            '$settingsCloner' => service('jbtronics.settings.settings_cloner'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
     ;

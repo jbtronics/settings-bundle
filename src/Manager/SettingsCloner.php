@@ -30,6 +30,7 @@ namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Metadata\MetadataManager;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\CloneAndMergeAwareSettingsInterface;
@@ -55,14 +56,15 @@ class SettingsCloner implements SettingsClonerInterface
         $metadata = $this->metadataManager->getSettingsMetadata($settings);
 
         //Use reflection to create a new instance of the settings class
-        $clone = new \ReflectionClass($metadata->getClassName());
+        $reflClass = new \ReflectionClass($metadata->getClassName());
+        $clone = $reflClass->newInstanceWithoutConstructor();
 
         //Iterate over all properties and copy them to the new instance
         foreach ($metadata->getParameters() as $parameter) {
             $oldVar = PropertyAccessHelper::getProperty($settings, $parameter->getPropertyName());
 
             //If the property is an object, we need to clone it, to get a new instance
-            if (is_object($oldVar)) {
+            if ($this->shouldBeCloned($oldVar, $parameter)) {
                 $newVar = clone $oldVar;
             } else {
                 $newVar = $oldVar;
@@ -72,14 +74,17 @@ class SettingsCloner implements SettingsClonerInterface
             PropertyAccessHelper::setProperty($clone, $parameter->getPropertyName(), $newVar);
         }
 
+        //Add the clone to the list of embedded clones, so that we can access it in other iterations of this method
+        $embeddedClones[$metadata->getClassName()] = $clone;
+
         //Iterate over all embedded settings
         foreach ($metadata->getEmbeddedSettings() as $embeddedSetting) {
             //If the embedded setting was already cloned, we can reuse it
-            if (isset($embeddedClones[$embeddedSetting->getClassName()])) {
-                $embeddedClone = $embeddedClones[$embeddedSetting->getClassName()];
+            if (isset($embeddedClones[$embeddedSetting->getTargetClass()])) {
+                $embeddedClone = $embeddedClones[$embeddedSetting->getTargetClass()];
             } else {
                 //Otherwise, we need to create a new clone, which we lazy load, via our proxy system
-                $embeddedClone = $this->proxyFactory->createProxy($embeddedSetting->getClassName(), function () use ($embeddedSetting, $settings, $embeddedClones) {
+                $embeddedClone = $this->proxyFactory->createProxy($embeddedSetting->getTargetClass(), function () use ($embeddedSetting, $settings, $embeddedClones) {
                     return $this->createCloneInternal(PropertyAccessHelper::getProperty($settings, $embeddedSetting->getPropertyName()), $embeddedClones);
                 });
             }
@@ -93,9 +98,6 @@ class SettingsCloner implements SettingsClonerInterface
             $clone->afterSettingsClone($settings);
         }
 
-        //Add the clone to the list of embedded clones, so that we can access it in other iterations of this method
-        $embeddedClones[$metadata->getClassName()] = $clone;
-
         return $clone;
     }
 
@@ -108,7 +110,7 @@ class SettingsCloner implements SettingsClonerInterface
             $oldVar = PropertyAccessHelper::getProperty($copy, $parameter->getPropertyName());
 
             //If the property is an object, we need to clone it, to get a new instance
-            if (is_object($oldVar) ) {
+            if ($this->shouldBeCloned($oldVar, $parameter)) {
                 $newVar = clone $oldVar;
             } else {
                 $newVar = $oldVar;
@@ -117,6 +119,8 @@ class SettingsCloner implements SettingsClonerInterface
             //Set the property on the new instance
             PropertyAccessHelper::setProperty($into, $parameter->getPropertyName(), $newVar);
         }
+
+        $mergedClasses[$metadata->getClassName()] = $into;
 
         //If recursive mode is active, also merge the embedded settings
         if ($recursive) {
@@ -140,8 +144,6 @@ class SettingsCloner implements SettingsClonerInterface
             }
         }
 
-        $mergedClasses[$metadata->getClassName()] = $into;
-
         //If the settings class implements the CloneAndMergeAwareSettingsInterface, call the afterMerge method
         if ($into instanceof CloneAndMergeAwareSettingsInterface) {
             $into->afterSettingsMerge($copy);
@@ -154,5 +156,26 @@ class SettingsCloner implements SettingsClonerInterface
     {
         $mergedClasses = [];
         return $this->mergeCopyInternal($copy, $into, $recursive, $mergedClasses);
+    }
+
+    /**
+     * Checks if the given value should be cloned or not
+     * @param  mixed  $value
+     * @param  ParameterMetadata  $parameterMetadata
+     * @return bool
+     */
+    private function shouldBeCloned(mixed $value, ParameterMetadata $parameterMetadata): bool
+    {
+        if (!is_object($value)) {
+            return false;
+        }
+
+        //We can not clone enums
+        if ($value instanceof \UnitEnum) {
+            return false;
+        }
+
+        //Otherwise assume all objects as cloneable
+        return true;
     }
 }

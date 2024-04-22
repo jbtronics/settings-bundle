@@ -126,7 +126,7 @@ class SettingsCloner implements SettingsClonerInterface
         if ($recursive) {
             foreach ($metadata->getEmbeddedSettings() as $embeddedSetting) {
                 //Skip if the class was already merged
-                if (isset($mergedClasses[$embeddedSetting->getClassName()])) {
+                if (isset($mergedClasses[$embeddedSetting->getTargetClass()])) {
                     continue;
                 }
 

@@ -132,8 +132,129 @@ class SettingsClonerTest extends KernelTestCase
         $this->assertSame($settings, $clone->cloneCalled);
     }
 
-    public function testMergeCopy(): void
+    public function testMergeCopySimple(): void
     {
-        $this->markTestSkipped('Not implemented yet');
+        /** @var SimpleSettings $settings */
+        $settings = $this->settingsManager->get(SimpleSettings::class);
+
+        $clone = $this->service->createClone($settings);
+
+        $clone->setValue1('new value');
+        $clone->setValue2(1111);
+
+        //Merge the changes back into the original instance
+        $ret = $this->service->mergeCopy($clone, $settings);
+
+        //Ensure that the return value is the same instance as the original settings
+        $this->assertSame($settings, $ret);
+
+        //Ensure that the values were merged
+        $this->assertEquals($clone->getValue1(), $settings->getValue1());
+        $this->assertEquals($clone->getValue2(), $settings->getValue2());
+    }
+
+    public function testMergeCopyEnum(): void
+    {
+        /** @var GuessableSettings $settings */
+        $settings = $this->settingsManager->get(GuessableSettings::class);
+        $settings->stdClass = new \stdClass();
+
+        $clone = $this->service->createClone($settings);
+
+        $clone->enum = TestEnum::BAR;
+        $clone->stdClass = new \stdClass();
+        $clone->stdClass->foo = 'bar';
+
+        $ret = $this->service->mergeCopy($clone, $settings);
+        $this->assertSame($settings, $ret);
+
+        $this->assertEquals($clone->enum, $settings->enum);
+        //Ensure that the stdClass property was not merged, as it is no parameter of the settings class
+        $this->assertNotEquals($clone->stdClass, $settings->stdClass);
+    }
+
+    public function testMergeCopyAfterMergeFnCalled(): void
+    {
+        /** @var MergeableSettings $settings */
+        $settings = $this->settingsManager->get(MergeableSettings::class);
+
+        $clone = $this->service->createClone($settings);
+
+        $clone->dateTime1 = new \DateTime('2024-01-01');
+        $clone->dateTime2 = new \DateTime('2024-01-02');
+
+        $ret = $this->service->mergeCopy($clone, $settings);
+
+        $this->assertSame($settings, $ret);
+
+        //Assert that a new instance was created for the dateTime1 property
+        $this->assertNotSame($clone->dateTime1, $settings->dateTime1);
+        //Datetime2 must be the same instance, as it was marked as not cloneable and then the old instance should be kept
+        $this->assertSame($clone->dateTime2, $settings->dateTime2);
+
+        //Ensure that the afterSettingsMerge method was called on the original, with the clone instance as argument
+        $this->assertSame($clone, $settings->mergeCalled);
+    }
+
+    public function testMergeCopyEmbeddedsNonRecursive(): void
+    {
+        /**
+         * @var EmbedSettings $settings
+         */
+        $settings = $this->settingsManager->get(EmbedSettings::class);
+
+        /** @var EmbedSettings $clone */
+        $clone = $this->service->createClone($settings);
+
+        $clone->simpleSettings->setValue1('new value');
+        $clone->simpleSettings->setValue2(1111);
+        $clone->bool = false;
+
+        $ret = $this->service->mergeCopy($clone, $settings, false);
+
+        $this->assertSame($settings, $ret);
+
+        //Ensure that the top level settings were merged
+        $this->assertSame($clone->bool, $settings->bool);
+
+        //Ensure that the embedded settings were not merged
+        $this->assertNotEquals($clone->simpleSettings->getValue1(), $settings->simpleSettings->getValue1());
+        $this->assertNotEquals($clone->simpleSettings->getValue2(), $settings->simpleSettings->getValue2());
+    }
+
+    public function testMergeCopyEmbeddedRecursive(): void
+    {
+        /**
+         * @var EmbedSettings $settings
+         */
+        $settings = $this->settingsManager->get(EmbedSettings::class);
+
+        /** @var EmbedSettings $clone */
+        $clone = $this->service->createClone($settings);
+
+        $clone->simpleSettings->setValue1('new value');
+        $clone->simpleSettings->setValue2(1111);
+        $clone->bool = false;
+        $clone->circularSettings->bool = false;
+        $clone->circularSettings->guessableSettings->int = 1234;
+
+        //Recursive should be the default, so we do not need to set it
+        $ret = $this->service->mergeCopy($clone, $settings);
+
+        $this->assertSame($settings, $ret);
+
+        //Ensure that the top level settings were merged
+        $this->assertSame($clone->bool, $settings->bool);
+
+        //Ensure that the embedded settings were merged
+        $this->assertEquals($clone->simpleSettings->getValue1(), $settings->simpleSettings->getValue1());
+        $this->assertEquals($clone->simpleSettings->getValue2(), $settings->simpleSettings->getValue2());
+
+        //Ensure that the circular reference is set to the correct instance (the original settings instance)
+        $this->assertSame($settings, $settings->circularSettings->embeddedSettings);
+
+        //Ensure that the embedded settings of the circular settings were merged
+        $this->assertSame($clone->circularSettings->bool, $settings->circularSettings->bool);
+        $this->assertSame($clone->circularSettings->guessableSettings->int, $settings->circularSettings->guessableSettings->int);
     }
 }

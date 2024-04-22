@@ -257,4 +257,15 @@ class SettingsClonerTest extends KernelTestCase
         $this->assertSame($clone->circularSettings->bool, $settings->circularSettings->bool);
         $this->assertSame($clone->circularSettings->guessableSettings->int, $settings->circularSettings->guessableSettings->int);
     }
+
+    public function testMergeCopyInvalidTypes(): void
+    {
+        $obj1 = $this->settingsManager->get(SimpleSettings::class);
+        $obj2 = $this->settingsManager->get(GuessableSettings::class);
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        //Must fail, as the classes are not the same
+        $this->service->mergeCopy($obj1, $obj2);
+    }
 }

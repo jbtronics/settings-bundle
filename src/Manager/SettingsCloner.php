@@ -154,6 +154,20 @@ class SettingsCloner implements SettingsClonerInterface
 
     public function mergeCopy(object $copy, object $into, bool $recursive = true): object
     {
+        //If both instances are the same, we can return the copy directly
+        if ($copy === $into) {
+            return $copy;
+        }
+
+        //Ensure that both instances are of the same class
+        $copyMetadata = $this->metadataManager->getSettingsMetadata($copy);
+        $intoMetadata = $this->metadataManager->getSettingsMetadata($into);
+
+        //If the classes are not the same, we can not merge them
+        if ($copyMetadata->getClassName() !== $intoMetadata->getClassName()) {
+            throw new \InvalidArgumentException(sprintf('The given copy (instance of %s) and into (instance of %s) instances are not of the same class', $copyMetadata->getClassName(), $intoMetadata->getClassName()));
+        }
+
         $mergedClasses = [];
         return $this->mergeCopyInternal($copy, $into, $recursive, $mergedClasses);
     }

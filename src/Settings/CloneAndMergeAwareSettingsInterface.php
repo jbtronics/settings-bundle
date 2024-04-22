@@ -28,6 +28,10 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Settings;
 
+/**
+ * If a settings class implements this interface, the methods in this interface are called by the SettingsCloner,
+ * which allows you to customize the cloning and merging behavior of the settings object.
+ */
 interface CloneAndMergeAwareSettingsInterface
 {
     /**

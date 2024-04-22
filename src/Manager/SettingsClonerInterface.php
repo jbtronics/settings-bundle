@@ -28,6 +28,10 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Manager;
 
+/**
+ * This service is responsible for cloning and merging settings objects.
+ * It is used by the SettingsManager to create and merge settings objects.
+ */
 interface SettingsClonerInterface
 {
     /**
@@ -36,8 +40,11 @@ interface SettingsClonerInterface
      * If the settings object implements the CloneAndMergeAwareSettingsInterface, the afterSettingsClone method is called
      * on the clone after the internal cloning logic has been executed.
      * For all embedded settings objects, lazy loaded clones are created.
+     * @template T of object
      * @param  object  $settings
+     * @phpstan-param T $settings
      * @return object The cloned settings instance
+     * @phpstan-return T
      */
     public function createClone(object $settings): object;
 
@@ -46,10 +53,14 @@ interface SettingsClonerInterface
      * If the settings object implements the CloneAndMergeAwareSettingsInterface, the afterSettingsMerge method is called.
      * If the $recursive parameter is set to true, the merge operation is also executed on all embedded settings objects,
      * otherwise only the top level settings object is merged.
+     * @template T of object
      * @param  object  $copy
+     * @phpstan-param T $copy
      * @param  object  $into
+     * @phpstan-param T $into
      * @param  bool  $recursive
      * @return object The $into settings instance with the values of the $copy instance merged into it
+     * @phpstan-return T
      */
     public function mergeCopy(object $copy, object $into, bool $recursive = true): object;
 }

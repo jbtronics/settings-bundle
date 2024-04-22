@@ -130,6 +130,7 @@ return static function (ContainerConfigurator $container) {
     $services->set('jbtronics.settings.settings_validator', \Jbtronics\SettingsBundle\Manager\SettingsValidator::class)
         ->args([
             '$validator' => service('validator'),
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Manager\SettingsValidatorInterface::class,
         'jbtronics.settings.settings_validator');

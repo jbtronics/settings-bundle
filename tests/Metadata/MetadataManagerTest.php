@@ -187,6 +187,7 @@ class MetadataManagerTest extends KernelTestCase
             SimpleSettings::class,
             CircularEmbedSettings::class,
             GuessableSettings::class,
+            ValidatableSettings::class,
         ], $cascade);
     }
 

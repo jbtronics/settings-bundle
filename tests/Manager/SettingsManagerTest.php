@@ -33,7 +33,9 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSetting
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Validator\DataCollector\ValidatorDataCollector;
 use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
@@ -318,5 +320,77 @@ class SettingsManagerTest extends KernelTestCase
         $this->assertSame(0.0, $settings->value3); //Default value
         $this->assertSame(null, $settings->value4); //The envVar value which was persisted
 
+    }
+
+    public function testCreateTemporaryCopy(): void
+    {
+        $settings = $this->service->get(SimpleSettings::class);
+        $settings->setValue1('changed');
+
+        $copy = $this->service->createTemporaryCopy($settings);
+        //The copy must be a new instance
+        $this->assertNotSame($settings, $copy);
+
+        //We can create copy also by passing a class name
+        $copy2 = $this->service->createTemporaryCopy(SimpleSettings::class);
+        $this->assertInstanceOf(SimpleSettings::class, $copy2);
+        $this->assertNotSame($settings, $copy2);
+        //And it must also not be the same as the first copy
+        $this->assertNotSame($copy, $copy2);
+    }
+
+    public function testMergeTemporaryCopyWithNoErrors(): void
+    {
+        /** @var ValidatableSettings $settings */
+        $settings = $this->service->get(ValidatableSettings::class);
+        /** @var ValidatableSettings $copy */
+        $copy = $this->service->createTemporaryCopy($settings);
+
+        //Change the value of the copy
+        $copy->value1 = 'changed';
+        $copy->value2 = 10;
+
+        //Merge the copy into the settings
+        $this->service->mergeTemporaryCopy($copy);
+
+        //The values of the settings must be the same as the copy
+        $this->assertEquals('changed', $settings->value1);
+        $this->assertEquals(10, $settings->value2);
+    }
+
+    public function testMergeTemporaryCopyWithErrors(): void
+    {
+        /** @var ValidatableSettings $settings */
+        $settings = $this->service->get(ValidatableSettings::class);
+        /** @var ValidatableSettings $copy */
+        $copy = $this->service->createTemporaryCopy($settings);
+
+        //Change the value of the copy
+        $copy->value1 = '';
+        $copy->value2 = -10;
+
+        //The copy is invalid, therefore throw an exception
+        $this->expectException(\Jbtronics\SettingsBundle\Exception\SettingsNotValidException::class);
+
+        //Merge the copy into the settings
+        $this->service->mergeTemporaryCopy($copy);
+    }
+
+    public function testMergeTemporaryCopyWithDeepErrors(): void
+    {
+        /** @var EmbedSettings $settings */
+        $settings = $this->service->get(EmbedSettings::class);
+        /** @var EmbedSettings $copy */
+        $copy = $this->service->createTemporaryCopy($settings);
+
+        //Change the value deep inside of the copy and make it invalid
+        $copy->circularSettings->validatableSettings->value1 = '';
+        $copy->circularSettings->validatableSettings->value2 = -10;
+
+        //The copy is invalid, therefore throw an exception
+        $this->expectException(\Jbtronics\SettingsBundle\Exception\SettingsNotValidException::class);
+
+        //Merge the copy into the settings
+        $this->service->mergeTemporaryCopy($copy);
     }
 }

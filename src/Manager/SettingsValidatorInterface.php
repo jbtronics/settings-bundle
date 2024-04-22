@@ -34,6 +34,19 @@ interface SettingsValidatorInterface
     /**
      * Validates the given settings class and returns an array of errors,
      * in the format of: ['property' => ['error1', 'error2', ...], ...]
+     * The array is empty if the settings are valid.
+     * @param  object  $settings
+     * @return array
+     * @phpstan-return array<string, array<string>>
      */
     public function validate(object $settings): array;
+
+    /**
+     * Validates the given settings class and all their nested embedded settings classes.
+     * Returns an array of errors, in the format of: ['class' => ['property' => ['error1', 'error2', ...], ...], ...]
+     * The array is empty if the settings are valid.
+     * @param  object  $settings
+     * @return array<string, array<string, array<string>>>
+     */
+    public function validateRecursively(object $settings): array;
 }

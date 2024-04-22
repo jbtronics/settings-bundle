@@ -25,6 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
+use http\Exception\InvalidArgumentException;
 use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
@@ -253,8 +254,11 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
 
     public function createTemporaryCopy(object|string $settings): object
     {
+        //We use the metadata to retrieve the effective class name of the settings class
+        $metadata = $this->metadataManager->getSettingsMetadata($settings);
+
         //Retrieve the original settings instance, managed by this service
-        $original = $this->get($settings);
+        $original = $this->get($metadata->getClassName());
 
         //Use the cloner service to create a temporary copy
         return $this->settingsCloner->createClone($original);
@@ -262,8 +266,11 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
 
     public function mergeTemporaryCopy(object|string $copy, bool $recursive = true): void
     {
+        //We use the metadata to retrieve the effective class name of the settings class
+        $metadata = $this->metadataManager->getSettingsMetadata($copy);
+
         //Retrieve the original settings instance, managed by this service
-        $original = $this->get($copy);
+        $original = $this->get($metadata->getClassName());
 
         //If the original and the temporary copy are the same, we do not need to merge
         if ($original === $copy) {
@@ -271,11 +278,18 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         }
 
         //Ensure that the copy is valid
-        $errors = $this->settingsValidator->validate($copy);
-
-        if ($errors) {
-            throw new SettingsNotValidException($errors);
+        if ($recursive) {
+            $errors = $this->settingsValidator->validateRecursively($copy);
+            if ($errors) {
+                throw new SettingsNotValidException($errors);
+            }
+        } else {
+            $errors = $this->settingsValidator->validate($copy);
+            if ($errors) {
+                throw SettingsNotValidException::createForSingleClass($original, $errors);
+            }
         }
+
 
         //Use the cloner service to merge the temporary copy back to the original instance
         $this->settingsCloner->mergeCopy($copy, $original, $recursive);

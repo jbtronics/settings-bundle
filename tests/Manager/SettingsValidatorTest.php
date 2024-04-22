@@ -27,7 +27,9 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Manager;
 
+use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsValidatorInterface;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -72,6 +74,44 @@ class SettingsValidatorTest extends KernelTestCase
         $this->assertEquals([
             'value1' => ['Value must not be blank'],
             'value2' => ['Value must be greater than 0']
+        ], $errors);
+    }
+
+    public function testValidateRecursivelySimpleObject(): void
+    {
+        $settings = new ValidatableSettings();
+        //Make the first property invalid
+        $settings->value1 = '';
+
+        //The function should behave exactly like validate() in this case, as there are no embedded settings
+        $errors = $this->service->validateRecursively($settings);
+
+        $this->assertEquals([
+            ValidatableSettings::class => [
+                'value1' => ['Value must not be blank']
+            ]
+        ], $errors);
+    }
+
+    public function testValidateRecursivelyNestedObject(): void
+    {
+        /** @var SettingsManagerInterface $settingsManager */
+        $settingsManager = self::getContainer()->get(SettingsManagerInterface::class);
+
+        /** @var EmbedSettings $settings */
+        $settings = $settingsManager->get(EmbedSettings::class);
+
+        //Make the first property of the embedded settings invalid
+        $settings->circularSettings->validatableSettings->value1 = '';
+        $settings->circularSettings->validatableSettings->value2 = -10;
+
+        $errors = $this->service->validateRecursively($settings);
+
+        $this->assertEquals([
+            ValidatableSettings::class => [
+                'value1' => ['Value must not be blank'],
+                'value2' => ['Value must be greater than 0']
+            ]
         ], $errors);
     }
 }

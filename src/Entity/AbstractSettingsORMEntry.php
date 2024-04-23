@@ -39,10 +39,10 @@ use Doctrine\ORM\Mapping\MappedSuperclass;
 #[MappedSuperclass]
 abstract class AbstractSettingsORMEntry
 {
-    #[ORM\Column(type: Types::STRING, length: 255, unique: true, nullable: false)]
+    #[ORM\Column(name: '`key`', type: Types::STRING, length: 255, unique: true, nullable: false)]
     private string $key;
 
-    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[ORM\Column(name: '`data`', type: Types::JSON, nullable: true)]
     private ?array $data = null;
 
     public function __construct(string $key)

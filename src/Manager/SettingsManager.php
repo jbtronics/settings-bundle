@@ -25,6 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
+use http\Exception\InvalidArgumentException;
 use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
@@ -50,6 +51,7 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         private readonly SettingsRegistryInterface $settingsRegistry,
         private readonly ProxyFactoryInterface $proxyFactory,
         private readonly EnvVarValueResolverInterface $envVarValueResolver,
+        private readonly SettingsClonerInterface $settingsCloner,
     )
     {
 
@@ -248,5 +250,48 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
 
         //Otherwise we assume that the hydrator has overwritten the property, when the env var is set
         return $this->envVarValueResolver->hasValue($property);
+    }
+
+    public function createTemporaryCopy(object|string $settings): object
+    {
+        //We use the metadata to retrieve the effective class name of the settings class
+        $metadata = $this->metadataManager->getSettingsMetadata($settings);
+
+        //Retrieve the original settings instance, managed by this service
+        $original = $this->get($metadata->getClassName());
+
+        //Use the cloner service to create a temporary copy
+        return $this->settingsCloner->createClone($original);
+    }
+
+    public function mergeTemporaryCopy(object|string $copy, bool $cascade = true): void
+    {
+        //We use the metadata to retrieve the effective class name of the settings class
+        $metadata = $this->metadataManager->getSettingsMetadata($copy);
+
+        //Retrieve the original settings instance, managed by this service
+        $original = $this->get($metadata->getClassName());
+
+        //If the original and the temporary copy are the same, we do not need to merge
+        if ($original === $copy) {
+            return;
+        }
+
+        //Ensure that the copy is valid
+        if ($cascade) {
+            $errors = $this->settingsValidator->validateRecursively($copy);
+            if ($errors) {
+                throw new SettingsNotValidException($errors);
+            }
+        } else {
+            $errors = $this->settingsValidator->validate($copy);
+            if ($errors) {
+                throw SettingsNotValidException::createForSingleClass($original, $errors);
+            }
+        }
+
+
+        //Use the cloner service to merge the temporary copy back to the original instance
+        $this->settingsCloner->mergeCopy($copy, $original, $cascade);
     }
 }

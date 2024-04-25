@@ -93,6 +93,7 @@ return static function (ContainerConfigurator $container) {
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
             '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
+            '$settingsCloner' => service('jbtronics.settings.settings_cloner'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
     ;
@@ -129,6 +130,7 @@ return static function (ContainerConfigurator $container) {
     $services->set('jbtronics.settings.settings_validator', \Jbtronics\SettingsBundle\Manager\SettingsValidator::class)
         ->args([
             '$validator' => service('validator'),
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Manager\SettingsValidatorInterface::class,
         'jbtronics.settings.settings_validator');
@@ -158,6 +160,13 @@ return static function (ContainerConfigurator $container) {
                 '$settingsManager' => service('jbtronics.settings.settings_manager'),
             ]);
     }
+
+    $services->set('jbtronics.settings.settings_cloner', \Jbtronics\SettingsBundle\Manager\SettingsCloner::class)
+        ->args([
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
+            '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Manager\SettingsClonerInterface::class, 'jbtronics.settings.settings_cloner');
 
     $services->set('jbtronics.settings.env_processor',
         \Jbtronics\SettingsBundle\DependencyInjection\SettingsEnvProcessor::class)

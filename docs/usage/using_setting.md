@@ -121,3 +121,81 @@ $settingsManager->resetToDefaultValues($settings);
 //Save the changes to the storage
 $settingsManager->save($settings);
 ```
+
+### Retrieving temporary settings copies
+
+One downside that the settings instances provided by the SettingsManager are shared between all parts of your application, is that changes immediately affect all parts of your application. If you set a parameter to an invalid parameter, it might break other parts of your application, which rely on the settings instance.
+
+To avoid this, you can retrieve a temporary copy of the settings instance, which is not shared with other parts of your application. You can do this by calling the `createTemporaryCopy()` method of the settings manager. This will return a independent copy of the settings instance, whose values can be modified without affecting other parts of your application. The temporary contains all the values of the original settings instance, but everything is a new instance. This also affects embedded settings instances, which are also replaced by a temporary copy.
+
+To apply the modifications on the temporary copy back to the original settings instance, you can call the `mergeTemporaryCopy()` method of the settings manager. The parameter data managed by the temporary copy will overwrite the data of the original settings instance. So be sure that the data of the managed settings were not changed in the meantime (or these changes get lost).
+
+The second parameter of the `mergeTemporaryCopy()` method is a boolean, which determines if the temporary copy should be merged recursively. If set to `true` (which is the default), all settings embedded in the temporary copy will also be merged into the original settings instance. If set to `false`, only the top level settings will be merged.
+
+The `mergeTemporaryCopy()` will also validate the data of the temporary copy according to the settings constraints. If the data is not valid, it will throw an exception and the merge is not performed. This ensures, that only valid data is merged back into the original settings instance and you can not accidentally break the application.
+
+Temporary copies are especially useful, if you work with forms, where users can modify the data and invalid parameter values could break the applications. In that case you can create a temporary copy of the settings instance, bind the form to the temporary copy and only if the form is valid, merge the temporary copy back into the original settings instance. See the forms documentation for more information.
+
+```php
+
+$settings = $settingsManager->get(MySettings::class);
+
+$settings->setSomeValue("new value");
+
+//Create a temporary copy of the settings instance
+$temporarySettings = $settingsManager->createTemporaryCopy($settings);
+//We can modify the temporary copy without affecting the original settings instance
+$temporarySettings->setSomeValue("another value");
+var_dump($settings->getSomeValue()); // "new value"
+
+//Until we merge the temporary copy back into the original settings instance
+$settingsManager->mergeTemporaryCopy($temporarySettings);
+
+//The original settings instance now contains the new value
+//And it is ensured that the data is also vaild according to the validator constraints
+var_dump($settings->getSomeValue()); // "another value"
+
+//Persist the changes to the storage
+$settingsManager->save($settings);
+```
+
+### Customizing the clone and merge behavior
+
+By default, all objects in the settings parameters are cloned during the creation and merging of temporary copies to get a truly independent copy of the settings instance. If an object is not cloneable, you can specifiy the `cloneable: false` option on the settings parameter attribute to disable cloning for this parameter. In this case the object will be copied by reference. You can customize the cloning behavior like described below:
+
+```php
+//This object does not get cloned, but passed by reference to the temporary copy
+#[SettingsParameter(cloneable: false)]
+private NonCloneableObject $nonCloneableObject;
+```
+
+If you want to customize the cloning and merging behavior even more you can implement the `CloneAndMergeAwareSettingsInterface` in your settings class. This interface provides an `afterSettingsClone()` method, which is called on the *clone* after the default cloning logic is applied. This method can be used to customize the cloning behavior of the settings instance. The `afterSettingsMerge()` method is called on the original settings instance after the default merging logic is applied. This method can be used to customize the merging behavior of the settings instance.
+
+By default, only settings parameters get cloned and merged by the bundle and all other properties keep their default or old values (as the cloner creates a new instance of the class). If you want to copy over additional properties, you can do this in the `afterSettingsClone()` and `afterSettingsMerge()` methods.
+
+```php
+use Jbtronics\SettingsBundle\Settings\CloneAndMergeAwareSettingsInterface;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\Settings\Settings;
+
+class MySettings extends Settings implements CloneAndMergeAwareSettingsInterface
+{
+    #[SettingsParameter]
+    private string $someValue = "some value";
+
+    private string $additionalValue = "additional value";
+
+    public function afterSettingsClone(self $original): void
+    {
+        $this->additionalValue = $original->additionalValue;
+    }
+
+    public function afterSettingsMerge(self $clone): void
+    {
+        $this->additionalValue = $clone->additionalValue;
+    }
+
+    //...
+
+}
+```

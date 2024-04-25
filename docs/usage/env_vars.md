@@ -62,7 +62,7 @@ convert the string to other simple datatypes like bool, int, float, etc. If you 
 var to a more complex datatype, you can use the `envVarMapper` option on the `#[SettingsParameter]` attribute to specify
 a mapper for the environment variable.
 
-You can either pass a class name to an ParameterType here, which reuses the logic of the parameter type to convert the
+You can either pass a class name to a ParameterType here, which reuses the logic of the parameter type to convert the
 string to the desired type. Or you pass a callable to a (static) function, which takes the output of the env var processor
 and converts it to the desired type.
 

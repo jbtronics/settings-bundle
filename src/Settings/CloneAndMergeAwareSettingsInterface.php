@@ -26,32 +26,27 @@
 declare(strict_types=1);
 
 
-namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
-
-use Jbtronics\SettingsBundle\Settings\Settings;
-use Jbtronics\SettingsBundle\Settings\SettingsParameter;
-use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
-use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
-use stdClass;
+namespace Jbtronics\SettingsBundle\Settings;
 
 /**
- * This settings are used to test the ParameterTypeGuesser.
+ * If a settings class implements this interface, the methods in this interface are called by the SettingsCloner,
+ * which allows you to customize the cloning and merging behavior of the settings object.
  */
-#[Settings(storageAdapter: InMemoryStorageAdapter::class, dependencyInjectable: false)]
-class GuessableSettings
+interface CloneAndMergeAwareSettingsInterface
 {
-    #[SettingsParameter]
-    public bool $bool = true;
+    /**
+     * This method is called on the clone after it has been created. It allows to perform additional operations and copy
+     * additional properties from the original instance to the clone.
+     * @param  object  $original
+     * @return void
+     */
+    public function afterSettingsClone(object $original): void;
 
-    #[SettingsParameter]
-    public ?int $int = null;
-
-    #[SettingsParameter]
-    public string $string = "";
-
-    #[SettingsParameter]
-    public TestEnum $enum = TestEnum::BAZ;
-
-    public TestEnum|bool|int $complexType;
-    public stdClass $stdClass;
+    /**
+     * This method is called on the original instance after the clone has been merged back into it. It allows to perform
+     * additional operations and copy additional properties from the clone back to the original instance.
+     * @param  object  $clone
+     * @return void
+     */
+    public function afterSettingsMerge(object $clone): void;
 }

@@ -38,22 +38,22 @@ interface SettingsFormFactoryInterface
     /**
      * Creates a form builder for the given settings. The form builder data is set to the current settings instance.
      * You can add additional form elements to the form builder.
-     * @param  string  $settingsName The name of the settings to create the form builder for (either class name or short name).
+     * @param  string|object  $settings The name of the settings to create the form builder for (either class name or short name).
      * @param  array|null  $groups The parameter groups to render. If null, all parameters are rendered.
      * @param  array  $formOptions Options to pass to the form builder.
      * @return FormBuilderInterface The created form builder.
      */
-    public function createSettingsFormBuilder(string $settingsName, ?array $groups = null, array $formOptions = []): FormBuilderInterface;
+    public function createSettingsFormBuilder(string|object $settings, ?array $groups = null, array $formOptions = []): FormBuilderInterface;
 
     /**
      * Creates a form builder for multiple settings. Each setting as a sub form in the root form builder.
      * The form builder data is set to the current settings instance. You can add additional form elements to the form builder.
-     * @param  array  $settingsNames The names of the settings to create the form builder for (either class name or short name).
+     * @param  array  $settings The names of the settings to create the form builder for (either class name or short name).
      * @param  array|null  $groups The parameter groups to render. If null, all parameters are rendered.
      * @param  array  $formOptions Options to pass to the form builder.
      * @return FormBuilderInterface The root form builder.
      */
-    public function createMultiSettingsFormBuilder(array $settingsNames, ?array $groups = null, array $formOptions = []): FormBuilderInterface;
+    public function createMultiSettingsFormBuilder(array $settings, ?array $groups = null, array $formOptions = []): FormBuilderInterface;
 
 
 }

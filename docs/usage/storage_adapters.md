@@ -7,13 +7,13 @@ nav_order: 3
 
 # Storage adapters
 
-The settings-bundle is designed to be storage backend. That means that almost all functionality is implemented independently of a concrete storage backend. Therefore you can use all kind of different storage backends (files, database, etc.) and even implement your own storage backend without changing other parts of the bundle.
+The settings-bundle is designed to be agnostic of storage backends. That means that almost all functionality is implemented independently of a concrete storage backend. Therefore you can use all kind of different storage backends (files, database, etc.) and even implement your own storage backend without changing other parts of the bundle.
 
-The concrete storage implentation is done via storage adapters, which must implement the `StorageAdapterInterface`. The bundle comes with a few default storage adapters, but you can also implement your own storage adapters.
+The concrete storage implementation is done via storage adapters, which must implement the `StorageAdapterInterface`. The bundle comes with a few default storage adapters, but you can also implement your own storage adapters.
 
-The storage adapter, which a specific settings class use, can be configured in the settings class annotation with the `storageAdapter` attribute. If no storage adapter is set there, the global default storage adapter is used, which can be configured with the `default_storage_adapter` key in the bundle configuration.
+The storage adapter, which a specific settings class uses, can be configured in the settings class annotation with the `storageAdapter` attribute. If no storage adapter is set there, the global default storage adapter is used, which can be configured with the `default_storage_adapter` key in the bundle configuration.
 
-Some storage adapters, may allow to pass further options to the adapter from the settings class annotation. These options are passed as an array to the `storageAdapterOptions` attribute in the settings class annotation.
+Some storage adapters may allow to pass further options to the adapter from the settings class annotation. These options are passed as an array to the `storageAdapterOptions` attribute in the settings class annotation.
 
 ## Built-in storage adapters
 

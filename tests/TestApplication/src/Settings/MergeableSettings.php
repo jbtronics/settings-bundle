@@ -28,30 +28,48 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Settings;
 
+use Jbtronics\SettingsBundle\Settings\CloneAndMergeAwareSettingsInterface;
+use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
-use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
-use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
-use stdClass;
+use Jbtronics\SettingsBundle\Settings\SettingsTrait;
 
-/**
- * This settings are used to test the ParameterTypeGuesser.
- */
-#[Settings(storageAdapter: InMemoryStorageAdapter::class, dependencyInjectable: false)]
-class GuessableSettings
+#[Settings]
+class MergeableSettings implements ResettableSettingsInterface, CloneAndMergeAwareSettingsInterface
 {
+    use SettingsTrait;
+
     #[SettingsParameter]
     public bool $bool = true;
 
     #[SettingsParameter]
-    public ?int $int = null;
+    public \DateTime $dateTime1;
 
-    #[SettingsParameter]
-    public string $string = "";
+    #[SettingsParameter(cloneable: false)]
+    public \DateTime $dateTime2;
 
-    #[SettingsParameter]
-    public TestEnum $enum = TestEnum::BAZ;
+    /**
+     * @var object|null These properties get filled with the argument, if the corresponding method is called.
+     */
+    public ?object $mergeCalled = null;
 
-    public TestEnum|bool|int $complexType;
-    public stdClass $stdClass;
+    public ?object $cloneCalled = null;
+
+
+
+    public function resetToDefaultValues(): void
+    {
+        $this->dateTime1 = new \DateTime();
+        $this->dateTime2 = new \DateTime();
+    }
+
+    public function afterSettingsClone(object $original): void
+    {
+        $this->cloneCalled = $original;
+    }
+
+    public function afterSettingsMerge(object $clone): void
+    {
+        $this->mergeCalled = $clone;
+    }
 }

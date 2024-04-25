@@ -25,6 +25,9 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
+use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
+use Jbtronics\SettingsBundle\Metadata\MetadataManager;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -33,7 +36,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class SettingsValidator implements SettingsValidatorInterface
 {
     public function __construct(
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
+        private readonly MetadataManagerInterface $metadataManager,
     ) {
 
     }
@@ -50,5 +54,44 @@ class SettingsValidator implements SettingsValidatorInterface
         }
 
         return $errors_by_property;
+    }
+
+    public function validateRecursively(object $settings): array
+    {
+        $already_checked = [];
+
+       return $this->validateRecursivelyInternal($settings, $already_checked);
+    }
+
+    private function validateRecursivelyInternal(object $settings, array &$already_checked): array
+    {
+        //Use the metadata manager to get the nested embedded settings classes
+        $metadata = $this->metadataManager->getSettingsMetadata($settings);
+
+        //Validate the settings class and all embedded settings classes
+        $errors_per_class = [];
+
+        //Validate the settings class itself
+        $errors = $this->validate($settings);
+        if (count($errors) > 0) { //Create the key only if there are errors
+            $errors_per_class[$metadata->getClassName()] = $errors;
+        }
+        $already_checked[$metadata->getClassName()] = true;
+
+        //Validate all embedded settings classes
+        foreach ($metadata->getEmbeddedSettings() as $embeddedSetting) {
+            //If the embedded setting class was already checked, we can skip it
+            if (isset($already_checked[$embeddedSetting->getTargetClass()])) {
+                continue;
+            }
+
+            //Otherwise extract the embedded object and validate it
+            $embedded = PropertyAccessHelper::getProperty($settings, $embeddedSetting->getPropertyName());
+
+            $errors_per_class = array_merge_recursive($errors_per_class, $this->validateRecursivelyInternal($embedded, $already_checked));
+        }
+
+        return $errors_per_class;
+
     }
 }

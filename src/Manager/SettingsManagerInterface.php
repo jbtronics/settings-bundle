@@ -25,6 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
+use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
@@ -62,9 +63,11 @@ interface SettingsManagerInterface
     /**
      * Save the configuration class to the storage provider. If no configuration class is given, all configuration
      * classes are saved.
+     * If the settings class is not valid, a SettingsNotValidException is thrown.
      * @param  object|string|array|null  $settings  The settings class or the name of the settings class
      * @param  bool  $cascade  If true, all embedded settings (and their embeds) of the given settings class are also saved
      * @return void
+     * @throws SettingsNotValidException
      */
     public function save(object|string|null|array $settings = null, bool $cascade = true): void;
 
@@ -85,4 +88,29 @@ interface SettingsManagerInterface
      * @return bool True if the property was overwritten by an environment variable, false otherwise
      */
     public function isEnvVarOverwritten(object|string $settings, string|ParameterMetadata|\ReflectionProperty $property): bool;
+
+    /**
+     * Creates a temporary copy of the given settings class as a new instance, which can be modified without affecting
+     * the original settings class. Call mergeTemporaryCopy() to apply the changes to the original settings instance,
+     * shared across the application.
+     * @template T of object
+     * @param  object|string  $settings
+     * @phpstan-param class-string<T>|T $settings
+     * @return object
+     * @phpstan-return T
+     */
+    public function createTemporaryCopy(object|string $settings): object;
+
+    /**
+     * Merges the temporary copy of the given settings class back to the original settings instance.
+     * If the settings class is not valid, a SettingsNotValidException is thrown.
+     * @template T of object
+     * @param  object|string  $copy
+     * @phpstan-param T $copy
+     * @param  bool  $cascade If true, the merge operation is also executed on all embedded settings objects, otherwise only the top level settings object is merged
+     * @return void
+     * @template T of object
+     * @throws SettingsNotValidException
+     */
+    public function mergeTemporaryCopy(object|string $copy, bool $cascade = true): void;
 }

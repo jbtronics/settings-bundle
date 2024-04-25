@@ -37,6 +37,7 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSetting
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\MergeableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
@@ -186,6 +187,7 @@ class MetadataManagerTest extends KernelTestCase
             SimpleSettings::class,
             CircularEmbedSettings::class,
             GuessableSettings::class,
+            ValidatableSettings::class,
         ], $cascade);
     }
 
@@ -206,5 +208,13 @@ class MetadataManagerTest extends KernelTestCase
         $value4 = $schema->getParameter('value4');
         $this->assertSame('ENV_VALUE4', $value4->getEnvVar());
         $this->assertSame(BoolType::class, $value4->getEnvVarMapper());
+    }
+
+    public function testCloneable(): void
+    {
+        $metadata = $this->metadataManager->getSettingsMetadata(MergeableSettings::class);
+
+        $this->assertTrue($metadata->getParameter('dateTime1')->isCloneable());
+        $this->assertFalse($metadata->getParameter('dateTime2')->isCloneable());
     }
 }

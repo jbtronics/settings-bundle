@@ -50,9 +50,9 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
         return $this->createSettingsFormBuilder($settingsName)->getForm();
     }
 
-    public function createSettingsFormBuilder(string $settingsName, ?array $groups = null, array $formOptions = []): FormBuilderInterface
+    public function createSettingsFormBuilder(string|object $settings, ?array $groups = null, array $formOptions = []): FormBuilderInterface
     {
-        $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
+        $settingsMetadata = $this->metadataManager->getSettingsMetadata($settings);
 
         //Ensure that the embedded settings do not cause a infinite loop
         if ($this->checkForCircularEmbedded($settingsMetadata, $groups)) {
@@ -62,19 +62,28 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
                 ));
         }
 
-        $formBuilder = $this->formFactory->createBuilder(data: $this->settingsManager->get($settingsName), options: $formOptions);
+        //If a string is passed, get the current settings instance from the settings manager
+        //This is deprecated
+        if (is_string($settings)) {
+            trigger_deprecation('jbtronics/settings-bundle', '2.0', 'Passing a string as settings name to createSettingsFormBuilder() is deprecated. Pass the settings instance directly instead.');
+            $settings = $this->settingsManager->get($settings);
+        }
+
+        $formBuilder = $this->formFactory->createBuilder(data: $settings, options: $formOptions);
         $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsMetadata, [], groups: $groups);
 
         return $formBuilder;
     }
 
-    public function createMultiSettingsFormBuilder(array $settingsNames, ?array $groups = null, array $formOptions = []): FormBuilderInterface
+    public function createMultiSettingsFormBuilder(array $settings, ?array $groups = null, array $formOptions = []): FormBuilderInterface
     {
+        $deprecation_triggered = false;
+
         $formBuilder = $this->formFactory->createBuilder();
         //The form is a compound form, so we need to set this to true
         $formBuilder->setCompound(true);
-        foreach ($settingsNames as $settingsName) {
-            $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsName);
+        foreach ($settings as $setting) {
+            $settingsMetadata = $this->metadataManager->getSettingsMetadata($setting);
 
             //Ensure that the embedded settings do not cause a infinite loop
             if ($this->checkForCircularEmbedded($settingsMetadata, $groups)) {
@@ -84,9 +93,20 @@ class SettingsFormFactory implements SettingsFormFactoryInterface
                     ));
             }
 
+            //If a string is passed, get the current settings instance from the settings manager
+            //This is deprecated
+            if (is_string($setting)) {
+                if (!$deprecation_triggered) { //Only trigger the deprecation once
+                    trigger_deprecation('jbtronics/settings-bundle', '2.0',
+                        'Passing a string as settings name to createSettingsFormBuilder() is deprecated. Pass the settings instance directly instead.');
+                }
+                $deprecation_triggered = true;
+                $setting = $this->settingsManager->get($setting);
+            }
+
             //Create sub form builder for the settings with the name of the settings class
             $subBuilder = $this->formFactory->createNamedBuilder($settingsMetadata->getName(),
-                data: $this->settingsManager->get($settingsName), options: $formOptions);
+                data: $setting, options: $formOptions);
 
             //Configure the sub form builder
             $this->settingsFormBuilder->buildSettingsForm($subBuilder, $settingsMetadata, [], groups: $groups);

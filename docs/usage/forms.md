@@ -13,7 +13,7 @@ The settings-bundle comes with an integration with symfony/forms, which allows y
 
 To get a form builder containing form fields for the parameters of a settings class, you can use the `SettingsFormFactoryInterface`. There is the `createSettingsFormBuilder()` method to create a form builder for a single settings class, where each form field is a direct child of the form builder. Use the `createMultiSettingsFormBuilder()` method, if you wanna create a form for multiple settings classes at once. In the case of the multi-settings form, the root form builder contains a subform for each settings class.
 
-The data of the form builder is already assigned to the passed instance of the settings class, so that the form fields are already filled with the current values of the settings class and changes to the form fields are automatically reflected in the settings instance.
+The data of the form builder is already assigned to the passed instance of the settings class, so the form fields are already filled with the current values of the settings class and changes to the form fields are automatically reflected in the settings instance.
 
 The form builder can be used as normal, and you can add additional (non-mapped) forms fields, etc. to it. To build a simple settings form, you have to just add a submit button to the form builder, check for form submission and save the settings.
 
@@ -121,6 +121,6 @@ $builder = $this->settingsFormFactory->createSettingsFormBuilder($settings, grou
 ## Embedded settings
 
 Embedded settings in a settings class are recursively rendered as subforms.
-This means you can define complex settings forms with nested subforms, by using the root settings (or any other node) of your settings hierachy.
+This means you can define complex settings forms with nested subforms, by using the root settings (or any other node) of your settings hierarchy.
 
-If you have a non-tree structure (with circular references), the form builder will throw an exception, as it is not possible to render a circular form. In that cases you will need to restrict the rendered form fields using the `groups` option.
+If you have a non-tree structure (with circular references), the form builder will throw an exception, as it is not possible to render a circular form. In those cases, you will need to restrict the rendered form fields using the `groups` option.

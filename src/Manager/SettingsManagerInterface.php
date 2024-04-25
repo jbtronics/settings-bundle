@@ -107,10 +107,10 @@ interface SettingsManagerInterface
      * @template T of object
      * @param  object|string  $copy
      * @phpstan-param T $copy
-     * @param  bool  $recursive If true, the merge operation is also executed on all embedded settings objects, otherwise only the top level settings object is merged
+     * @param  bool  $cascade If true, the merge operation is also executed on all embedded settings objects, otherwise only the top level settings object is merged
      * @return void
      * @template T of object
      * @throws SettingsNotValidException
      */
-    public function mergeTemporaryCopy(object|string $copy, bool $recursive = true): void;
+    public function mergeTemporaryCopy(object|string $copy, bool $cascade = true): void;
 }

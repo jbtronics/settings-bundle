@@ -152,7 +152,7 @@ class SettingsCloner implements SettingsClonerInterface
         return $into;
     }
 
-    public function mergeCopy(object $copy, object $into, bool $recursive = true): object
+    public function mergeCopy(object $copy, object $into, bool $cascade = true): object
     {
         //If both instances are the same, we can return the copy directly
         if ($copy === $into) {
@@ -169,7 +169,7 @@ class SettingsCloner implements SettingsClonerInterface
         }
 
         $mergedClasses = [];
-        return $this->mergeCopyInternal($copy, $into, $recursive, $mergedClasses);
+        return $this->mergeCopyInternal($copy, $into, $cascade, $mergedClasses);
     }
 
     /**

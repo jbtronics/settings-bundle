@@ -264,7 +264,7 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         return $this->settingsCloner->createClone($original);
     }
 
-    public function mergeTemporaryCopy(object|string $copy, bool $recursive = true): void
+    public function mergeTemporaryCopy(object|string $copy, bool $cascade = true): void
     {
         //We use the metadata to retrieve the effective class name of the settings class
         $metadata = $this->metadataManager->getSettingsMetadata($copy);
@@ -278,7 +278,7 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         }
 
         //Ensure that the copy is valid
-        if ($recursive) {
+        if ($cascade) {
             $errors = $this->settingsValidator->validateRecursively($copy);
             if ($errors) {
                 throw new SettingsNotValidException($errors);
@@ -292,6 +292,6 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
 
 
         //Use the cloner service to merge the temporary copy back to the original instance
-        $this->settingsCloner->mergeCopy($copy, $original, $recursive);
+        $this->settingsCloner->mergeCopy($copy, $original, $cascade);
     }
 }

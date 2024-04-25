@@ -51,16 +51,16 @@ interface SettingsClonerInterface
     /**
      * Merges the given copy into the given settings object, by copying all parameters of the copy to the settings object.
      * If the settings object implements the CloneAndMergeAwareSettingsInterface, the afterSettingsMerge method is called.
-     * If the $recursive parameter is set to true, the merge operation is also executed on all embedded settings objects,
+     * If the $cascade parameter is set to true, the merge operation is also executed on all embedded settings objects,
      * otherwise only the top level settings object is merged.
      * @template T of object
      * @param  object  $copy
      * @phpstan-param T $copy
      * @param  object  $into
      * @phpstan-param T $into
-     * @param  bool  $recursive
+     * @param  bool  $cascade
      * @return object The $into settings instance with the values of the $copy instance merged into it
      * @phpstan-return T
      */
-    public function mergeCopy(object $copy, object $into, bool $recursive = true): object;
+    public function mergeCopy(object $copy, object $into, bool $cascade = true): object;
 }

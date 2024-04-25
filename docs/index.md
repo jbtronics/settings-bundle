@@ -166,8 +166,11 @@ class SettingsFormController {
     #[Route('/settings', name: 'settings')]
     public function settingsForm(Request $request): Response
     {
+        //Create a temporary copy of the settings object, which we can modify in the form without breaking anything with invalid data
+        $settings = $this->settingsManager->createTemporaryCopy(TestSettings::class);
+
         //Create a builder for the settings form
-        $builder = $this->settingsFormFactory->createSettingsFormBuilder(TestSettings::class);
+        $builder = $this->settingsFormFactory->createSettingsFormBuilder($settings);
 
         //Add a submit button, so we can save the form
         $builder->add('submit', SubmitType::class);
@@ -180,7 +183,10 @@ class SettingsFormController {
 
         //If the form was submitted and the data is valid, then it
         if ($form->isSubmitted() && $form->isValid()) {
-            //Save the settings
+            //Merge the valid data back into the managed instance
+            $this->settingsManager->mergeTemporaryCopy($settings);
+
+            //Save the settings to storage
             $this->settingsManager->save();
         }
 

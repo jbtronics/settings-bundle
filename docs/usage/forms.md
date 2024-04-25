@@ -11,11 +11,15 @@ The settings-bundle comes with an integration with symfony/forms, which allows y
 
 ## Retrieving form builders
 
-To get a form builder containing form fields for the parameters of a settings class, you can use the `SettingsFormFactoryInterface`. There is the `createSettingsFormBuilder()` method to create a form builder for a single settings class, where each form field is a direct child of the form builder. Use the  `createMultiSettingsFormBuilder()` method, if you wanna create a form for multiple settings classes at once. In the case of the multi settings form, the root form builder containing a subform for each settings class.
+To get a form builder containing form fields for the parameters of a settings class, you can use the `SettingsFormFactoryInterface`. There is the `createSettingsFormBuilder()` method to create a form builder for a single settings class, where each form field is a direct child of the form builder. Use the `createMultiSettingsFormBuilder()` method, if you wanna create a form for multiple settings classes at once. In the case of the multi-settings form, the root form builder contains a subform for each settings class.
 
-The data of the form builder is already assigned to the current instance of the settings class, so that the form fields are already filled with the current values of the settings class and changes to the form fields are automatically reflected in the settings.
+The data of the form builder is already assigned to the passed instance of the settings class, so that the form fields are already filled with the current values of the settings class and changes to the form fields are automatically reflected in the settings instance.
 
 The form builder can be used as normal, and you can add additional (non-mapped) forms fields, etc. to it. To build a simple settings form, you have to just add a submit button to the form builder, check for form submission and save the settings.
+
+Especially if you want to modify a settings object which is used to modify the behavior of critical parts of your application, it is recommended to pass a temporary copy of the settings object to the form builder. The way how symfony forms work, the form builder will modify the passed object directly and even invalid data will be written to the object if the form is submitted. This can lead to unexpected behavior or exceptions, if the settings object is used in other parts of the application and these parts see invalid data.
+
+Therefore you should create a temporary copy of the settings object, pass it to the form and merge the data back to the original object, if the form is valid.
 
 ```php
 class SettingsFormController {
@@ -28,8 +32,11 @@ class SettingsFormController {
     #[Route('/settings', name: 'settings')]
     public function settingsForm(Request $request): Response
     {
+        //Create a temporary copy of the settings object
+        $clone = $this->settingsManager->createTemporaryCopy(TestSettings::class);
+
         //Create a builder for the settings form
-        $builder = $this->settingsFormFactory->createSettingsFormBuilder(TestSettings::class);
+        $builder = $this->settingsFormFactory->createSettingsFormBuilder($clone);
 
         //Add a submit button, so we can save the form
         $builder->add('submit', SubmitType::class);
@@ -42,6 +49,9 @@ class SettingsFormController {
 
         //If the form was submitted and the data is valid, then it
         if ($form->isSubmitted() && $form->isValid()) {
+            //Merge the clone containing the modified data back into the managed instance
+            $this->settingsManager->mergeTemporaryCopy($clone);
+
             //Save the settings
             $this->settingsManager->save();
         }
@@ -56,7 +66,7 @@ class SettingsFormController {
 
 ## Form types and options
 
-In many cases the form types and required options are automatically derived from the parameter types of the settings parameters. For example if you have a string property in your settings class and mark it as a settings parameter, normally the `StringType` parameter type will be used, who uses the `TextType` form field by default.
+In many cases, the form types and required options are automatically derived from the parameter types of the settings parameters. For example, if you have a string property in your settings class and mark it as a settings parameter, normally the `StringType` parameter type will be used, who uses the `TextType` form field by default.
 
 You can customize the used form type and the options used to render a certain parameter via the `formType` and `formOptions` options of the `#[SettingsParameter]` attribute. These options override the default form type and options given by the bundle and the parameter types:
 
@@ -105,7 +115,7 @@ class GroupedSettings
 ```php
 
 //This will only render the parameters in the group1 group (myString and myString2)
-$builder = $this->settingsFormFactory->createSettingsFormBuilder(GroupedSettings::class, groups: ['group1']);
+$builder = $this->settingsFormFactory->createSettingsFormBuilder($settings, groups: ['group1']);
 ```
 
 ## Embedded settings

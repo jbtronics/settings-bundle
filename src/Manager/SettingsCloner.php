@@ -36,7 +36,7 @@ use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\CloneAndMergeAwareSettingsInterface;
 use Symfony\Component\VarExporter\LazyObjectInterface;
 
-class SettingsCloner implements SettingsClonerInterface
+final class SettingsCloner implements SettingsClonerInterface
 {
     public function __construct(
         private readonly MetadataManager $metadataManager,

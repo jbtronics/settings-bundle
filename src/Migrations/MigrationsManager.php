@@ -32,7 +32,7 @@ use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-class MigrationsManager implements MigrationsManagerInterface
+final class MigrationsManager implements MigrationsManagerInterface
 {
 
     /** @var string The key of the current version stored in the meta array */

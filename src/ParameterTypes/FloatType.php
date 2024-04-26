@@ -29,7 +29,7 @@ use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class FloatType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
+final class FloatType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
 {
     public function convertPHPToNormalized(
         mixed $value,

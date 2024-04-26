@@ -32,7 +32,7 @@ use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 
-class EnvVarValueResolver implements EnvVarValueResolverInterface
+final class EnvVarValueResolver implements EnvVarValueResolverInterface
 {
     /**
      * @var \SplObjectStorage A cache to store the resolved environment variables values

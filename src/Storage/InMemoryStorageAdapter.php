@@ -29,7 +29,7 @@ namespace Jbtronics\SettingsBundle\Storage;
  * This class is used to store settings purely in memory.
  * This is useful for testing purposes.
  */
-class InMemoryStorageAdapter implements StorageAdapterInterface
+final class InMemoryStorageAdapter implements StorageAdapterInterface
 {
     private array $data = [];
 

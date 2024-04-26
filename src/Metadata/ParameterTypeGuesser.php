@@ -35,7 +35,7 @@ use Jbtronics\SettingsBundle\ParameterTypes\FloatType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 
-class ParameterTypeGuesser implements ParameterTypeGuesserInterface
+final class ParameterTypeGuesser implements ParameterTypeGuesserInterface
 {
     public function guessParameterType(\ReflectionProperty $property): ?string
     {

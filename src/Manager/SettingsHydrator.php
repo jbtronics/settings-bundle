@@ -36,7 +36,7 @@ use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
 
-class SettingsHydrator implements SettingsHydratorInterface
+final class SettingsHydrator implements SettingsHydratorInterface
 {
     /** @var string The name of the key used to store meta information in persisted data */
     public const META_KEY = '$META$';

@@ -29,7 +29,7 @@ use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class IntType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
+final class IntType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
 {
     public function convertPHPToNormalized(
         mixed $value,

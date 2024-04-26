@@ -41,7 +41,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Valid;
 use Symfony\Component\Translation\TranslatableMessage;
 
-class SettingsFormBuilder implements SettingsFormBuilderInterface
+final class SettingsFormBuilder implements SettingsFormBuilderInterface
 {
     public function __construct(
         private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,

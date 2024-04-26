@@ -35,7 +35,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * This parameter type adds support for the \DateTime and \DateTimeImmutable classes and their subclasses.
  * The value is stored in the ATOM format, which is the default format of the \DateTime and \DateTimeImmutable classes.
  */
-class DatetimeType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
+final class DatetimeType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
 {
 
     public function convertPHPToNormalized(

@@ -38,7 +38,7 @@ use Symfony\Component\DependencyInjection\Exception\EnvNotFoundException;
  * This env var processor allows to use settings in container parameters, via the syntax "%env(settings:settingsName:parameterName)%"
  * You should try to avoid using this processor, as it is not very performant. Instead, you should use the SettingsManager to retrieve the settings, whenever possible.
  */
-class SettingsEnvProcessor implements EnvVarProcessorInterface
+final class SettingsEnvProcessor implements EnvVarProcessorInterface
 {
 
     public function __construct(private readonly SettingsManagerInterface $settingsManager,

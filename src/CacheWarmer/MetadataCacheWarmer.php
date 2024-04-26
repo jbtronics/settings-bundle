@@ -35,9 +35,8 @@ use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 /**
  * This cache warmer, initializes the settings registry, the metadata cache and the embedded cascade cache.
  */
-class MetadataCacheWarmer implements CacheWarmerInterface
+final class MetadataCacheWarmer implements CacheWarmerInterface
 {
-
     public function __construct(
         private readonly MetadataManagerInterface $metadataManager,
         private readonly SettingsRegistry $settingsRegistry,

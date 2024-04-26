@@ -33,7 +33,7 @@ use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class SettingsCollector extends AbstractDataCollector
+final class SettingsCollector extends AbstractDataCollector
 {
     public function __construct(
         private readonly SettingsRegistryInterface $configurationRegistry,

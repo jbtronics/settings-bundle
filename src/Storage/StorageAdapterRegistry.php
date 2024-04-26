@@ -27,7 +27,7 @@ namespace Jbtronics\SettingsBundle\Storage;
 
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-class StorageAdapterRegistry implements StorageAdapterRegistryInterface
+final class StorageAdapterRegistry implements StorageAdapterRegistryInterface
 {
     public function __construct(
         private readonly ServiceLocator $locator

@@ -26,14 +26,13 @@
 namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
-use Jbtronics\SettingsBundle\Metadata\MetadataManager;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * This service provides a settings validator using the Symfony Validator component.
  */
-class SettingsValidator implements SettingsValidatorInterface
+final class SettingsValidator implements SettingsValidatorInterface
 {
     public function __construct(
         private readonly ValidatorInterface $validator,

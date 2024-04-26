@@ -28,7 +28,7 @@ namespace Jbtronics\SettingsBundle\Storage;
 /**
  * This class implements a file storage adapter for JSON files
  */
-class JSONFileStorageAdapter extends AbstractFileStorageAdapter
+final class JSONFileStorageAdapter extends AbstractFileStorageAdapter
 {
 
     protected function unserialize(string $content): array

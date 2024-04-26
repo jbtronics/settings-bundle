@@ -35,7 +35,7 @@ use Symfony\Component\VarExporter\ProxyHelper;
  * This class is inspired by the class with the same name in the Doctrine ORM:
  * https://github.com/doctrine/orm/blob/3.0.x/src/Proxy/ProxyFactory.php#L430
  */
-class ProxyFactory implements ProxyFactoryInterface
+final class ProxyFactory implements ProxyFactoryInterface
 {
 
     private const PROXY_TEMPLATE = <<<'PHP'

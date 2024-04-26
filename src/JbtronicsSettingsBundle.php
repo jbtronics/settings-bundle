@@ -36,7 +36,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
-class JbtronicsSettingsBundle extends AbstractBundle
+final class JbtronicsSettingsBundle extends AbstractBundle
 {
 
     private ?Closure $autoloader = null;

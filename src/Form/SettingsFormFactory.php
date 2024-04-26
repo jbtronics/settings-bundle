@@ -35,7 +35,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 
-class SettingsFormFactory implements SettingsFormFactoryInterface
+final class SettingsFormFactory implements SettingsFormFactoryInterface
 {
     public function __construct(
         private readonly SettingsManagerInterface $settingsManager,

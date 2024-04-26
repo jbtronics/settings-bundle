@@ -31,7 +31,7 @@ namespace Jbtronics\SettingsBundle\ParameterTypes;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
+final class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
 {
 
     public function convertPHPToNormalized(

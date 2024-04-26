@@ -38,7 +38,7 @@ use Symfony\Component\DependencyInjection\Reference;
  * configures how to retrieve them.
  * It also removes all services marked for removal (which should not be injectable as settings service).
  */
-class ConfigureInjectableSettingsPass implements CompilerPassInterface
+final class ConfigureInjectableSettingsPass implements CompilerPassInterface
 {
     public const TAG_TO_REMOVE = 'jbtronics.settings.service_to_remove';
 

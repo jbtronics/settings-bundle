@@ -33,7 +33,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
-class JbtronicsSettingsExtension extends Extension
+final class JbtronicsSettingsExtension extends Extension
 {
 
     public const TAG_PARAMETER_TYPE = 'jbtronics.settings.parameter_type';

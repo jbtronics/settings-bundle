@@ -31,7 +31,7 @@ namespace Jbtronics\SettingsBundle\Storage;
 /**
  * This class implements a file storage adapter, which stores the settings in a PHP file
  */
-class PHPFileStorageAdapter extends AbstractFileStorageAdapter
+final class PHPFileStorageAdapter extends AbstractFileStorageAdapter
 {
 
     private const FILE_TEMPLATE = <<<'PHP'

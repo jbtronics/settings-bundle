@@ -29,7 +29,7 @@ use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 
-class SettingsResetter implements SettingsResetterInterface
+final class SettingsResetter implements SettingsResetterInterface
 {
     public function __construct(private readonly EnvVarValueResolverInterface $envVarValueResolver)
     {

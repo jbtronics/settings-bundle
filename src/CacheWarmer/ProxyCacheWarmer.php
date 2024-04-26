@@ -35,9 +35,8 @@ use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 /**
  * This class creates the proxy classes for the settings classes at cache warmup.
  */
-class ProxyCacheWarmer implements CacheWarmerInterface
+final class ProxyCacheWarmer implements CacheWarmerInterface
 {
-
     public function __construct(
         private readonly SettingsRegistryInterface $settingsRegistry,
         private readonly ProxyFactoryInterface $proxyFactory,

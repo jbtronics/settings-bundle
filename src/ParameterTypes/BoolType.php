@@ -29,7 +29,7 @@ use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class BoolType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
+final class BoolType implements ParameterTypeInterface, ParameterTypeWithFormDefaultsInterface
 {
     public function convertPHPToNormalized(
         mixed $value,

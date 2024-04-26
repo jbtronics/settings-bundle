@@ -36,7 +36,7 @@ use Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry;
  * This class provides a storage adapter for the Doctrine ORM, it allows to store settings in the database using Doctrine ORM entities.
  * You will need to implement your own entity class that extends AbstractSettingsORMEntry and configure the storage adapter to use it.
  */
-class ORMStorageAdapter implements StorageAdapterInterface
+final class ORMStorageAdapter implements StorageAdapterInterface
 {
 
     /**

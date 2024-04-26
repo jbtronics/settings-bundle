@@ -33,6 +33,9 @@ use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 final class SettingsCollector extends AbstractDataCollector
 {
     public function __construct(

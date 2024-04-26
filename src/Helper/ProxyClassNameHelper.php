@@ -32,6 +32,7 @@ use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 
 /**
  * This helper class provides methods to retrieve the real class name of a proxy object.
+ * @internal
  */
 class ProxyClassNameHelper
 {

@@ -32,6 +32,9 @@ use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 
+/**
+ * @internal
+ */
 final class EnvVarValueResolver implements EnvVarValueResolverInterface
 {
     /**

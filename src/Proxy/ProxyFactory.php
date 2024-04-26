@@ -34,6 +34,7 @@ use Symfony\Component\VarExporter\ProxyHelper;
  * This class manages the generation of proxy classes for lazy loading of settings.
  * This class is inspired by the class with the same name in the Doctrine ORM:
  * https://github.com/doctrine/orm/blob/3.0.x/src/Proxy/ProxyFactory.php#L430
+ * @internal
  */
 final class ProxyFactory implements ProxyFactoryInterface
 {

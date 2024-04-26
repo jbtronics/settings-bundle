@@ -31,6 +31,7 @@ namespace Jbtronics\SettingsBundle\Manager;
 /**
  * This service is responsible for cloning and merging settings objects.
  * It is used by the SettingsManager to create and merge settings objects.
+ * @internal
  */
 interface SettingsClonerInterface
 {

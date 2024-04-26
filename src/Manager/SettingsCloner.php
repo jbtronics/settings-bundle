@@ -36,6 +36,9 @@ use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\CloneAndMergeAwareSettingsInterface;
 use Symfony\Component\VarExporter\LazyObjectInterface;
 
+/**
+ * @internal
+ */
 final class SettingsCloner implements SettingsClonerInterface
 {
     public function __construct(

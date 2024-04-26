@@ -37,6 +37,7 @@ use Symfony\Component\DependencyInjection\Reference;
  * This compiler pass registers all settings classes, which are marked as injectable via dependency injection and
  * configures how to retrieve them.
  * It also removes all services marked for removal (which should not be injectable as settings service).
+ * @internal
  */
 final class ConfigureInjectableSettingsPass implements CompilerPassInterface
 {

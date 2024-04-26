@@ -34,6 +34,7 @@ use Symfony\Component\DependencyInjection\Exception\EnvNotFoundException;
 /**
  * This service is responsible for actually resolving/retrieving the value of a parameter based on the configured
  * environment variable.
+ * @internal
  */
 interface EnvVarValueResolverInterface
 {

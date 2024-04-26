@@ -29,6 +29,9 @@ use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 
+/**
+ * @internal Use the SettingsManager to reset settings
+ */
 final class SettingsResetter implements SettingsResetterInterface
 {
     public function __construct(private readonly EnvVarValueResolverInterface $envVarValueResolver)

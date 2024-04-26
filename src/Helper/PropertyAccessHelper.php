@@ -31,6 +31,7 @@ namespace Jbtronics\SettingsBundle\Helper;
  * This class contains code adapted from nyholm/NSA package (https://github.com/Nyholm/NSA/blob/master/src/NSA.php)
  * from Tobias Nyholm.
  * It is licensed under the MIT license (https://github.com/Nyholm/NSA/blob/master/LICENSE)
+ * @internal
  */
 class PropertyAccessHelper
 {

@@ -29,6 +29,7 @@ use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 
 /**
  * This interface is used to reset a settings instance to their default values.
+ * @internal
  */
 interface SettingsResetterInterface
 {

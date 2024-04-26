@@ -27,6 +27,9 @@ namespace Jbtronics\SettingsBundle\Manager;
 
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 
+/**
+ * @internal
+ */
 interface SettingsHydratorInterface
 {
     /**

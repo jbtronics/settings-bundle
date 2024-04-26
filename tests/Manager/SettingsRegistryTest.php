@@ -26,9 +26,11 @@
 namespace Jbtronics\SettingsBundle\Tests\Manager;
 
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\NonCloneableClass;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\MergeableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\NonCloneableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
@@ -57,7 +59,8 @@ class SettingsRegistryTest extends TestCase
             'circularembed' => CircularEmbedSettings::class,
             'embed' => EmbedSettings::class,
             'envvar' => EnvVarSettings::class,
-            'mergeable' => MergeableSettings::class
+            'mergeable' => MergeableSettings::class,
+            'noncloneable' => NonCloneableSettings::class
         ], $configurationRegistry->getSettingsClasses());
     }
 

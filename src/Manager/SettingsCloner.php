@@ -28,12 +28,14 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Manager;
 
+use Jbtronics\SettingsBundle\Exception\ParameterDataNotCloneableException;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Metadata\MetadataManager;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\CloneAndMergeAwareSettingsInterface;
+use PhpParser\Node\Param;
 use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
@@ -65,13 +67,7 @@ final class SettingsCloner implements SettingsClonerInterface
         //Iterate over all properties and copy them to the new instance
         foreach ($metadata->getParameters() as $parameter) {
             $oldVar = PropertyAccessHelper::getProperty($settings, $parameter->getPropertyName());
-
-            //If the property is an object, we need to clone it, to get a new instance
-            if ($this->shouldBeCloned($oldVar, $parameter)) {
-                $newVar = clone $oldVar;
-            } else {
-                $newVar = $oldVar;
-            }
+            $newVar = $this->cloneDataIfNeeded($oldVar, $parameter);
 
             //Set the property on the new instance
             PropertyAccessHelper::setProperty($clone, $parameter->getPropertyName(), $newVar);
@@ -111,13 +107,7 @@ final class SettingsCloner implements SettingsClonerInterface
         //Iterate over all properties and copy them to the new instance
         foreach ($metadata->getParameters() as $parameter) {
             $oldVar = PropertyAccessHelper::getProperty($copy, $parameter->getPropertyName());
-
-            //If the property is an object, we need to clone it, to get a new instance
-            if ($this->shouldBeCloned($oldVar, $parameter)) {
-                $newVar = clone $oldVar;
-            } else {
-                $newVar = $oldVar;
-            }
+            $newVar = $this->cloneDataIfNeeded($oldVar, $parameter);
 
             //Set the property on the new instance
             PropertyAccessHelper::setProperty($into, $parameter->getPropertyName(), $newVar);
@@ -194,5 +184,26 @@ final class SettingsCloner implements SettingsClonerInterface
 
         //Otherwise use the cloneable flag from the parameter metadata
         return $parameterMetadata->isCloneable();
+    }
+
+    /**
+     * Clones the given data if needed and returns the cloned data
+     * @param  mixed  $data
+     * @param  ParameterMetadata  $parameter
+     * @return mixed
+     */
+    private function cloneDataIfNeeded(mixed $data, ParameterMetadata $parameter): mixed
+    {
+        if ($this->shouldBeCloned($data, $parameter)) {
+            //Check if data is cloneable by PHP and throw an exception if not
+            $reflClass = new \ReflectionClass($data);
+            if (!$reflClass->isCloneable()) {
+                throw new ParameterDataNotCloneableException($parameter, $reflClass);
+            }
+
+            return clone $data;
+        }
+
+        return $data;
     }
 }

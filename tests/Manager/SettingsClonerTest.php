@@ -25,6 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Manager;
 
+use Jbtronics\SettingsBundle\Exception\ParameterDataNotCloneableException;
 use Jbtronics\SettingsBundle\Manager\SettingsClonerInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManager;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
@@ -33,6 +34,7 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\MergeableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\NonCloneableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -266,6 +268,27 @@ class SettingsClonerTest extends KernelTestCase
         $this->expectException(\InvalidArgumentException::class);
 
         //Must fail, as the classes are not the same
+        $this->service->mergeCopy($obj1, $obj2);
+    }
+
+    public function testCreateCloneNonCloneableProperty(): void
+    {
+        $obj = new NonCloneableSettings();
+
+        //A Not clonable exception must be thrown
+        $this->expectException(ParameterDataNotCloneableException::class);
+
+        $clone = $this->service->createClone($obj);
+    }
+
+    public function testMergeCloneNonCloneableProperty(): void
+    {
+        $obj1 = new NonCloneableSettings();
+        $obj2 = new NonCloneableSettings();
+
+        //The merge must also throw such an exception
+        $this->expectException(ParameterDataNotCloneableException::class);
+
         $this->service->mergeCopy($obj1, $obj2);
     }
 }

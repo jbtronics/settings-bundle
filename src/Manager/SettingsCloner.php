@@ -35,6 +35,7 @@ use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\CloneAndMergeAwareSettingsInterface;
+use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 use PhpParser\Node\Param;
 use Symfony\Component\VarExporter\LazyObjectInterface;
 
@@ -63,6 +64,12 @@ final class SettingsCloner implements SettingsClonerInterface
         //Use reflection to create a new instance of the settings class
         $reflClass = new \ReflectionClass($metadata->getClassName());
         $clone = $reflClass->newInstanceWithoutConstructor();
+
+        //Call the settingsReset method on the new instance to ensure that all properties are initialized.
+        //This is especially important for non-parameter properties
+        if ($clone instanceof ResettableSettingsInterface) {
+            $clone->resetToDefaultValues();
+        }
 
         //Iterate over all properties and copy them to the new instance
         foreach ($metadata->getParameters() as $parameter) {

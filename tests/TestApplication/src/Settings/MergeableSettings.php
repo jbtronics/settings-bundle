@@ -55,12 +55,15 @@ class MergeableSettings implements ResettableSettingsInterface, CloneAndMergeAwa
 
     public ?object $cloneCalled = null;
 
+    public bool $resetCalled = false;
+
 
 
     public function resetToDefaultValues(): void
     {
         $this->dateTime1 = new \DateTime();
         $this->dateTime2 = new \DateTime();
+        $this->resetCalled = true;
     }
 
     public function afterSettingsClone(object $original): void

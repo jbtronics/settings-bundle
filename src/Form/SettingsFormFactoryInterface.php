@@ -36,9 +36,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 interface SettingsFormFactoryInterface
 {
     /**
-     * Creates a form builder for the given settings. The form builder data is set to the current settings instance.
+     * Creates a form builder for the given settings. The form builder data is set to the given settings instance.
      * You can add additional form elements to the form builder.
-     * @param  string|object  $settings The name of the settings to create the form builder for (either class name or short name).
+     * @param  string|object  $settings The settings instance to use for the form builder. The type of the settings will be used for the form structure and the instance is bound as form data. Passing a string here is deprecated!
      * @param  array|null  $groups The parameter groups to render. If null, all parameters are rendered.
      * @param  array  $formOptions Options to pass to the form builder.
      * @return FormBuilderInterface The created form builder.
@@ -48,7 +48,7 @@ interface SettingsFormFactoryInterface
     /**
      * Creates a form builder for multiple settings. Each setting as a sub form in the root form builder.
      * The form builder data is set to the current settings instance. You can add additional form elements to the form builder.
-     * @param  array  $settings The names of the settings to create the form builder for (either class name or short name).
+     * @param  object[]|string[]  $settings An array of The settings instance to use for the form builder. The type of the settings will be used for the form structure and the instance is bound as form data. Passing a string here is deprecated!
      * @param  array|null  $groups The parameter groups to render. If null, all parameters are rendered.
      * @param  array  $formOptions Options to pass to the form builder.
      * @return FormBuilderInterface The root form builder.

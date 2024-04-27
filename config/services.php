@@ -270,18 +270,12 @@ return static function (ContainerConfigurator $container) {
             '$defaultFilename' => '%jbtronics.settings.file_storage.default_filename%.php',
         ]);
 
-    //If the doctrine bundle is available, register the doctrine storage adapter
-    try {
-        $services->get('doctrine.orm.entity_manager');
 
-        //If we reach this point, the doctrine bundle is available
-        $services->set(\Jbtronics\SettingsBundle\Storage\ORMStorageAdapter::class)
-            ->args([
-                '$entityManager' => service('doctrine.orm.entity_manager'),
-                '$defaultEntityClass' => '%jbtronics.settings.orm.default_entity_class%',
-                '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
-            ]);
-    } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
-        //Do nothing, as the doctrine bundle is not available
-    }
+    $services->set(\Jbtronics\SettingsBundle\Storage\ORMStorageAdapter::class)
+        ->args([
+            //Don't throw an exception if the entity manager is not available. Null gets injected in that case and we throw a more useful exception there
+            '$entityManager' => service('doctrine.orm.entity_manager')->ignoreOnInvalid(),
+            '$defaultEntityClass' => '%jbtronics.settings.orm.default_entity_class%',
+            '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
+        ]);
 };

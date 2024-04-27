@@ -45,12 +45,20 @@ final class ORMStorageAdapter implements StorageAdapterInterface
      */
     private array $cache = [];
 
+    private readonly EntityManagerInterface $entityManager;
+
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        ?EntityManagerInterface $entityManager,
         private readonly ?string $defaultEntityClass = null,
         private readonly bool $prefetchAll = false,
     )
     {
+        if ($entityManager === null) {
+            throw new \InvalidArgumentException('No entity manager provided! This most likely means that the Doctrine ORM bundle is not installed or properly configured. Install it to use the ORM storage adapter.');
+        }
+
+        $this->entityManager = $entityManager;
+
         if ($this->defaultEntityClass !== null && !is_subclass_of($this->defaultEntityClass, AbstractSettingsORMEntry::class)) {
             throw new \InvalidArgumentException('The default entity class must be a subclass of ' . AbstractSettingsORMEntry::class);
         }

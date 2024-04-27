@@ -122,7 +122,7 @@ $settingsManager->resetToDefaultValues($settings);
 $settingsManager->save($settings);
 ```
 
-### Retrieving temporary settings copies
+## Retrieving temporary settings copies
 
 One downside that the settings instances provided by the SettingsManager are shared between all parts of your application, is that changes immediately affect all parts of your application. If you set a parameter to an invalid parameter, it might break other parts of your application, which rely on the settings instance.
 

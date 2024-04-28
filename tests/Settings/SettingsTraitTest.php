@@ -48,7 +48,7 @@ class SettingsTraitTest extends TestCase
 
     public function testPreventConstructor(): void
     {
-        $this->expectException(Error::class);
+        $this->expectException(\LogicException::class);
         //Invalid instantiation
         /** @noinspection Annotator */
         new TestClass();

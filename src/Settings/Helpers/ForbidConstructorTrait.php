@@ -31,8 +31,8 @@ namespace Jbtronics\SettingsBundle\Settings\Helpers;
  */
 trait ForbidConstructorTrait
 {
-    private function __construct()
+    public function __construct() //This must be public, because otherwise symfony dependency-injection will ignore the class
     {
-        throw new \LogicException("Settings should not be instantiated directly. Use the SettingsManager instead.");
+        throw new \LogicException("Settings should not be instantiated directly. Use the SettingsManager or dependency injection instead.");
     }
 }

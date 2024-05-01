@@ -26,6 +26,7 @@
 namespace Jbtronics\SettingsBundle\Metadata;
 
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
+use Opis\Closure\SerializableClosure;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
@@ -35,7 +36,7 @@ use Symfony\Contracts\Translation\TranslatableInterface;
 class ParameterMetadata
 {
 
-    private readonly \Closure|string|null $envVarMapper;
+    private readonly SerializableClosure|string|null $envVarMapper;
 
     /**
      * @param  class-string  $className  The class name of the settings class, which contains this parameter.
@@ -75,10 +76,10 @@ class ParameterMetadata
         private readonly bool $cloneable = true,
     ) {
         if (is_callable($envVarMapper)) {
-            $envVarMapper = $envVarMapper(...);
+            $this->envVarMapper = new SerializableClosure($envVarMapper(...));
+        } else {
+            $this->envVarMapper = $envVarMapper;
         }
-
-        $this->envVarMapper = $envVarMapper;
     }
 
     public function getClassName(): string
@@ -188,10 +189,10 @@ class ParameterMetadata
      * Returns the mapper, which is used to map the value from the environment variable to the parameter value.
      * This can be a closure or the name of the ParameterType service, which should be used to map the value.
      * Null if no mapping function is set.
-     * @return \Closure|string|null
-     * @phpstan-return \Closure(mixed): mixed|class-string<ParameterTypeInterface>|null
+     * @return callable|string|null
+     * @phpstan-return callable(mixed): mixed|class-string<ParameterTypeInterface>|null
      */
-    public function getEnvVarMapper(): \Closure|string|null
+    public function getEnvVarMapper(): callable|string|null
     {
         return $this->envVarMapper;
     }
@@ -205,33 +206,5 @@ class ParameterMetadata
     public function isCloneable(): bool
     {
         return $this->cloneable;
-    }
-
-    public function __serialize(): array
-    {
-        $envVarMapper = $this->envVarMapper;
-
-        //We can not serialize closures, so we convert them to a string which we can use to recreate the closure
-        if ($envVarMapper instanceof \Closure) {
-            $envVarMapper = "Closure function";
-        }
-
-        return [
-            'className' => $this->className,
-            'propertyName' => $this->propertyName,
-            'type' => $this->type,
-            'nullable' => $this->nullable,
-            'name' => $this->name,
-            'label' => $this->label,
-            'description' => $this->description,
-            'options' => $this->options,
-            'formType' => $this->formType,
-            'formOptions' => $this->formOptions,
-            'groups' => $this->groups,
-            'envVar' => $this->envVar,
-            'envVarMode' => $this->envVarMode,
-            'envVarMapper' => $envVarMapper,
-            'cloneable' => $this->cloneable,
-        ];
     }
 }

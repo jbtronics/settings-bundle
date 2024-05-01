@@ -35,8 +35,7 @@
     "symfony/var-exporter": "^6.4|^7.0",
     "ergebnis/classy": "^1.6",
     "symfony/translation": "^7.0|^6.4",
-    "symfony/deprecation-contracts": "^3.4",
-    "opis/closure": "^3.6"
+    "symfony/deprecation-contracts": "^3.4"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest",

@@ -200,8 +200,8 @@ class MetadataManagerTest extends KernelTestCase
         $value3 = $schema->getParameter('value3');
         $this->assertEquals('value3', $value3->getName());
         $this->assertSame('ENV_VALUE3', $value3->getEnvVar());
-        //The env var mapper must return a closure, which calls the defined method
-        $this->assertInstanceOf(SerializableClosure::class, $value3->getEnvVarMapper());
+        //The env var mapper must return a callable, which calls the defined method
+        $this->assertIsCallable( $value3->getEnvVarMapper());
         $this->assertSame(123.4, ($value3->getEnvVarMapper())("test"));
         $this->assertSame(EnvVarMode::OVERWRITE, $value3->getEnvVarMode());
 

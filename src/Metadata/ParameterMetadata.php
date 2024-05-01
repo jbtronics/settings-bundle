@@ -26,7 +26,6 @@
 namespace Jbtronics\SettingsBundle\Metadata;
 
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
-use Opis\Closure\SerializableClosure;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
@@ -36,7 +35,7 @@ use Symfony\Contracts\Translation\TranslatableInterface;
 class ParameterMetadata
 {
 
-    private readonly SerializableClosure|string|null $envVarMapper;
+    private readonly object|array|string|null $envVarMapper;
 
     /**
      * @param  class-string  $className  The class name of the settings class, which contains this parameter.
@@ -75,11 +74,7 @@ class ParameterMetadata
         callable|string|null $envVarMapper = null,
         private readonly bool $cloneable = true,
     ) {
-        if (is_callable($envVarMapper)) {
-            $this->envVarMapper = new SerializableClosure($envVarMapper(...));
-        } else {
-            $this->envVarMapper = $envVarMapper;
-        }
+        $this->envVarMapper = $envVarMapper;
     }
 
     public function getClassName(): string

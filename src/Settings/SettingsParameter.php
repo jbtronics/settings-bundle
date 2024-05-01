@@ -39,7 +39,7 @@ use Symfony\Contracts\Translation\TranslatableInterface;
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class SettingsParameter
 {
-    public readonly \Closure|string|null $envVarMapper;
+    public readonly array|string|null $envVarMapper;
 
     /**
      * @param  string|null  $type  The type of this configuration entry. This must be a class string of a service implementing ParameterTypeInterface. If it is not set, the type is guessed from the property type.
@@ -74,10 +74,6 @@ final class SettingsParameter
         callable|string|null $envVarMapper = null,
         public readonly bool $cloneable = true,
     ) {
-        if (is_callable($envVarMapper)) {
-            $envVarMapper = $envVarMapper(...);
-        }
-
         $this->envVarMapper = $envVarMapper;
     }
 

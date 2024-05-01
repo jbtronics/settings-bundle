@@ -206,4 +206,32 @@ class ParameterMetadata
     {
         return $this->cloneable;
     }
+
+    public function __serialize(): array
+    {
+        $envVarMapper = $this->envVarMapper;
+
+        //We can not serialize closures, so we convert them to a string which we can use to recreate the closure
+        if ($envVarMapper instanceof \Closure) {
+            $envVarMapper = "Closure function";
+        }
+
+        return [
+            'className' => $this->className,
+            'propertyName' => $this->propertyName,
+            'type' => $this->type,
+            'nullable' => $this->nullable,
+            'name' => $this->name,
+            'label' => $this->label,
+            'description' => $this->description,
+            'options' => $this->options,
+            'formType' => $this->formType,
+            'formOptions' => $this->formOptions,
+            'groups' => $this->groups,
+            'envVar' => $this->envVar,
+            'envVarMode' => $this->envVarMode,
+            'envVarMapper' => $envVarMapper,
+            'cloneable' => $this->cloneable,
+        ];
+    }
 }

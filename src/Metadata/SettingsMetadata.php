@@ -407,8 +407,6 @@ class SettingsMetadata
         if ($mode instanceof EnvVarMode) {
             return $this->parametersWithEnvVars[$mode->name] ?? [];
         }
-
-        throw new \InvalidArgumentException('The mode must be either an instance of EnvVarMode, an array of EnvVarMode or null');
     }
 
     /**

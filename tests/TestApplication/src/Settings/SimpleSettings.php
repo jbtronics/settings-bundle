@@ -33,7 +33,7 @@ use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 
-#[Settings(storageAdapter: InMemoryStorageAdapter::class)]
+#[Settings(storageAdapter: InMemoryStorageAdapter::class, label: "Simple Settings", description: "Test")]
 class SimpleSettings
 {
     #[SettingsParameter(StringType::class)]

@@ -87,10 +87,30 @@ final class SettingsFormBuilder implements SettingsFormBuilderInterface
             new Valid()
         ];
 
+        $embeddedMeta = $this->metadataManager->getSettingsMetadata($embedded->getTargetClass());
+
+        //If a label is set, use it as the label of the embedded form
+        if ($embedded->getLabel() !== null) {
+            $options['label'] = $embedded->getLabel();
+        } elseif ($embeddedMeta->getLabel() !== null) {
+            $options['label'] = $embeddedMeta->getLabel();
+        }
+
+        //If a description is set, use it as the help text of the embedded form
+        if ($embedded->getDescription() !== null) {
+            $options['help'] = $embedded->getDescription();
+        } elseif ($embeddedMeta->getDescription() !== null) {
+            $options['help'] = $embeddedMeta->getDescription();
+        }
+
+        //If form settings are set on the embedded settings, use them
+        if ($embedded->getFormOptions() !== null) {
+            $options = array_merge($options, $embedded->getFormOptions());
+        }
 
         $subBuilder = $builder->getFormFactory()->createNamedBuilder($embedded->getPropertyName(), options: $options);
 
-        $embeddedMeta = $this->metadataManager->getSettingsMetadata($embedded->getTargetClass());
+
         $this->buildSettingsForm($subBuilder, $embeddedMeta, groups: $groups);
 
         $builder->add($subBuilder);

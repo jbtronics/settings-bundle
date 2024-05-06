@@ -37,7 +37,7 @@ use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 /**
  * This class is used to test embedded settings with circular references.
  */
-#[Settings(storageAdapter: InMemoryStorageAdapter::class, groups: ['default'])]
+#[Settings(storageAdapter: InMemoryStorageAdapter::class, groups: ['default'], label: "Embedded Settings", description: "Test")]
 class CircularEmbedSettings
 {
     use SettingsTrait;

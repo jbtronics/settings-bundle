@@ -148,7 +148,31 @@ class SettingsFormBuilderTest extends KernelTestCase
 
         //The sun form must have a valid constraint
         $constraints = $builder->get('simpleSettings')->getOption('constraints');
+
+        //The sub form must have the label inherited from the embedded settings
+        $this->assertEquals('Simple Settings', $subBuilder->getOption('label'));
+        $this->assertEquals('Test', $subBuilder->getOption('help'));
+
         $this->assertInstanceOf(Valid::class, $constraints[0]);
+    }
+
+    public function testAddEmbeddedSettingsSubFormAttributeOverrides(): void
+    {
+        $builder = $this->formFactory->createBuilder();
+        /** @var MetadataManagerInterface $metadataManager */
+        $metadataManager = self::getContainer()->get(MetadataManagerInterface::class);
+        $metadata = $metadataManager->getSettingsMetadata(EmbedSettings::class);
+
+        $embedded = $metadata->getEmbeddedSettings()['circularSettings'];
+        //This runs only when the group restriction is considered, otherwise an infinite loop is created
+        $subBuilder = $this->service->addEmbeddedSettingsSubForm($builder, $embedded, groups: ['default']);
+
+        //The label and description option should be overridden by the embedded settings attribue
+        $this->assertEquals('Override Label', $subBuilder->getOption('label'));
+        $this->assertEquals('Override Description', $subBuilder->getOption('help'));
+
+        //And the form options should be merged
+        $this->assertEquals(['class' => 'test'], $subBuilder->getOption('attr'));
     }
 
     public function testAddEmbeddedSettingsSubFormWithGroups(): void

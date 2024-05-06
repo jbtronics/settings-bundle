@@ -48,7 +48,7 @@ class EmbedSettings
     #[EmbeddedSettings]
     public SimpleSettings $simpleSettings;
 
-    #[EmbeddedSettings(CircularEmbedSettings::class, groups: ['group1'])]
+    #[EmbeddedSettings(CircularEmbedSettings::class, groups: ['group1'], label: "Override Label", description: "Override Description", formOptions: ["attr" => ["class" => "test"]])]
     /** @var CircularEmbedSettings */
     public object $circularSettings;
 }

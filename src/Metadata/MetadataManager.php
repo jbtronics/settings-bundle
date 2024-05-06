@@ -150,6 +150,9 @@ final class MetadataManager implements MetadataManagerInterface
             migrationService: $classAttribute->migrationService,
             storageAdapterOptions: $classAttribute->storageAdapterOptions,
             embeddedMetadata: $embeddeds,
+            dependencyInjectable: $classAttribute->dependencyInjectable,
+            label: $classAttribute->label,
+            description: $classAttribute->description,
         );
     }
 
@@ -195,6 +198,9 @@ final class MetadataManager implements MetadataManagerInterface
             propertyName: $reflProperty->getName(),
             targetClass: $targetClass,
             groups: $attribute->groups ?? $classAttribute->groups ?? [],
+            label: $attribute->label,
+            description: $attribute->description,
+            formOptions: $attribute->formOptions,
         );
     }
 

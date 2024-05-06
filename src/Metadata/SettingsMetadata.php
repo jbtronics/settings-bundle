@@ -82,6 +82,9 @@ class SettingsMetadata
      * @param  string|null  $migrationService  The service id of the migration service, which should be used to migrate the settings from one version to another.
      * @param  array  $storageAdapterOptions  An array of options, which should be passed to the storage adapter.
      * @param  EmbeddedSettingsMetadata[]  $embeddedMetadata  The embedded metadata of the settings class.
+     * @param  bool  $dependencyInjectable  If true, the settings class can be injected as a dependency by symfony's service container.
+     * @param  string|null  $label  A user-friendly label for this settings class, which is shown in the UI.
+     * @param  string|null  $description  A small description for this settings class, which is shown in the UI.
      */
     public function __construct(
         private readonly string $className,
@@ -92,7 +95,10 @@ class SettingsMetadata
         private readonly ?int $version = null,
         private readonly ?string $migrationService = null,
         private readonly array $storageAdapterOptions = [],
-        array $embeddedMetadata = []
+        array $embeddedMetadata = [],
+        private readonly bool $dependencyInjectable = true,
+        private readonly ?string $label = null,
+        private readonly ?string $description = null,
     ) {
         //Ensure that the migrator service is set, if the version is set
         if ($this->version !== null && $this->migrationService === null) {
@@ -401,5 +407,35 @@ class SettingsMetadata
         if ($mode instanceof EnvVarMode) {
             return $this->parametersWithEnvVars[$mode->name] ?? [];
         }
+
+        throw new \InvalidArgumentException('The mode must be either an instance of EnvVarMode, an array of EnvVarMode or null');
+    }
+
+    /**
+     * Returns true, if the settings class marked by this attribute can be injected as a dependency
+     * by symfony's service container.
+     * @return bool
+     */
+    public function canBeDependencyInjected(): bool
+    {
+        return $this->dependencyInjectable;
+    }
+
+    /**
+     * Returns the user-friendly label for this settings class, which is shown in the UI.
+     * @return string|null
+     */
+    public function getLabel(): ?string
+    {
+        return $this->label;
+    }
+
+    /**
+     * Returns a small description for this settings class, which is shown in the UI.
+     * @return string|null
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
     }
 }

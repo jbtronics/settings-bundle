@@ -39,10 +39,16 @@ final class EmbeddedSettings
      * @param  string|null  $target The class name of the settings class, which should be embedded into this property. If null, this is automatically discovered from the property type.
      * @phpstan-param class-string $target
      * @param  string[]|null  $groups  The groups, which this parameter should belong to. Groups can be used to only render subsets of the configuration entries in the UI. If not set, the parameter is assigned to the default group set in the settings class.
+     * @param string|null $label A user-friendly label for this configuration entry, which is shown in the UI. Overrides the label value of the embedded settings class.
+     * @param string|null $description A small description for this configuration entry, which is shown in the UI. Overrides the description value of the embedded settings class.
+     * @param array|null $formOptions The form options, which are passed to the form type of the embedded settings class.
      */
     public function __construct(
         public readonly ?string $target = null,
         public readonly ?array $groups = null,
+        public readonly string|null $label = null,
+        public readonly string|null $description = null,
+        public readonly array|null $formOptions = null,
     ) {
     }
 

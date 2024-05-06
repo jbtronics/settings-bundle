@@ -35,6 +35,9 @@ class EmbeddedSettingsMetadata
         private readonly string $propertyName,
         private readonly string $targetClass,
         private readonly array $groups = [],
+        private readonly ?string $label = null,
+        private readonly ?string $description = null,
+        private readonly ?array $formOptions = null,
     ) {
 
     }
@@ -60,5 +63,20 @@ class EmbeddedSettingsMetadata
     public function getGroups(): array
     {
         return $this->groups;
+    }
+
+    public function getLabel(): ?string
+    {
+        return $this->label;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function getFormOptions(): ?array
+    {
+        return $this->formOptions;
     }
 }

@@ -39,6 +39,8 @@ final class Settings
      * @param  int|null  $version  The current version of the settings class. Null, if the settings should not be versioned. If set, you have to set a migrator service too.
      * @param  string|null  $migrationService  The service id of the migrator service, which should be used to migrate the settings from one version to another.
      * @param  bool $dependencyInjectable  If true, the settings class can be injected as a dependency by symfony's service container.
+     * @param  string|null  $label  A user-friendly label for this settings class, which is shown in the UI.
+     * @param  string|null  $description  A small description for this settings class, which is shown in the UI.
      */
     public function __construct(
         public readonly string|null $name = null,
@@ -48,6 +50,8 @@ final class Settings
         public readonly int|null $version = null,
         public readonly string|null $migrationService = null,
         public readonly bool $dependencyInjectable = true,
+        public readonly string|null $label = null,
+        public readonly string|null $description = null,
     )
     {
 

@@ -57,6 +57,14 @@
                 <td>{{ class }}</td>
             </tr>
             <tr>
+                <td>Label</td>
+                <td>{{ dump(schema.label) }}</td>
+            </tr>
+            <tr>
+                <td>Description</td>
+                <td>{{ dump(schema.description) }}</td>
+            </tr>
+            <tr>
                 <td>Storage adapter</td>
                 <td>{{ schema.storageAdapter }}</td>
             </tr>
@@ -72,7 +80,10 @@
                 <td>Default groups</td>
                 <td>{{ dump(schema.DefaultGroups) }}</td>
             </tr>
-
+            <tr>
+                <td>Dependency Injectable</td>
+                <td>{{ dump(schema.canBeDependencyInjected) }}</td>
+            </tr>
             <tr>
                 <td>Version</td>
                 <td>{{ dump(schema.version) }}</td>
@@ -209,18 +220,30 @@
             </thead>
 
             <tbody>
-                <tr>
-                    <td>Target</td>
-                    <td>{{ dump(embeddedSchema.targetClass) }}</td>
-                </tr>
-                <tr>
-                    <td>Groups</td>
-                    <td>{{ dump(embeddedSchema.groups) }}</td>
-                </tr>
-                <tr>
-                    <td>Value</td>
-                    <td>{{ dump(collector.settingsParameterValue(class, embeddedSchema.propertyName)) }}</td>
-                </tr>
+            <tr>
+                <td>Target</td>
+                <td>{{ dump(embeddedSchema.targetClass) }}</td>
+            </tr>
+            <tr>
+                <td>Groups</td>
+                <td>{{ dump(embeddedSchema.groups) }}</td>
+            </tr>
+            <tr>
+                <td>Label</td>
+                <td>{{ dump(embeddedSchema.label) }}</td>
+            </tr>
+            <tr>
+                <td>Description</td>
+                <td>{{ dump(embeddedSchema.description) }}</td>
+            </tr>
+            <tr>
+                <td>Form options</td>
+                <td>{{ dump(embeddedSchema.formOptions) }}</td>
+            </tr>
+            <tr>
+                <td>Value</td>
+                <td>{{ dump(collector.settingsParameterValue(class, embeddedSchema.propertyName)) }}</td>
+            </tr>
             </tbody>
 
         </table>

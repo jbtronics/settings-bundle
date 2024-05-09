@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Metadata;
 
+use Symfony\Contracts\Translation\TranslatableInterface;
+
 class EmbeddedSettingsMetadata
 {
     public function __construct(
@@ -35,8 +37,8 @@ class EmbeddedSettingsMetadata
         private readonly string $propertyName,
         private readonly string $targetClass,
         private readonly array $groups = [],
-        private readonly ?string $label = null,
-        private readonly ?string $description = null,
+        private readonly string|TranslatableInterface|null $label = null,
+        private readonly string|TranslatableInterface|null $description = null,
         private readonly ?array $formOptions = null,
     ) {
 
@@ -65,12 +67,12 @@ class EmbeddedSettingsMetadata
         return $this->groups;
     }
 
-    public function getLabel(): ?string
+    public function getLabel(): string|TranslatableInterface|null
     {
         return $this->label;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string|TranslatableInterface|null
     {
         return $this->description;
     }

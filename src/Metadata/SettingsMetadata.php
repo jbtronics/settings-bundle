@@ -26,6 +26,7 @@
 namespace Jbtronics\SettingsBundle\Metadata;
 
 use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
+use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
  * This class represents the metadata (structure) of a settings class
@@ -83,8 +84,8 @@ class SettingsMetadata
      * @param  array  $storageAdapterOptions  An array of options, which should be passed to the storage adapter.
      * @param  EmbeddedSettingsMetadata[]  $embeddedMetadata  The embedded metadata of the settings class.
      * @param  bool  $dependencyInjectable  If true, the settings class can be injected as a dependency by symfony's service container.
-     * @param  string|null  $label  A user-friendly label for this settings class, which is shown in the UI.
-     * @param  string|null  $description  A small description for this settings class, which is shown in the UI.
+     * @param  string|TranslatableInterface|null  $label  A user-friendly label for this settings class, which is shown in the UI.
+     * @param  string|TranslatableInterface|null  $description  A small description for this settings class, which is shown in the UI.
      */
     public function __construct(
         private readonly string $className,
@@ -97,8 +98,8 @@ class SettingsMetadata
         private readonly array $storageAdapterOptions = [],
         array $embeddedMetadata = [],
         private readonly bool $dependencyInjectable = true,
-        private readonly ?string $label = null,
-        private readonly ?string $description = null,
+        private readonly string|TranslatableInterface|null $label = null,
+        private readonly string|TranslatableInterface|null $description = null,
     ) {
         //Ensure that the migrator service is set, if the version is set
         if ($this->version !== null && $this->migrationService === null) {
@@ -421,18 +422,18 @@ class SettingsMetadata
 
     /**
      * Returns the user-friendly label for this settings class, which is shown in the UI.
-     * @return string|null
+     * @return string|TranslatableInterface|null
      */
-    public function getLabel(): ?string
+    public function getLabel(): string|TranslatableInterface|null
     {
         return $this->label;
     }
 
     /**
      * Returns a small description for this settings class, which is shown in the UI.
-     * @return string|null
+     * @return string|TranslatableInterface|null
      */
-    public function getDescription(): ?string
+    public function getDescription(): string|TranslatableInterface|null
     {
         return $this->description;
     }

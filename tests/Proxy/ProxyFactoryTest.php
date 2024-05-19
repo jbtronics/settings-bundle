@@ -56,10 +56,9 @@ class ProxyFactoryTest extends KernelTestCase
 
     public function testCreateProxy(): void
     {
-        $initializer = function () {
-            $tmp = new SimpleSettings();
-            $tmp->setValue1('Initialized');
-            return $tmp;
+        $initializer = function (SimpleSettings $instance) {
+            $instance->setValue1('Initialized');
+            return $instance;
         };
 
         /** @var LazyObjectInterface&SimpleSettings&SettingsProxyInterface $proxy */

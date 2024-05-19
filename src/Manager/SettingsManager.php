@@ -25,7 +25,6 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
-use http\Exception\InvalidArgumentException;
 use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
@@ -34,7 +33,6 @@ use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
-use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 use Symfony\Component\VarExporter\LazyObjectInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -80,8 +78,8 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         if (!$lazy) { //If we are not lazy, we initialize the settings class immediately
             $settings = $this->getInitializedVersion($settingsClass);
         } else { //Otherwise we create a lazy loading proxy
-            $settings = $this->proxyFactory->createProxy($settingsClass, function () use ($settingsClass) {
-                return $this->getInitializedVersion($settingsClass);
+            $settings = $this->proxyFactory->createProxy($settingsClass, function (SettingsProxyInterface $instance) use ($settingsClass) {
+                return $this->getInitializedVersion($settingsClass, $instance);
             });
         }
 
@@ -90,11 +88,24 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         return $settings;
     }
 
-    private function getInitializedVersion(string $settingsClass): object
+    /**
+     * Initializes a new (or existing) instance of the given settings class with the default values.
+     * If $existingInstance is given, the default values are applied to this instance, instead of creating a new one.
+     * @param  string  $settingsClass
+     * @param  object|null  $existingInstance
+     * @return object
+     */
+    private function getInitializedVersion(string $settingsClass, ?object $existingInstance = null): object
     {
         $metadata = $this->metadataManager->getSettingsMetadata($settingsClass);
 
-        $settings = $this->settingsResetter->newInstance($metadata);
+        //If we have an existing instance, use the SettingsResetter to initialize it
+        if ($existingInstance) {
+            $settings = $this->settingsResetter->resetSettings($existingInstance, $metadata);
+        } else { //Otherwise create a completely new instance
+            $settings = $this->settingsResetter->newInstance($metadata);
+        }
+
         $this->settingsHydrator->hydrate($settings, $metadata);
 
         //Fill the embedded settings with a lazy loaded instance
@@ -104,7 +115,8 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
             $embeddedSettings = $this->get($targetClass, true);
 
             //Set the embedded settings instance
-            PropertyAccessHelper::setProperty($settings, $embeddedSettingsMetadata->getPropertyName(), $embeddedSettings);
+            PropertyAccessHelper::setProperty($settings, $embeddedSettingsMetadata->getPropertyName(),
+                $embeddedSettings);
         }
 
         return $settings;

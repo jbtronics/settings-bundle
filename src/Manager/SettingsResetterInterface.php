@@ -56,4 +56,17 @@ interface SettingsResetterInterface
      * @phpstan-return T
      */
     public function newInstance(SettingsMetadata $metadata): object;
+
+    /**
+     * Initializes a given raw instance of a settings class with the default values set. The instance is returned.
+     * @internal This method is used by the SettingsManager to initialize a new instance of a settings class.
+     * @template T of object
+     * @param  SettingsMetadata  $metadata
+     * @phpstan-param SettingsMetadata<T> $metadata
+     * @param  object  $instance
+     * @phpstan-param T $instance
+     * @return object
+     * @phpstan-return T
+     */
+    public function initializeInstance(SettingsMetadata $metadata, object $instance): object;
 }

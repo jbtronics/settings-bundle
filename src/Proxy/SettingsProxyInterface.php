@@ -28,10 +28,12 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Proxy;
 
+use \Symfony\Component\VarExporter\LazyObjectInterface;
+
 /**
  * This interface is implemented by proxies that lazy load settings.
  */
-interface SettingsProxyInterface
+interface SettingsProxyInterface extends LazyObjectInterface
 {
     /**
      * Marker for Proxy class names.

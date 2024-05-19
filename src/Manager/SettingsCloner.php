@@ -57,13 +57,13 @@ final class SettingsCloner implements SettingsClonerInterface
         return $this->createCloneInternal($settings, $embedded_clones);
     }
 
-    private function createCloneInternal(object $settings, array &$embeddedClones): object
+    private function createCloneInternal(object $settings, array &$embeddedClones, ?object $existingInstance = null): object
     {
         $metadata = $this->metadataManager->getSettingsMetadata($settings);
 
         //Use reflection to create a new instance of the settings class
         $reflClass = new \ReflectionClass($metadata->getClassName());
-        $clone = $reflClass->newInstanceWithoutConstructor();
+        $clone = $existingInstance ?? $reflClass->newInstanceWithoutConstructor();
 
         //Call the settingsReset method on the new instance to ensure that all properties are initialized.
         //This is especially important for non-parameter properties
@@ -90,8 +90,8 @@ final class SettingsCloner implements SettingsClonerInterface
                 $embeddedClone = $embeddedClones[$embeddedSetting->getTargetClass()];
             } else {
                 //Otherwise, we need to create a new clone, which we lazy load, via our proxy system
-                $embeddedClone = $this->proxyFactory->createProxy($embeddedSetting->getTargetClass(), function () use ($embeddedSetting, $settings, $embeddedClones) {
-                    return $this->createCloneInternal(PropertyAccessHelper::getProperty($settings, $embeddedSetting->getPropertyName()), $embeddedClones);
+                $embeddedClone = $this->proxyFactory->createProxy($embeddedSetting->getTargetClass(), function (SettingsProxyInterface $instance) use ($embeddedSetting, $settings, $embeddedClones) {
+                    return $this->createCloneInternal(PropertyAccessHelper::getProperty($settings, $embeddedSetting->getPropertyName()), $embeddedClones, $instance);
                 });
             }
 

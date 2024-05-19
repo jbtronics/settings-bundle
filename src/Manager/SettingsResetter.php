@@ -119,19 +119,23 @@ final class SettingsResetter implements SettingsResetterInterface
 
     public function newInstance(SettingsMetadata $metadata): object
     {
-        $settingsClass = $metadata->getClassName();
-
-        $reflectionClass = new \ReflectionClass($settingsClass);
+        //Create a fresh instance of the settings class
+        $reflectionClass = new \ReflectionClass($metadata->getClassName());
         $instance = $reflectionClass->newInstanceWithoutConstructor();
 
+        //And initialize the instance
+        return $this->initializeInstance($metadata, $instance);
+    }
+
+    public function initializeInstance(SettingsMetadata $metadata, object $instance): object
+    {
         //If the class is resettable, we call the reset method
-        if (is_a($settingsClass, ResettableSettingsInterface::class, true)) {
+        if ($instance instanceof ResettableSettingsInterface) {
             $instance->resetToDefaultValues();
         }
 
         //Apply the environment variables to the instance
         $this->applyEnvVars($metadata, $instance);
-
 
         return $instance;
     }

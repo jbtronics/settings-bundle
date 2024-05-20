@@ -138,7 +138,8 @@ The attribute has the following parameters:
 * `version` (optional): The expected version of this settings class. Must be an int greater than 0. If set, settings from older versions of this class will be migrated to the current version. See the documentation about versioning and migrations for more information. If set to null, then the settings class is not versioned and no migrations are performed.
 * `migrationService` (optional): The class name of the service, which should be used to perform the migration. This value is required if `version` is set. See the documentation about versioning and migrations for more information. 
 * `dependencyInjectable` (default: true): If set to false, the settings class will not be dependency injectable and is not available as a service.
-
+* `label` (optional): A string or translation key, which can be used as a user-friendly label for the settings class. This should be just a few words maximum.
+* `description` (optional): A string or translation key, which can be used as a user-friendly description for the settings class. Unlike the label, this can be a longer text giving more information about the settings class.
 
 ### #[SettingsParameter]
 
@@ -160,3 +161,6 @@ The attribute has the following parameters:
 
 * `target`(optional): The class name of the settings class, which should be embedded. If not set, the target class is derived automatically from the property type.
 * `groups` (optional): The groups this embedded settings class belongs to. This can be used to only render certain subsets of the parameters in forms, etc.
+* `label` (optional): A string or translation key, which is shown as a label for the embedded settings class in forms. This overrides the default label, which is derived from the label property of the embedded settings class.
+* `description` (optional): A string or translation key, which is shown as a description for the embedded settings class in forms. This overrides the default description, which is derived from the description property of the embedded settings class.
+* `formOptions` (optional): An array of options, which is passed to the form type of the embedded settings class. This allows you to customize the form rendering of the sub form for the embedded settings class.

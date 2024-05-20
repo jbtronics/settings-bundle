@@ -277,5 +277,6 @@ return static function (ContainerConfigurator $container) {
             '$entityManager' => service('doctrine.orm.entity_manager')->ignoreOnInvalid(),
             '$defaultEntityClass' => '%jbtronics.settings.orm.default_entity_class%',
             '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
+            '$logger' => service('logger')->nullOnInvalid(),
         ]);
 };

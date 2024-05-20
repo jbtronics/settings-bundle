@@ -29,8 +29,10 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\Storage;
 
 
+use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 use Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry;
+use Psr\Log\LoggerInterface;
 
 /**
  * This class provides a storage adapter for the Doctrine ORM, it allows to store settings in the database using Doctrine ORM entities.
@@ -51,6 +53,7 @@ final class ORMStorageAdapter implements StorageAdapterInterface
         ?EntityManagerInterface $entityManager,
         private readonly ?string $defaultEntityClass = null,
         private readonly bool $prefetchAll = false,
+        private readonly ?LoggerInterface $logger = null,
     )
     {
         if ($entityManager === null) {
@@ -137,15 +140,32 @@ final class ORMStorageAdapter implements StorageAdapterInterface
     {
         $entityClass = $options['entity_class'] ?? $this->defaultEntityClass ?? throw new \LogicException('You must either provide an entity class in the options or set a default entity class!');
 
-        //Preload all entity objects if the fetchAll option is set
-        if ($this->prefetchAll) {
-            $this->preloadAllEntityObjects($entityClass);
+        //Retrieve the data from database
+        try {
+            //Preload all entity objects if the fetchAll option is set
+            if ($this->prefetchAll) {
+                $this->preloadAllEntityObjects($entityClass);
+            }
+
+            //Retrieve the entity object
+            $entity = $this->getEntityObject($key, $options['entity_class'] ?? $this->defaultEntityClass);
+
+            //Return the data
+            return $entity->getData();
+        } catch (TableNotFoundException $exception) {
+            //If the table does not exist, we fail gracefully and return null to indicate that no data was persisted yet
+
+            //If a logger is available, log the problem, so that the user knows he still need to create the table
+            if ($this->logger !== null) {
+                $this->logger->warning(
+                    'The table for the settings entity does not exist yet. Use doctrine schema:dump or doctrine migrations tools to create the table.'
+                    . ' Otherwise an exception will be thrown when trying to save the settings. For now we just assume that no data was persisted yet and the default values should be used.'
+                    . ' The exception was: ' . $exception->getMessage(),
+                    ['exception' => $exception]
+                );
+            }
+
+            return null;
         }
-
-        //Retrieve the entity object
-        $entity = $this->getEntityObject($key, $options['entity_class'] ?? $this->defaultEntityClass);
-
-        //Return the data
-        return $entity->getData();
     }
 }

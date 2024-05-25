@@ -244,6 +244,11 @@ return static function (ContainerConfigurator $container) {
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\DatetimeType::class);
     $services->set(\Jbtronics\SettingsBundle\ParameterTypes\SerializeType::class);
 
+    $services->set(\Jbtronics\SettingsBundle\ParameterTypes\ArrayType::class)
+        ->args([
+            '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
+        ]);
+
     /***********************************************************************************
      * Environment variable value resolver
      ***********************************************************************************/

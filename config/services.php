@@ -280,7 +280,7 @@ return static function (ContainerConfigurator $container) {
     $services->set(\Jbtronics\SettingsBundle\Storage\ORMStorageAdapter::class)
         ->args([
             //Don't throw an exception if the entity manager is not available. Null gets injected in that case and we throw a more useful exception there
-            '$entityManager' => service('doctrine.orm.entity_manager')->ignoreOnInvalid(),
+            '$managerRegistry' => service('doctrine')->ignoreOnInvalid(),
             '$defaultEntityClass' => '%jbtronics.settings.orm.default_entity_class%',
             '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
             '$logger' => service('logger')->nullOnInvalid(),

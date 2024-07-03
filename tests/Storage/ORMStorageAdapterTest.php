@@ -32,22 +32,22 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\OtherSettingsEntry;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\SettingsEntry;
 use LogicException;
 use stdClass;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ORMStorageAdapterTest extends KernelTestCase
 {
-
-    private EntityManagerInterface $entityManager;
+    private ManagerRegistry $managerRegistry;
 
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $this->managerRegistry = self::getContainer()->get('doctrine');
     }
 
     public function testSaveAndLoadNewEntry(): void
     {
-        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
+        $adapter = new ORMStorageAdapter($this->managerRegistry, SettingsEntry::class, false);
 
         $adapter->save('foo', ['bar' => 'baz']);
 
@@ -56,7 +56,7 @@ class ORMStorageAdapterTest extends KernelTestCase
 
     public function testSaveAndLoadNewEntryOverride(): void
     {
-        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
+        $adapter = new ORMStorageAdapter($this->managerRegistry, SettingsEntry::class, false);
 
         $adapter->save('foo', ['bar' => 'baz'], ['entity_class' => OtherSettingsEntry::class]);
 
@@ -65,7 +65,7 @@ class ORMStorageAdapterTest extends KernelTestCase
 
     public function testLoadNonExisting(): void
     {
-        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
+        $adapter = new ORMStorageAdapter($this->managerRegistry, SettingsEntry::class, false);
 
         //Non existing key must return null
         $this->assertNull($adapter->load('non_existing'));
@@ -76,7 +76,7 @@ class ORMStorageAdapterTest extends KernelTestCase
 
     public function testLoadExisting(): void
     {
-        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
+        $adapter = new ORMStorageAdapter($this->managerRegistry, SettingsEntry::class, false);
         $this->assertEquals(['foo' => 'existing1'], $adapter->load('existing1'));
 
         $this->assertEquals(['foo' => 'existing2'], $adapter->load('existing2', ['entity_class' => OtherSettingsEntry::class]));
@@ -84,33 +84,44 @@ class ORMStorageAdapterTest extends KernelTestCase
 
     public function testFetchAll(): void
     {
-        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, true);
+        $adapter = new ORMStorageAdapter($this->managerRegistry, SettingsEntry::class, true);
         $this->assertEquals(['foo' => 'existing1'], $adapter->load('existing1'));
 
-        $adapter = new ORMStorageAdapter($this->entityManager, OtherSettingsEntry::class, true);
+        $adapter = new ORMStorageAdapter($this->managerRegistry, OtherSettingsEntry::class, true);
     }
 
     public function testThrowOnInvalidDefaultEntityClass(): void
     {
         //Must throw an exception, if the default entity class is not a subclass of AbstractSettingsORMEntry
         $this->expectException(InvalidArgumentException::class);
-        new ORMStorageAdapter($this->entityManager, stdClass::class, false);
+        new ORMStorageAdapter($this->managerRegistry, stdClass::class, false);
     }
 
     public function testThrowOnInvalidEntityClass(): void
     {
-        //Must throw an exception, if the passed entity class is not a subclass of AbstractSettingsORMEntry
-        $adapter = new ORMStorageAdapter($this->entityManager, SettingsEntry::class, false);
+        //Must throw an exception, if the passed entity class is not a manager entity
+        $adapter = new ORMStorageAdapter($this->managerRegistry, SettingsEntry::class, false);
         $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/No entity manager found for class/');
         $adapter->load('foo', ['entity_class' => stdClass::class]);
     }
 
     public function testThrowIfNoEntityClassResolvable(): void
     {
         //Must throw an exception, if no entity class is passed and no default entity class is set
-        $adapter = new ORMStorageAdapter($this->entityManager, null, false);
+        $adapter = new ORMStorageAdapter($this->managerRegistry, null, false);
         $this->expectException(LogicException::class);
         $adapter->load('foo');
+    }
+
+    public function testInvalidEntityManager(): void
+    {
+        $adapter = new ORMStorageAdapter($this->managerRegistry, SettingsEntry::class, false);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/Doctrine ORM Manager named/');
+
+        //With the option, doctrine must try to attempt to load the entity manager with the given name
+        $adapter->load('foo', ['entity_manager' => 'non_existing']);
     }
 
 }

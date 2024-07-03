@@ -30,7 +30,8 @@ namespace Jbtronics\SettingsBundle\Storage;
 
 
 use Doctrine\DBAL\Exception\TableNotFoundException;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry;
 use Psr\Log\LoggerInterface;
 
@@ -47,20 +48,20 @@ final class ORMStorageAdapter implements StorageAdapterInterface
      */
     private array $cache = [];
 
-    private readonly EntityManagerInterface $entityManager;
+    private readonly ManagerRegistry $managerRegistry;
 
     public function __construct(
-        ?EntityManagerInterface $entityManager,
+        ?ManagerRegistry $managerRegistry,
         private readonly ?string $defaultEntityClass = null,
         private readonly bool $prefetchAll = false,
         private readonly ?LoggerInterface $logger = null,
     )
     {
-        if ($entityManager === null) {
-            throw new \InvalidArgumentException('No entity manager provided! This most likely means that the Doctrine ORM bundle is not installed or properly configured. Install it to use the ORM storage adapter.');
+        if ($managerRegistry === null) {
+            throw new \InvalidArgumentException('No manager registry provided! This most likely means that the Doctrine ORM bundle is not installed or properly configured. Install it to use the ORM storage adapter.');
         }
 
-        $this->entityManager = $entityManager;
+        $this->managerRegistry = $managerRegistry;
 
         if ($this->defaultEntityClass !== null && !is_subclass_of($this->defaultEntityClass, AbstractSettingsORMEntry::class)) {
             throw new \InvalidArgumentException('The default entity class must be a subclass of ' . AbstractSettingsORMEntry::class);
@@ -74,7 +75,7 @@ final class ORMStorageAdapter implements StorageAdapterInterface
 
      * @return AbstractSettingsORMEntry
      */
-    private function getEntityObject(string $key, string $entityClass): AbstractSettingsORMEntry
+    private function getEntityObject(ObjectManager $entityManager, string $key, string $entityClass): AbstractSettingsORMEntry
     {
         if (!is_subclass_of($entityClass, AbstractSettingsORMEntry::class)) {
             throw new \InvalidArgumentException('The entity class must be a subclass of ' . AbstractSettingsORMEntry::class);
@@ -86,7 +87,7 @@ final class ORMStorageAdapter implements StorageAdapterInterface
         }
 
         //Retrieve the entity from the database or create a new one if it does not exist
-        $entity = $this->entityManager->getRepository($entityClass)->findOneBy(['key' => $key]);
+        $entity = $entityManager->getRepository($entityClass)->findOneBy(['key' => $key]);
         if ($entity === null) {
             $entity = new $entityClass($key);
         }
@@ -102,7 +103,7 @@ final class ORMStorageAdapter implements StorageAdapterInterface
      * @param  string  $entityClass
      * @return void
      */
-    private function preloadAllEntityObjects(string $entityClass): void
+    private function preloadAllEntityObjects(ObjectManager $entityManager, string $entityClass): void
     {
         //If the cache is already filled, we do not need to preload the entities
         if (!empty($this->cache)) {
@@ -113,7 +114,7 @@ final class ORMStorageAdapter implements StorageAdapterInterface
             throw new \InvalidArgumentException('The entity class must be a subclass of ' . AbstractSettingsORMEntry::class);
         }
 
-        $entities = $this->entityManager->getRepository($entityClass)->findAll();
+        $entities = $entityManager->getRepository($entityClass)->findAll();
         foreach ($entities as $entity) {
             $this->cache[$entityClass][$entity->getKey()] = $entity;
         }
@@ -123,35 +124,38 @@ final class ORMStorageAdapter implements StorageAdapterInterface
     {
         $entityClass = $options['entity_class'] ?? $this->defaultEntityClass ?? throw new \LogicException('You must either provide an entity class in the options or set a default entity class!');
 
+        //Get the manager for the entity class
+        $entityManager = $this->getEntityManager($entityClass, $options);
+
         //Retrieve the entity object
-        $entity = $this->getEntityObject($key, $entityClass);
+        $entity = $this->getEntityObject($entityManager, $key, $entityClass);
 
         //Set the data
         $entity->setData($data);
 
         //Persist the entity (if not already done)
-        $this->entityManager->persist($entity);
+        $entityManager->persist($entity);
 
         //And save the changes
-        $this->entityManager->flush();
+        $entityManager->flush();
     }
 
     public function load(string $key, array $options = []): ?array
     {
         $entityClass = $options['entity_class'] ?? $this->defaultEntityClass ?? throw new \LogicException('You must either provide an entity class in the options or set a default entity class!');
 
+        //Get the manager for the entity class
+        $entityManager = $this->getEntityManager($entityClass, $options);
+
         //Retrieve the data from database
         try {
             //Preload all entity objects if the fetchAll option is set
             if ($this->prefetchAll) {
-                $this->preloadAllEntityObjects($entityClass);
+                $this->preloadAllEntityObjects($entityManager, $entityClass);
             }
 
-            //Retrieve the entity object
-            $entity = $this->getEntityObject($key, $options['entity_class'] ?? $this->defaultEntityClass);
-
-            //Return the data
-            return $entity->getData();
+            //Retrieve the entity object & return the data
+            return $this->getEntityObject($entityManager, $key, $entityClass)->getData();
         } catch (TableNotFoundException $exception) {
             //If the table does not exist, we fail gracefully and return null to indicate that no data was persisted yet
 
@@ -167,5 +171,22 @@ final class ORMStorageAdapter implements StorageAdapterInterface
 
             return null;
         }
+    }
+
+    private function getEntityManager(string $entityClass, array $options): ObjectManager
+    {
+        //Check if a entity manager is specified in the options
+        if (isset($options['entity_manager'])) {
+            return $this->managerRegistry->getManager($options['entity_manager']);
+        }
+
+        //Otherwise use the object manager for the given class
+        $manager = $this->managerRegistry->getManagerForClass($entityClass);
+
+        if ($manager === null) {
+            throw new \InvalidArgumentException('No entity manager found for class ' . $entityClass . '. Make sure the entity class is correctly mapped in your Doctrine configuration, or try to specify the entityManager in the options manually.');
+        }
+        
+        return $manager;
     }
 }

@@ -49,13 +49,20 @@ final class SettingsHydrator implements SettingsHydratorInterface
         private readonly ParameterTypeRegistryInterface $parameterTypeRegistry,
         private readonly MigrationsManagerInterface $migrationsManager,
         private readonly EnvVarValueResolverInterface $envVarValueResolver,
+        private readonly SettingsCacheInterface $settingsCache,
         private readonly bool $saveAfterMigration = true,
+        private readonly bool $cacheEnabled = true,
     ) {
 
     }
 
     public function hydrate(object $settings, SettingsMetadata $metadata): object
     {
+        //If the settings object is cacheable, and we have a cached version, we can skip the following steps
+        if ($this->cacheEnabled && $metadata->isCacheable() && $this->settingsCache->hasData($metadata)) {
+            return $this->settingsCache->applyData($metadata, $settings);
+        }
+
         //Retrieve the storage adapter for the given settings object.
         /** @var StorageAdapterInterface $storageAdapter */
         $storageAdapter = $this->storageAdapterRegistry->getStorageAdapter($metadata->getStorageAdapter());
@@ -88,6 +95,11 @@ final class SettingsHydrator implements SettingsHydratorInterface
             $storageAdapter->save($metadata->getStorageKey(), $normalizedRepresentation);
         }
 
+        //If the settings object is cacheable, we store the data in the cache.
+        if ($this->cacheEnabled && $metadata->isCacheable()) {
+            $this->settingsCache->setData($metadata, $tmp);
+        }
+
         return $tmp;
     }
 
@@ -106,6 +118,11 @@ final class SettingsHydrator implements SettingsHydratorInterface
 
         //Persist the normalized representation to the storage adapter.
         $storageAdapter->save($metadata->getStorageKey(), $normalizedRepresentation, $metadata->getStorageAdapterOptions());
+
+        //Persist the normalized representation to the cache, if the settings object is cacheable.
+        if ($this->cacheEnabled && $metadata->isCacheable()) {
+            $this->settingsCache->setData($metadata, $settings);
+        }
 
         //Return the settings object.
         return $settings;

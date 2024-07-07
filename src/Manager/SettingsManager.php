@@ -50,7 +50,6 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         private readonly ProxyFactoryInterface $proxyFactory,
         private readonly EnvVarValueResolverInterface $envVarValueResolver,
         private readonly SettingsClonerInterface $settingsCloner,
-        private readonly SettingsCacheInterface $settingsCache,
     )
     {
 

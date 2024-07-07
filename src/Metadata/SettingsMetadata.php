@@ -86,6 +86,7 @@ class SettingsMetadata
      * @param  bool  $dependencyInjectable  If true, the settings class can be injected as a dependency by symfony's service container.
      * @param  string|TranslatableInterface|null  $label  A user-friendly label for this settings class, which is shown in the UI.
      * @param  string|TranslatableInterface|null  $description  A small description for this settings class, which is shown in the UI.
+     * @param  bool  $cacheable  If true, the settings class is cacheable (and will be cached if possible). If false, the class will never be cached.
      */
     public function __construct(
         private readonly string $className,
@@ -100,6 +101,7 @@ class SettingsMetadata
         private readonly bool $dependencyInjectable = true,
         private readonly string|TranslatableInterface|null $label = null,
         private readonly string|TranslatableInterface|null $description = null,
+        private readonly bool $cacheable = false,
     ) {
         //Ensure that the migrator service is set, if the version is set
         if ($this->version !== null && $this->migrationService === null) {
@@ -436,5 +438,14 @@ class SettingsMetadata
     public function getDescription(): string|TranslatableInterface|null
     {
         return $this->description;
+    }
+
+    /**
+     * Returns true, if the settings class is cacheable, false if class is not cacheable.
+     * @return bool
+     */
+    public function isCacheable(): bool
+    {
+        return $this->cacheable;
     }
 }

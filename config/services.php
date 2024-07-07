@@ -95,7 +95,6 @@ return static function (ContainerConfigurator $container) {
             '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
             '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
             '$settingsCloner' => service('jbtronics.settings.settings_cloner'),
-            '$settingsCache' => service('jbtronics.settings.settings_cache'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
     ;
@@ -120,6 +119,7 @@ return static function (ContainerConfigurator $container) {
             '$migrationsManager' => service('jbtronics.settings.settings_migration_manager'),
             '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
             '$saveAfterMigration' => '%jbtronics.settings.save_after_migration%',
+            '$settingsCache' => service('jbtronics.settings.settings_cache'),
         ]);
     $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');
 

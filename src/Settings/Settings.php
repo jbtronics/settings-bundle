@@ -43,6 +43,7 @@ final class Settings
      * @param  bool $dependencyInjectable  If true, the settings class can be injected as a dependency by symfony's service container.
      * @param  string|TranslatableInterface|null  $label  A user-friendly label for this settings class, which is shown in the UI.
      * @param  string|TranslatableInterface|null  $description  A small description for this settings class, which is shown in the UI.
+     * @param  bool|null  $cacheable  If true, the settings class is cacheable (and will be cached if possible). If false, the class will never be cached. If null, the global cacheable setting is used.
      */
     public function __construct(
         public readonly string|null $name = null,
@@ -54,6 +55,7 @@ final class Settings
         public readonly bool $dependencyInjectable = true,
         public readonly string|TranslatableInterface|null $label = null,
         public readonly string|TranslatableInterface|null $description = null,
+        public readonly bool|null $cacheable = null,
     )
     {
 

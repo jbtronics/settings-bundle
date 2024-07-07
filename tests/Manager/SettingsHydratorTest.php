@@ -25,10 +25,12 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Manager;
 
+use Jbtronics\SettingsBundle\Manager\SettingsCacheInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CacheableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
@@ -312,5 +314,76 @@ class SettingsHydratorTest extends WebTestCase
 
         //Unset the environment variable to prevent side effects
         unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2'], $_ENV['ENV_VALUE3'], $_ENV['ENV_VALUE4']);
+    }
+
+    public function testCacheing(): void
+    {
+        $_ENV['ENV_VALUE1'] = "false";
+        $_ENV['ENV_VALUE2'] = 'envVar Override';
+
+        $cacheService = self::getContainer()->get(SettingsCacheInterface::class);
+        $metadata = $this->schemaManager->getSettingsMetadata(CacheableSettings::class);
+
+        //We start with an empty cache
+        $this->assertFalse($cacheService->hasData($metadata));
+
+        //Prepare the storage adapter with some dummy data to migrate
+        $this->storageAdapter->save($metadata->getStorageKey(), [
+            '$META$' => [
+                'version' => 1,
+            ],
+            'string' => 'stored',
+        ]);
+
+        //Create a new settings object
+        $test = new CacheableSettings();
+        //We have initial data from somewhere else
+        $test->dateTime = new \DateTimeImmutable('2024-01-01');
+
+        //Hydrate the settings object. This should work without any errors.
+        $test = $this->service->hydrate($test, $metadata);
+
+        //The cache should now contain the data
+        $this->assertTrue($cacheService->hasData($metadata));
+
+        //Therefore if we apply it to a new object, it should be the same
+        $other = new CacheableSettings();
+        $other = $cacheService->applyData($metadata, $other);
+        $this->assertSame('envVar Override', $other->string);
+        $this->assertFalse($other->bool);
+        $this->assertEquals($test->dateTime, $other->dateTime);
+
+        //If we change the data in the storageAdapter, outside of the hydrator, it should be ignored as we use the cached version
+        $this->storageAdapter->save($metadata->getStorageKey(), [
+            '$META$' => [
+                'version' => 1,
+            ],
+            'array' => ['changed' => 'array'],
+        ]);
+
+        $other = new CacheableSettings();
+        $other = $this->service->hydrate($other, $metadata);
+        //The array must not be changed
+        $this->assertEquals(['foo' => 'bar', 'bar' => 'foo'], $other->array);
+
+        //If we say that the cache should be ignored, the new data should be applied
+        $other = new CacheableSettings();
+        $other = $this->service->hydrate($other, $metadata, true);
+        $this->assertEquals(['changed' => 'array'], $other->array);
+
+        //When we perform a change on the object, the cache should be invalidated
+        $test->array = ['new' => 'array'];
+        $test = $this->service->persist($test, $metadata);
+
+        //The cache must now contain the new data
+        $other = new CacheableSettings();
+        $other = $cacheService->applyData($metadata, $other);
+        $this->assertEquals(['new' => 'array'], $other->array);
+
+        //Unset the environment variable to prevent side effects
+        unset($_ENV['ENV_VALUE1'], $_ENV['ENV_VALUE2']);
+
+        //Clear the cache
+        $cacheService->invalidateData($metadata);
     }
 }

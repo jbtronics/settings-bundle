@@ -39,10 +39,11 @@ interface SettingsHydratorInterface
      * @phpstan-param T $settings
      * @param  SettingsMetadata  $metadata The metadata of the settings object to use
      * @phpstan-param SettingsMetadata<T> $metadata
+     * @param  bool  $ignoreCache If true, the cache will be ignored and the data will always be fetched from the storage provider
      * @return object The hydrated settings object
      * @phpstan-return T
      */
-    public function hydrate(object $settings, SettingsMetadata $metadata): object;
+    public function hydrate(object $settings, SettingsMetadata $metadata, bool $ignoreCache = false): object;
 
     /**
      * Persist the given settings object to the storage provider.

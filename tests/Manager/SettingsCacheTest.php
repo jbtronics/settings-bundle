@@ -29,6 +29,8 @@ use Jbtronics\SettingsBundle\Manager\SettingsCacheInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CacheableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\NonCloneableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
@@ -95,6 +97,35 @@ class SettingsCacheTest extends KernelTestCase
         $this->settingsCache->applyData($metadata, $other);
 
         $this->assertFalse($other->bool);
+
+        //Embedded settings must not be filled
+        $this->assertFalse(isset($other->simpleSettings));
+    }
+
+    public function testCacheableSettings(): void
+    {
+        $metadata = $this->metadataManager->getSettingsMetadata(CacheableSettings::class);
+        $settings = new CacheableSettings();
+
+        $settings->bool = false;
+        $settings->string = 'changed string';
+        $settings->enum = TestEnum::BAZ;
+        $settings->dateTime = new \DateTimeImmutable('2024-01-01');
+        $settings->array = ['entry1' => 'value1', 'entry2' => 'value2'];
+
+        //Must function with complex and circular references
+        $this->settingsCache->setData($metadata, $settings);
+
+        $this->assertTrue($this->settingsCache->hasData($metadata));
+
+        $other = new CacheableSettings();
+        $this->settingsCache->applyData($metadata, $other);
+
+        $this->assertFalse($other->bool);
+        $this->assertEquals('changed string', $other->string);
+        $this->assertEquals(TestEnum::BAZ, $other->enum);
+        $this->assertEquals(new \DateTimeImmutable('2024-01-01'), $other->dateTime);
+        $this->assertEquals(['entry1' => 'value1', 'entry2' => 'value2'], $other->array);
 
         //Embedded settings must not be filled
         $this->assertFalse(isset($other->simpleSettings));

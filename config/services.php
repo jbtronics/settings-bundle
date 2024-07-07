@@ -186,6 +186,7 @@ return static function (ContainerConfigurator $container) {
         ->args([
             //The alias defined by JbtronicsSettingsExtension can be configured by users to use a different cache pool
             '$cache' => service('jbtronics.settings.cache.service'),
+            '$ttl' =>  '%jbtronics.settings.cache.ttl%'
         ]);
     $services->alias(SettingsCacheInterface::class, 'jbtronics.settings.settings_cache');
 

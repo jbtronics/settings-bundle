@@ -40,7 +40,10 @@ final class SettingsCache implements SettingsCacheInterface
 {
     private const CACHE_KEY_PREFIX = 'jbtronics_settings_';
 
-    public function __construct(private readonly AdapterInterface $cache)
+    public function __construct(
+        private readonly AdapterInterface $cache,
+        private readonly int $ttl = 0
+    )
     {
     }
 
@@ -67,6 +70,10 @@ final class SettingsCache implements SettingsCacheInterface
     public function setData(SettingsMetadata $settings, object $value): void
     {
         $item = $this->getCacheItem($settings)->set($this->toCacheableRepresentation($settings, $value));
+        //Set the TTL if it is greater than 0
+        if ($this->ttl > 0) {
+            $item->expiresAfter($this->ttl);
+        }
         $this->cache->save($item);
     }
 

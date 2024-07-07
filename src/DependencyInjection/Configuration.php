@@ -74,7 +74,8 @@ final class Configuration implements ConfigurationInterface
                 ->children()
                 ->scalarNode('service')->defaultValue('cache.app')->end()
                 //By default, use the global cache pool
-                ->scalarNode('default_cacheable')->defaultFalse()->end()
+                ->booleanNode('default_cacheable')->defaultFalse()->end()
+                ->integerNode('ttl')->defaultValue(0)->end()
             ->end();
     }
 

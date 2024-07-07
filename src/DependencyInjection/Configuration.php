@@ -60,8 +60,22 @@ final class Configuration implements ConfigurationInterface
 
         $this->addFileStorageConfiguration($rootNode);
         $this->addORMStorageConfiguration($rootNode);
+        $this->addCacheConfiguration($rootNode);
 
         return $treeBuilder;
+    }
+
+    private function addCacheConfiguration(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
+            ->arrayNode('cache')
+                ->addDefaultsIfNotSet()
+                ->children()
+                ->scalarNode('service')->defaultValue('cache.app')->end()
+                //By default, use the global cache pool
+                ->scalarNode('default_cacheable')->defaultFalse()->end()
+            ->end();
     }
 
     private function addFileStorageConfiguration(ArrayNodeDefinition $rootNode): void

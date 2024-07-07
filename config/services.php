@@ -73,7 +73,8 @@ return static function (ContainerConfigurator $container) {
             '$debug_mode' => '%kernel.debug%',
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$parameterTypeGuesser' => service('jbtronics.settings.parameter_type_guesser'),
-            '$defaultStorageAdapter' => '%jbtronics.settings.default_storage_adapter%'
+            '$defaultStorageAdapter' => '%jbtronics.settings.default_storage_adapter%',
+            '$defaultCacheable' => '%jbtronics.settings.cache.default_cacheable%',
         ]);
     $services->alias(MetadataManagerInterface::class, 'jbtronics.settings.metadata_manager');
 
@@ -183,7 +184,8 @@ return static function (ContainerConfigurator $container) {
      **********************************************************************************/
     $services->set('jbtronics.settings.settings_cache', \Jbtronics\SettingsBundle\Manager\SettingsCache::class)
         ->args([
-            '$cache' => service('cache.app'),
+            //The alias defined by JbtronicsSettingsExtension can be configured by users to use a different cache pool
+            '$cache' => service('jbtronics.settings.cache.service'),
         ]);
     $services->alias(SettingsCacheInterface::class, 'jbtronics.settings.settings_cache');
 

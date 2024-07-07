@@ -82,8 +82,8 @@ final class SettingsCache implements SettingsCacheInterface
 
     private function getCacheKey(SettingsMetadata $settings): string
     {
-        //Replace unsafe characters with underscores
-        return self::CACHE_KEY_PREFIX . str_replace(['{', '}', '(', ')', '/', '\\', '@', ':'], '_', $settings->getClassName());
+        //The storage key should be unique enough to avoid conflicts
+        return self::CACHE_KEY_PREFIX . $settings->getStorageKey();
     }
 
     /**

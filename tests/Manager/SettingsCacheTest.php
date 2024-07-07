@@ -129,5 +129,8 @@ class SettingsCacheTest extends KernelTestCase
 
         //Embedded settings must not be filled
         $this->assertFalse(isset($other->simpleSettings));
+
+        //Invalidate cache to prevent side-effects
+        $this->settingsCache->invalidateData($metadata);
     }
 }

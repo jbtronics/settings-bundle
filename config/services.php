@@ -24,6 +24,7 @@
  */
 
 use Jbtronics\SettingsBundle\DependencyInjection\JbtronicsSettingsExtension;
+use Jbtronics\SettingsBundle\Manager\SettingsCacheInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManager;
@@ -94,6 +95,7 @@ return static function (ContainerConfigurator $container) {
             '$proxyFactory' => service('jbtronics.settings.proxy_factory'),
             '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
             '$settingsCloner' => service('jbtronics.settings.settings_cloner'),
+            '$settingsCache' => service('jbtronics.settings.settings_cache'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
     ;
@@ -175,6 +177,15 @@ return static function (ContainerConfigurator $container) {
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
             '$metadataManager' => service('jbtronics.settings.metadata_manager'),
         ]);
+
+    /**********************************************************************************
+     * Caching
+     **********************************************************************************/
+    $services->set('jbtronics.settings.settings_cache', \Jbtronics\SettingsBundle\Manager\SettingsCache::class)
+        ->args([
+            '$cache' => service('cache.app'),
+        ]);
+    $services->alias(SettingsCacheInterface::class, 'jbtronics.settings.settings_cache');
 
     /*********************************************************************************
      * Lazy loading subsystem
@@ -285,4 +296,5 @@ return static function (ContainerConfigurator $container) {
             '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
             '$logger' => service('logger')->nullOnInvalid(),
         ]);
+
 };

@@ -140,6 +140,7 @@ The attribute has the following parameters:
 * `dependencyInjectable` (default: true): If set to false, the settings class will not be dependency injectable and is not available as a service.
 * `label` (optional): A string or translation key, which can be used as a user-friendly label for the settings class. This should be just a few words maximum.
 * `description` (optional): A string or translation key, which can be used as a user-friendly description for the settings class. Unlike the label, this can be a longer text giving more information about the settings class.
+* `cacheable` (optional): With this option you can explicitly configure, whether this class should be cached or not. If not set (or is null), the global value from the settings-bundle configuration is used (`cache.default_cacheable` option), which is by default false. See the [caching documentation]({% link advanced/caching.md %}) for more info.
 
 ### #[SettingsParameter]
 

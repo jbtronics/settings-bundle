@@ -39,6 +39,19 @@ jbtronics_settings:
     # The directory where the proxy classes should be stored
     proxy_dir: '%kernel.cache_dir%/jbtronics_settings/proxies'
 
+    # The configuration for caching of settings
+    cache:
+        # The service id of the cache pool in which the settings should be cached
+        service: 'cache.app'
+        
+        # The default value for all classes, where the cacheable option is not explictly set
+        # True means, that the settings are cacheable and will be cached if possible
+        default_cacheable: false
+        
+        # The time in seconds, after which the cached settings expire
+        # Zero means, that the settings never expire
+        ttl: 0
+
     # The configuration for file based storage adapters
     file_storage:
         # The directory where the settings files should be stored

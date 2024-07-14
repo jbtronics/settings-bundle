@@ -27,6 +27,7 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\NonCloneableClass;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CacheableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\MergeableSettings;
@@ -60,7 +61,8 @@ class SettingsRegistryTest extends TestCase
             'embed' => EmbedSettings::class,
             'envvar' => EnvVarSettings::class,
             'mergeable' => MergeableSettings::class,
-            'noncloneable' => NonCloneableSettings::class
+            'noncloneable' => NonCloneableSettings::class,
+            'cacheable' => CacheableSettings::class
         ], $configurationRegistry->getSettingsClasses());
     }
 

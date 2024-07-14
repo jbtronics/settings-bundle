@@ -50,6 +50,7 @@ final class MetadataManager implements MetadataManagerInterface
         private readonly SettingsRegistryInterface $settingsRegistry,
         private readonly ParameterTypeGuesserInterface $parameterTypeGuesser,
         private readonly ?string $defaultStorageAdapter = null,
+        private readonly bool $defaultCacheable = false,
     ) {
     }
 
@@ -153,6 +154,7 @@ final class MetadataManager implements MetadataManagerInterface
             dependencyInjectable: $classAttribute->dependencyInjectable,
             label: $classAttribute->label,
             description: $classAttribute->description,
+            cacheable: $classAttribute->cacheable ?? $this->defaultCacheable,
         );
     }
 

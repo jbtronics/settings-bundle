@@ -24,6 +24,7 @@
  */
 
 use Jbtronics\SettingsBundle\DependencyInjection\JbtronicsSettingsExtension;
+use Jbtronics\SettingsBundle\Manager\SettingsCacheInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManager;
@@ -72,7 +73,8 @@ return static function (ContainerConfigurator $container) {
             '$debug_mode' => '%kernel.debug%',
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$parameterTypeGuesser' => service('jbtronics.settings.parameter_type_guesser'),
-            '$defaultStorageAdapter' => '%jbtronics.settings.default_storage_adapter%'
+            '$defaultStorageAdapter' => '%jbtronics.settings.default_storage_adapter%',
+            '$defaultCacheable' => '%jbtronics.settings.cache.default_cacheable%',
         ]);
     $services->alias(MetadataManagerInterface::class, 'jbtronics.settings.metadata_manager');
 
@@ -118,6 +120,7 @@ return static function (ContainerConfigurator $container) {
             '$migrationsManager' => service('jbtronics.settings.settings_migration_manager'),
             '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
             '$saveAfterMigration' => '%jbtronics.settings.save_after_migration%',
+            '$settingsCache' => service('jbtronics.settings.settings_cache'),
         ]);
     $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');
 
@@ -175,6 +178,17 @@ return static function (ContainerConfigurator $container) {
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
             '$metadataManager' => service('jbtronics.settings.metadata_manager'),
         ]);
+
+    /**********************************************************************************
+     * Caching
+     **********************************************************************************/
+    $services->set('jbtronics.settings.settings_cache', \Jbtronics\SettingsBundle\Manager\SettingsCache::class)
+        ->args([
+            //The alias defined by JbtronicsSettingsExtension can be configured by users to use a different cache pool
+            '$cache' => service('jbtronics.settings.cache.service'),
+            '$ttl' =>  '%jbtronics.settings.cache.ttl%'
+        ]);
+    $services->alias(SettingsCacheInterface::class, 'jbtronics.settings.settings_cache');
 
     /*********************************************************************************
      * Lazy loading subsystem
@@ -285,4 +299,5 @@ return static function (ContainerConfigurator $container) {
             '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
             '$logger' => service('logger')->nullOnInvalid(),
         ]);
+
 };

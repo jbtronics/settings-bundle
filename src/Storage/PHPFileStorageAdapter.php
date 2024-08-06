@@ -66,4 +66,14 @@ final class PHPFileStorageAdapter extends AbstractFileStorageAdapter
         //Require the file and return the content
         return require $filePath;
     }
+
+    protected function saveFileContent(string $filePath, ?array $data): void
+    {
+        parent::saveFileContent($filePath, $data);
+
+        //Invalidate the opcode cache for the file, otherwise strange things occur, when the file is loaded shortly afterward
+        if (function_exists('opcache_invalidate')) {
+            opcache_invalidate($filePath, true);
+        }
+    }
 }

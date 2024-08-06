@@ -67,8 +67,20 @@ string to the desired type. Or you pass a callable to a (static) function, which
 and converts it to the desired type.
 
 ```php
-#[SettingsParameter(envVar: 'bool:ENV_VAR3')
-private ?\DateTime $dateTimeParam = null;
+
+class TestSettings {
+
+
+
+  #[SettingsParameter(envVar: 'string:ENV_VAR3', envVarMapper: [self::class, 'mapDateTimeEnv'])
+  private ?\DateTime $dateTimeParam = null;
+
+  public static function mapDateTimeEnv(?string $value): ?\DateTime
+  {
+    return $value ? new \DateTime($value) : null;
+  }
+}
+
 ```
 
 ## Forms

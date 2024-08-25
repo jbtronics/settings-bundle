@@ -124,6 +124,20 @@ return static function (ContainerConfigurator $container) {
         ]);
     $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');
 
+    //This is a special version of the SettingsHydrator, used to persist the settings to the environment variables,
+    //even if they would normally not be persisted
+    $services->set('jbtronics.settings.settings_hydrator.env_persister', SettingsHydrator::class)
+        ->args([
+            '$storageAdapterRegistry' => service('jbtronics.settings.storage_adapter_registry'),
+            '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
+            '$migrationsManager' => service('jbtronics.settings.settings_migration_manager'),
+            '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
+            '$saveAfterMigration' => false,
+            '$settingsCache' => false,
+            //Important !
+            '$undoNonPersistentEnv' => false,
+        ]);
+
     $services->set('jbtronics.settings.settings_resetter', SettingsResetter::class)
         ->args([
             '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),

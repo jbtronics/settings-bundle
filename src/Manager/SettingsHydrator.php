@@ -52,6 +52,9 @@ final class SettingsHydrator implements SettingsHydratorInterface
         private readonly SettingsCacheInterface $settingsCache,
         private readonly bool $saveAfterMigration = true,
         private readonly bool $cacheEnabled = true,
+        //This setting is intended for the second service instance of this class, which is used in the env var persist
+        //console command
+        private readonly bool $undoNonPersistentEnv = true,
     ) {
 
     }
@@ -114,7 +117,9 @@ final class SettingsHydrator implements SettingsHydratorInterface
 
         //Undo the eventual environment variable overwrites for the normalized representation.
         //The null value for the old data will trigger the loading from the storage adapter, if required.
-        $normalizedRepresentation = $this->undoEnvVariableOverwrites($metadata, $normalizedRepresentation, null);
+        if ($this->undoNonPersistentEnv) {
+            $normalizedRepresentation = $this->undoEnvVariableOverwrites($metadata, $normalizedRepresentation, null);
+        }
 
         //Persist the normalized representation to the storage adapter.
         $storageAdapter->save($metadata->getStorageKey(), $normalizedRepresentation, $metadata->getStorageAdapterOptions());

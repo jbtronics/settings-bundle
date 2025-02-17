@@ -130,6 +130,15 @@ final class ORMStorageAdapter implements StorageAdapterInterface
         //Retrieve the entity object
         $entity = $this->getEntityObject($entityManager, $key, $entityClass);
 
+        //reFetch if detached
+        if (!$entityManager->contains($entity)) {
+            $id = $entityManager->getClassMetadata($entityClass)->getIdentifierValues($entity);
+            if ([] !== $id) {
+                $entity = $entityManager->find($entityClass, $id) ?? $entity;
+                $this->cache[$entityClass][$key] = $entity;
+            }
+        }
+
         //Set the data
         $entity->setData($data);
 

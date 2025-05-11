@@ -50,10 +50,11 @@ interface SettingsFormFactoryInterface
      * The form builder data is set to the current settings instance. You can add additional form elements to the form builder.
      * @param  object[]|string[]  $settings An array of The settings instance to use for the form builder. The type of the settings will be used for the form structure and the instance is bound as form data. Passing a string here is deprecated!
      * @param  array|null  $groups The parameter groups to render. If null, all parameters are rendered.
-     * @param  array  $formOptions Options to pass to the form builder.
+     * @param  array  $formOptions Options to pass to the child form builders (so to each settings form).
+     * @param array $rootFormOptions Options to pass to the root form builder (which contains all other settings forms)
      * @return FormBuilderInterface The root form builder.
      */
-    public function createMultiSettingsFormBuilder(array $settings, ?array $groups = null, array $formOptions = []): FormBuilderInterface;
+    public function createMultiSettingsFormBuilder(array $settings, ?array $groups = null, array $formOptions = [], array $rootFormOptions = []): FormBuilderInterface;
 
 
 }

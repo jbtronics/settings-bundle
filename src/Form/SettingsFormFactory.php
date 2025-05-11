@@ -75,11 +75,16 @@ final class SettingsFormFactory implements SettingsFormFactoryInterface
         return $formBuilder;
     }
 
-    public function createMultiSettingsFormBuilder(array $settings, ?array $groups = null, array $formOptions = []): FormBuilderInterface
+    public function createMultiSettingsFormBuilder(
+        array $settings,
+        ?array $groups = null,
+        array $formOptions = [],
+        array $rootFormOptions = []
+    ): FormBuilderInterface
     {
         $deprecation_triggered = false;
 
-        $formBuilder = $this->formFactory->createBuilder();
+        $formBuilder = $this->formFactory->createBuilder(options: $rootFormOptions);
         //The form is a compound form, so we need to set this to true
         $formBuilder->setCompound(true);
         foreach ($settings as $setting) {

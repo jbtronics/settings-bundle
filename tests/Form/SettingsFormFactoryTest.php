@@ -139,6 +139,15 @@ class SettingsFormFactoryTest extends KernelTestCase
         $this->assertCount(2, $formBuilder);
     }
 
+    public function testCreateMultiSettingsFormBuilderRootSettings(): void
+    {
+        $array = [$this->settingsManager->createTemporaryCopy(SimpleSettings::class), $this->settingsManager->createTemporaryCopy(ValidatableSettings::class)];
+
+        $formBuilder = $this->service->createMultiSettingsFormBuilder($array, rootFormOptions: ['label' => 'test'] );
+
+        $this->assertSame('test', $formBuilder->getOption('label'));
+    }
+
     public function testCreateMultiSettingsFormBuilderDeprecated(): void
     {
         $formBuilder = $this->service->createMultiSettingsFormBuilder([SimpleSettings::class, ValidatableSettings::class]);

@@ -40,10 +40,10 @@ use Doctrine\ORM\Mapping\MappedSuperclass;
 abstract class AbstractSettingsORMEntry
 {
     #[ORM\Column(name: '`key`', type: Types::STRING, length: 255, unique: true, nullable: false)]
-    private string $key;
+    protected string $key;
 
     #[ORM\Column(name: '`data`', type: Types::JSON, nullable: true)]
-    private ?array $data = null;
+    protected ?array $data = null;
 
     public function __construct(string $key)
     {

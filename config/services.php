@@ -132,8 +132,9 @@ return static function (ContainerConfigurator $container) {
             '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
             '$migrationsManager' => service('jbtronics.settings.settings_migration_manager'),
             '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
+            '$settingsCache' => service('jbtronics.settings.settings_cache'),
             '$saveAfterMigration' => false,
-            '$settingsCache' => false,
+            '$cacheEnabled' => false, //We do not want to cache the env persister, as it is only used once
             //Important !
             '$undoNonPersistentEnv' => false,
         ]);
@@ -260,6 +261,17 @@ return static function (ContainerConfigurator $container) {
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface::class,
         'jbtronics.settings.settings_migration_manager');
+
+    $services->set('jbtronics.settings.env_var_to_settings_migrator',
+    \Jbtronics\SettingsBundle\Migrations\EnvVarToSettingsMigrator::class)
+        ->args([
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
+            '$settingsManager' => service('jbtronics.settings.settings_manager'),
+            '$settingsResetter' => service('jbtronics.settings.settings_resetter'),
+            '$envVarHydrator' => service('jbtronics.settings.settings_hydrator.env_persister'),
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Migrations\EnvVarToSettingsMigratorInterface::class,
+        'jbtronics.settings.env_var_to_settings_migrator');
 
     /**********************************************************************************
      * Parameter Types

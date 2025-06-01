@@ -53,8 +53,21 @@ use Doctrine\DBAL\Types\Types;
 class MySettingsORMEntry extends AbstractSettingsORMEntry
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: Types::INTEGER)]
-    private int $id;
+    protected int $id;
 }
+```
+
+For it to behave properly you need to register the superclass mapping in your doctrine configuration, so that the ORM knows
+how to handle `AbstractSettingsORMEntry` entities. This can be done by setting `auto_mapping` in your doctrine ORM configuration,
+or by explicitly registering the bundle with doctrine ORM in your `doctrine.yaml` configuration file:
+
+```yaml
+doctrine:
+  orm:
+    # auto_mapping: true # Sets the auto-mapping for all bundles
+    mappings: # Or configure it explicitly
+      JbtronicsSettingsBundle:
+        type: attribute
 ```
 
 For performance reasons the ORMStorageAdapter performs a `SELECT *` query to load all settings data at once, to save a lot of single queries. 

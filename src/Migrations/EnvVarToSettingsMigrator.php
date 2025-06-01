@@ -28,9 +28,11 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Migrations;
 
+use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsResetterInterface;
+use Jbtronics\SettingsBundle\Manager\SettingsValidatorInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 
@@ -41,10 +43,11 @@ final class EnvVarToSettingsMigrator implements EnvVarToSettingsMigratorInterfac
         private readonly SettingsManagerInterface $settingsManager,
         private readonly SettingsResetterInterface $settingsResetter,
         private readonly SettingsHydratorInterface $envVarHydrator,
+        private readonly SettingsValidatorInterface $settingsValidator,
     ) {
     }
 
-    public function migrate(SettingsMetadata|string $settingsClass): void
+    public function migrate(SettingsMetadata|string $settingsClass, bool $check_validity = true): void
     {
         if (is_string($settingsClass)) {
             $settingsMetadata = $this->metadataManager->getSettingsMetadata($settingsClass);
@@ -55,6 +58,15 @@ final class EnvVarToSettingsMigrator implements EnvVarToSettingsMigratorInterfac
         //Load the currently stored instance of the settings
         $settings = $this->settingsResetter->newInstance($settingsMetadata);
         $settings = $this->envVarHydrator->hydrate($settings, $settingsMetadata, true);
+
+        //If the settings should be validated, we check if the settings are valid.
+        if ($check_validity) {
+            $errors = $this->settingsValidator->validate($settings);
+            if (count($errors) > 0) {
+                throw SettingsNotValidException::createForSingleClass($settingsMetadata->getClassName(), $errors);
+            }
+        }
+
 
         //The settings instance already contains the values from the environment variables.
         //Now we just need to save the settings instance to the database

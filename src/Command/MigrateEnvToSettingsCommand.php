@@ -57,12 +57,16 @@ class MigrateEnvToSettingsCommand extends Command
     {
         $this
             ->addArgument("settings", description: "The class of the setting that should be migrated. If this is not set, the user will be asked which setting should be migrated.")
-            ->addOption('all', description: "Migrate the environment variables of all settings available in the application");
+            ->addOption('all', "a", description: "Migrate the environment variables of all settings available in the application")
+            ->addOption('no-validation', description: "Do not validate the settings before saving them. This will skip the validation step and save the settings directly, which can lead to invalid settings being saved.")
+            ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+
+        $noValidation = $input->getOption('no-validation');
 
         //Collect the settings that should be migrated
         $settingsToMigrate = [];
@@ -104,6 +108,10 @@ class MigrateEnvToSettingsCommand extends Command
 
         $io->note(sprintf("The following environment variables will be migrated: %s", implode(", ", $affectedEnvVars)));
 
+        if($noValidation) {
+            $io->warning("Validation of settings will be skipped! This can lead to invalid settings being saved. Use this option with caution!");
+        }
+
         if (!$io->confirm("Do you want to continue with the migration?", true)) {
             $io->error("Migration aborted by user.");
             return Command::FAILURE;
@@ -113,7 +121,7 @@ class MigrateEnvToSettingsCommand extends Command
 
         foreach ($settingsToMigrate as $metadata) {
             /** @var SettingsMetadata $metadata */
-            $this->envVarToSettingsMigrator->migrate($metadata);
+            $this->envVarToSettingsMigrator->migrate($metadata, !$noValidation);
         }
         $io->success("Migration completed successfully!");
 

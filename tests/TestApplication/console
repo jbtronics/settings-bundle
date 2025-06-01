@@ -10,6 +10,10 @@ set_time_limit(0);
 
 require_once dirname(__DIR__).'/../vendor/autoload.php';
 
+
+$_ENV['ENV_VALUE2'] = "true";
+$_SERVER['ENV_VALUE3'] = "12";
+
 $input = new ArgvInput();
 
 if ($_SERVER['APP_DEBUG'] ?? true) {

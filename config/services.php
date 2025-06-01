@@ -269,6 +269,7 @@ return static function (ContainerConfigurator $container) {
             '$settingsManager' => service('jbtronics.settings.settings_manager'),
             '$settingsResetter' => service('jbtronics.settings.settings_resetter'),
             '$envVarHydrator' => service('jbtronics.settings.settings_hydrator.env_persister'),
+            '$settingsValidator' => service('jbtronics.settings.settings_validator'),
         ]);
     $services->alias(\Jbtronics\SettingsBundle\Migrations\EnvVarToSettingsMigratorInterface::class,
         'jbtronics.settings.env_var_to_settings_migrator');

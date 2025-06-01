@@ -242,6 +242,7 @@ class SettingsHydratorTest extends WebTestCase
             'value1' => 'changed',
             'value3' => -123,
             'value4' => true,
+            'value5' => 0.0
         ], $data);
 
         //Unset the environment variable to prevent side effects

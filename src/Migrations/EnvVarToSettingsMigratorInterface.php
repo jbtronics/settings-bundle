@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Migrations;
 
+use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 
 /**
@@ -44,10 +45,14 @@ interface EnvVarToSettingsMigratorInterface
      * The settings will be written to the storage, including all environment variables, that would
      * normally not be saved due to the envVarMode.
      * It loads its own instance directly from storage, so this behaves not like a normal settings save.
+     * If the $check_validity is set to true, it will check if the settings metadata is valid, and throw an exception
+     * if not valid.
      * @param  SettingsMetadata|string  $settingsClass
+     * @param bool $check_validity
+     * @throws SettingsNotValidException If $check_validity is true and the settings metadata is not valid.
      * @return void
      */
-    public function migrate(SettingsMetadata|string $settingsClass): void;
+    public function migrate(SettingsMetadata|string $settingsClass, bool $check_validity = true): void;
 
     /**
      * Returns a list of environment variables that were/will be affected by the migration of the given settings metadata.

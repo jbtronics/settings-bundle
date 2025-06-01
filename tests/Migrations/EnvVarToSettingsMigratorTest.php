@@ -25,6 +25,7 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Migrations;
 
+use Jbtronics\SettingsBundle\Exception\SettingsNotValidException;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
@@ -109,6 +110,7 @@ class EnvVarToSettingsMigratorTest extends KernelTestCase
             'value2' => true,
             'value3' => 123.4, //Mapper overwrites value from env
             'value4' => null,
+            'value5' => 0.0
         ], $settings);
 
         //Unset the environment variable to avoid side effects
@@ -121,7 +123,6 @@ class EnvVarToSettingsMigratorTest extends KernelTestCase
         return [
             [NonCloneableSettings::class],
 
-            [EnvVarSettings::class],
             [CacheableSettings::class],
             [EmbedSettings::class],
             [GuessableSettings::class],
@@ -163,5 +164,28 @@ class EnvVarToSettingsMigratorTest extends KernelTestCase
         //After migration, the storage adapter should contain the same values
         $this->assertIsArray($new);
         $this->assertSame($original, $new);
+    }
+
+    public function testMigrateValidation(): void
+    {
+        /** @var SettingsMetadata $metadata */
+        $metadata = $this->metadataManager->getSettingsMetadata(EnvVarSettings::class);
+        $this->assertEquals(InMemoryStorageAdapter::class, $metadata->getStorageAdapter());
+
+
+        //Set environment variable to test
+        $_ENV['ENV_VALUE5'] = "-100.5"; //This is an invalid value for the setting, should trigger validation error
+
+        //Migrate the settings
+
+        //without validation, this should work flawlessly
+        $this->service->migrate(EnvVarSettings::class, false);
+
+        //With validation, this should throw an exception
+        $this->expectException(SettingsNotValidException::class);
+        $this->service->migrate(EnvVarSettings::class);
+
+        //Unset the environment variable to avoid side effects
+        unset($_ENV['ENV_VALUE5']);
     }
 }

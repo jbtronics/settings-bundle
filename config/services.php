@@ -334,7 +334,6 @@ return static function (ContainerConfigurator $container) {
     $services->set('jbtronics.settings.command.migrate_env_to_settings', \Jbtronics\SettingsBundle\Command\MigrateEnvToSettingsCommand::class)
         ->args([
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
-            '$settingsManager' => service('jbtronics.settings.settings_manager'),
             '$metadataManager' => service('jbtronics.settings.metadata_manager'),
             '$envVarToSettingsMigrator' => service('jbtronics.settings.env_var_to_settings_migrator'),
         ])

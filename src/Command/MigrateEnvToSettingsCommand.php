@@ -45,7 +45,6 @@ class MigrateEnvToSettingsCommand extends Command
 {
     public function __construct(
         private readonly SettingsRegistryInterface $settingsRegistry,
-        private readonly SettingsManagerInterface $settingsManager,
         private readonly MetadataManagerInterface $metadataManager,
         private readonly EnvVarToSettingsMigratorInterface $envVarToSettingsMigrator,
         )

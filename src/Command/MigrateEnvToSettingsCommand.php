@@ -40,7 +40,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: "settings:migrate-env-to-settings", description: "Migrates environment variables to settings")]
+#[AsCommand(name: "settings:migrate-env-to-settings", description: "Migrates environment variables to stored settings parameters")]
 class MigrateEnvToSettingsCommand extends Command
 {
     public function __construct(
@@ -56,6 +56,7 @@ class MigrateEnvToSettingsCommand extends Command
     protected function configure()
     {
         $this
+            ->setHelp('This command allows to migrate environment variables to settings parameters. The env variables will be applied to the selected settings objects and all parameters will be stored, no matter of the envVarMode. This is useful if you want to use the settings system instead of environment variables for configuration.')
             ->addArgument("settings", description: "The class of the setting that should be migrated. If this is not set, the user will be asked which setting should be migrated.")
             ->addOption('all', "a", description: "Migrate the environment variables of all settings available in the application")
             ->addOption('no-validation', description: "Do not validate the settings before saving them. This will skip the validation step and save the settings directly, which can lead to invalid settings being saved.")

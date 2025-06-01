@@ -42,7 +42,7 @@ class NonCloneableSettings
 
     //The type option here is just to get a valid metadata object, it is not actually hydratable
     #[SettingsParameter(type: BoolType::class)]
-    public NonCloneableClass $nonCloneable;
+    public ?NonCloneableClass $nonCloneable = null;
 
     public function __construct()
     {

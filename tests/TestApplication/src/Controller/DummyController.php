@@ -29,6 +29,7 @@ use Jbtronics\SettingsBundle\Form\SettingsFormFactoryInterface;
 use Jbtronics\SettingsBundle\Manager\EnvVarValueResolverInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
+use Jbtronics\SettingsBundle\Migrations\EnvVarToSettingsMigratorInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
@@ -46,6 +47,7 @@ class DummyController
     private readonly SettingsManagerInterface $settingsManager,
     private readonly SettingsFormFactoryInterface $formFactory,
     private readonly EnvVarValueResolverInterface $containerParamManager,
+        private readonly EnvVarToSettingsMigratorInterface $envVarToSettingsMigrator,
     )
     {
     }

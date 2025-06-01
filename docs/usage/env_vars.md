@@ -94,6 +94,21 @@ settings again.
 If you implement your own form, you can use the  `isEnvVarOverwritten()` method on the SettingsManagerInterface to check
 if a parameter is overwritten by an env var.
 
+## Migrate environment variables to stored settings
+
+If you have environment variables set, but want to migrate them to stored settings, you can use the `settings:migrate-env-to-settings`
+command defined by the bundle (or the `EnvVarToSettingsMigratorInterface` service if you want to do it programmatically).
+
+This command will resolve the environment variables and store the resulting values in the settings storage, no matter of
+the env var mode set on the parameters. This allows you to remove the environment variables afterwards and still have the
+value configured in the settings storage.
+
+This is especially useful if you add this bundle to an existing applicatio, which so far was only configurable via
+environment variables.
+
+The command will validate the settings and will not store them, if the validation fails. You can override this behavior 
+with the `--no-validation` option, but this is not recommended, as it can lead to invalid settings
+
 ## Limitations
 
 You must ensure that the environment variables are converted to the correct type, which the parameter expects. Otherwise,

@@ -33,6 +33,7 @@ use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
+use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
 #[Settings(storageAdapter: InMemoryStorageAdapter::class)]
 class EnvVarSettings
@@ -48,6 +49,10 @@ class EnvVarSettings
 
     #[SettingsParameter(envVar: 'ENV_VALUE4', envVarMode: EnvVarMode::OVERWRITE_PERSIST, envVarMapper: BoolType::class)]
     public ?bool $value4 = false;
+
+    #[SettingsParameter(envVar: 'ENV_VALUE5', envVarMode: EnvVarMode::OVERWRITE_PERSIST)]
+    #[PositiveOrZero]
+    public float $value5 = 0.0;
 
 
     public static function envVarMapper(mixed $value): mixed

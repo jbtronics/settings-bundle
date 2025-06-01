@@ -124,6 +124,21 @@ return static function (ContainerConfigurator $container) {
         ]);
     $services->alias(SettingsHydratorInterface::class, 'jbtronics.settings.settings_hydrator');
 
+    //This is a special version of the SettingsHydrator, used to persist the settings to the environment variables,
+    //even if they would normally not be persisted
+    $services->set('jbtronics.settings.settings_hydrator.env_persister', SettingsHydrator::class)
+        ->args([
+            '$storageAdapterRegistry' => service('jbtronics.settings.storage_adapter_registry'),
+            '$parameterTypeRegistry' => service('jbtronics.settings.parameter_type_registry'),
+            '$migrationsManager' => service('jbtronics.settings.settings_migration_manager'),
+            '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
+            '$settingsCache' => service('jbtronics.settings.settings_cache'),
+            '$saveAfterMigration' => false,
+            '$cacheEnabled' => false, //We do not want to cache the env persister, as it is only used once
+            //Important !
+            '$undoNonPersistentEnv' => false,
+        ]);
+
     $services->set('jbtronics.settings.settings_resetter', SettingsResetter::class)
         ->args([
             '$envVarValueResolver' => service('jbtronics.settings.env_var_value_resolver'),
@@ -247,6 +262,18 @@ return static function (ContainerConfigurator $container) {
     $services->alias(\Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface::class,
         'jbtronics.settings.settings_migration_manager');
 
+    $services->set('jbtronics.settings.env_var_to_settings_migrator',
+    \Jbtronics\SettingsBundle\Migrations\EnvVarToSettingsMigrator::class)
+        ->args([
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
+            '$settingsManager' => service('jbtronics.settings.settings_manager'),
+            '$settingsResetter' => service('jbtronics.settings.settings_resetter'),
+            '$envVarHydrator' => service('jbtronics.settings.settings_hydrator.env_persister'),
+            '$settingsValidator' => service('jbtronics.settings.settings_validator'),
+        ]);
+    $services->alias(\Jbtronics\SettingsBundle\Migrations\EnvVarToSettingsMigratorInterface::class,
+        'jbtronics.settings.env_var_to_settings_migrator');
+
     /**********************************************************************************
      * Parameter Types
      **********************************************************************************/
@@ -299,5 +326,19 @@ return static function (ContainerConfigurator $container) {
             '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
             '$logger' => service('logger')->nullOnInvalid(),
         ]);
+
+    /*************************************************************************************
+     * Commands
+     *************************************************************************************/
+
+    $services->set('jbtronics.settings.command.migrate_env_to_settings', \Jbtronics\SettingsBundle\Command\MigrateEnvToSettingsCommand::class)
+        ->args([
+            '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
+            '$settingsManager' => service('jbtronics.settings.settings_manager'),
+            '$metadataManager' => service('jbtronics.settings.metadata_manager'),
+            '$envVarToSettingsMigrator' => service('jbtronics.settings.env_var_to_settings_migrator'),
+        ])
+        ->tag('console.command')
+    ;
 
 };

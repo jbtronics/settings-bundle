@@ -25,6 +25,8 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
+use InvalidArgumentException;
+
 /**
  * This interface defines contracts to get all defined configuration classes.
  */
@@ -41,6 +43,7 @@ interface SettingsRegistryInterface
      * Returns the settings class name for the given settings (short) name.
      * @param  string  $name The name of the settings class
      * @return string The settings class for the given short name
+     * @throws InvalidArgumentException If no settings class with the given name exists.
      */
     public function getSettingsClassByName(string $name): string;
 }

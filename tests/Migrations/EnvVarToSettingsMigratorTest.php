@@ -64,7 +64,7 @@ class EnvVarToSettingsMigratorTest extends KernelTestCase
         unset($_ENV['ENV_VALUE3']);
     }
 
-    public function testMigrate()
+    public function testMigrate(): void
     {
         /** @var SettingsMetadata $metadata */
         $metadata = $this->metadataManager->getSettingsMetadata(EnvVarSettings::class);

@@ -25,19 +25,33 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Migrations;
 
+use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
+use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Jbtronics\SettingsBundle\Migrations\EnvVarToSettingsMigratorInterface;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\NonCloneableClass;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CacheableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\MergeableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\NonCloneableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\VarExporter\LazyObjectInterface;
 
 class EnvVarToSettingsMigratorTest extends KernelTestCase
 {
     private EnvVarToSettingsMigratorInterface $service;
     private StorageAdapterInterface $storageAdapter;
     private MetadataManagerInterface $metadataManager;
+    private SettingsManagerInterface $settingsManager;
+    private SettingsHydratorInterface $settingsHydrator;
 
     public function setUp(): void
     {
@@ -45,6 +59,8 @@ class EnvVarToSettingsMigratorTest extends KernelTestCase
         $this->service = self::getContainer()->get(EnvVarToSettingsMigratorInterface::class);
         $this->metadataManager = self::getContainer()->get(MetadataManagerInterface::class);
         $this->storageAdapter = self::getContainer()->get(InMemoryStorageAdapter::class);
+        $this->settingsManager = self::getContainer()->get(SettingsManagerInterface::class);
+        $this->settingsHydrator = self::getContainer()->get(SettingsHydratorInterface::class);
     }
 
     public function testGetAffectedEnvVars(): void
@@ -98,5 +114,54 @@ class EnvVarToSettingsMigratorTest extends KernelTestCase
         //Unset the environment variable to avoid side effects
         unset($_ENV['ENV_VALUE2']);
         unset($_ENV['ENV_VALUE3']);
+    }
+
+    public function noChangeMigrateDataProvider(): array
+    {
+        return [
+            [NonCloneableSettings::class],
+
+            [EnvVarSettings::class],
+            [CacheableSettings::class],
+            [EmbedSettings::class],
+            [GuessableSettings::class],
+            [MergeableSettings::class],
+
+            [SimpleSettings::class],
+            [ValidatableSettings::class],
+            [VersionedSettings::class],
+        ];
+    }
+
+    /**
+     * @dataProvider noChangeMigrateDataProvider
+     * @param  string  $class
+     * @return void
+     */
+    public function testMigrateNoChange(string $class): void
+    {
+        //Save the settings to the storage adapter
+        $obj = $this->settingsManager->get($class);
+
+
+        /** @var SettingsMetadata $metadata */
+        $metadata = $this->metadataManager->getSettingsMetadata($class);
+        $this->assertEquals(InMemoryStorageAdapter::class, $metadata->getStorageAdapter());
+        //Force initialization of the settings object
+
+
+        $this->settingsHydrator->persist($obj, $metadata);
+
+        $original = $this->storageAdapter->load($metadata->getStorageKey()) ?? [];
+        var_dump($original);
+        $this->assertIsArray($original);
+
+        $this->service->migrate($class);
+
+        $new = $this->storageAdapter->load($metadata->getStorageKey()) ?? [];
+
+        //After migration, the storage adapter should contain the same values
+        $this->assertIsArray($new);
+        $this->assertSame($original, $new);
     }
 }

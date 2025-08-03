@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\Storage;
 
 
+use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -174,6 +175,18 @@ final class ORMStorageAdapter implements StorageAdapterInterface
                     'The table for the settings entity does not exist yet. Use doctrine schema:dump or doctrine migrations tools to create the table.'
                     . ' Otherwise an exception will be thrown when trying to save the settings. For now we just assume that no data was persisted yet and the default values should be used.'
                     . ' The exception was: ' . $exception->getMessage(),
+                    ['exception' => $exception]
+                );
+            }
+
+            return null;
+        } catch (ConnectionException $exception) {
+            //If the connection to the database failed, we fail gracefully and return null to indicate that no data was persisted yet
+
+            //If a logger is available, log the problem, so that the user knows he still need to create the table
+            if ($this->logger !== null) {
+                $this->logger->error(
+                    'The connection to the database failed. The settings can not be loaded. Default values for the settings will be used. The exception was: ' . $exception->getMessage(),
                     ['exception' => $exception]
                 );
             }

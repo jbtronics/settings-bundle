@@ -124,3 +124,15 @@ Embedded settings in a settings class are recursively rendered as subforms.
 This means you can define complex settings forms with nested subforms, by using the root settings (or any other node) of your settings hierarchy.
 
 If you have a non-tree structure (with circular references), the form builder will throw an exception, as it is not possible to render a circular form. In those cases, you will need to restrict the rendered form fields using the `groups` option.
+
+## Metadata in form templates
+
+Settings-bundle exposes the settings and parameter metadata to the form templates, so that you can customize the rendering
+of the settings form and enrich it with additional information. This can for example be used to give a user a hint, which
+environment variable he needs to set to override the settings value, or to show additional information about the settings parameter.
+
+Following variables are available (depending on context):
+* `settings_metadata`: The metadata of the settings class, which is used to render the form. Exists on the root form and all subforms
+* `embedded_settings_metadata`: The metadata of the embedded settings class, which is used to render the form. Exists on the form for the embedded settings class
+* `parameter_metadata`: The metadata of the settings parameter, which is used to render the form. Exists on the indifividual form fields level
+* `parameter_envvar`: The environment variable name, which can be used to override the settings parameter value. Exists on the individual form fields level

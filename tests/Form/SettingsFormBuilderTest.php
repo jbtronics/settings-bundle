@@ -66,7 +66,14 @@ class SettingsFormBuilderTest extends KernelTestCase
         $parameter = new ParameterMetadata(className: SimpleSettings::class, propertyName: 'test', type: StringType::class, nullable: false, formType: NumberType::class);
 
         //Ensure that the form builder is called with the correct arguments
-        $builder->expects($this->once())->method('add')->with('test', NumberType::class, ['label' => 'test', 'help' => null, 'required' => true]);
+        $builder->expects($this->once())->method('add')
+            ->with('test', NumberType::class, $this->callback(function ($arg) use ($parameter) {
+                return $arg['label'] === 'test'
+                    && $arg['help'] === null
+                    && $arg['required'] === true
+                    && $arg['parameter_metadata'] === $parameter
+                    && $arg['settings_metadata'] instanceof SettingsMetadata;
+            }));
 
         $this->service->addSettingsParameter($builder, $parameter);
     }
@@ -211,32 +218,61 @@ class SettingsFormBuilderTest extends KernelTestCase
         //Check for empty options
         $parameter = new ParameterMetadata(className: SimpleSettings::class, propertyName: 'test',
             type: StringType::class, nullable: false, name: 'Name', description: 'Description');
-        $this->assertEquals(['label' => 'Name', 'help' => 'Description', 'required' => true], $this->service->getFormOptions($parameter));
+        $array = $this->service->getFormOptions($parameter);
+        $this->assertEquals('Name', $array['label']);
+        $this->assertEquals('Description', $array['help']);
+        $this->assertTrue($array['required']);
+        $this->assertSame($parameter, $array['parameter_metadata']);
+        $this->assertInstanceOf(SettingsMetadata::class, $array['settings_metadata']);
 
         //For a nullable parameter, the required option should be set to false by default
         $parameter = new ParameterMetadata(className: SimpleSettings::class, propertyName: 'test',
             type: StringType::class, nullable: true, name: 'Name', description: 'Description');
-        $this->assertEquals(['label' => 'Name', 'help' => 'Description', 'required' => false], $this->service->getFormOptions($parameter));
+        $array = $this->service->getFormOptions($parameter);
+        $this->assertEquals('Name', $array['label']);
+        $this->assertEquals('Description', $array['help']);
+        $this->assertFalse($array['required']);
+        $this->assertSame($parameter, $array['parameter_metadata']);
+        $this->assertInstanceOf(SettingsMetadata::class, $array['settings_metadata']);
+
 
         //Test for overriding options in the parameter type
         $parameter = new ParameterMetadata(className: SimpleSettings::class, propertyName: 'test',
             type: BoolType::class, nullable: false, name: 'Name', description: 'Description');
         //The checkbox should not be required
-        $this->assertEquals(['label' => 'Name', 'help' => 'Description', 'required' => false], $this->service->getFormOptions($parameter));
+        $array = $this->service->getFormOptions($parameter);
+        $this->assertEquals('Name', $array['label']);
+        $this->assertEquals('Description', $array['help']);
+        $this->assertFalse($array['required']);
+        $this->assertSame($parameter, $array['parameter_metadata']);
+        $this->assertInstanceOf(SettingsMetadata::class, $array['settings_metadata']);
 
         //Test for overriding options in the schema
         $parameter = new ParameterMetadata(className: SimpleSettings::class, propertyName: 'test',
             type: StringType::class, nullable: false, name: 'Name', description: 'Description', formOptions: ['required' => false, 'test' => 'test']);
 
         //The text field should not be required
-        $this->assertEquals(['label' => 'Name', 'help' => 'Description', 'required' => false, 'test' => 'test'], $this->service->getFormOptions($parameter));
+        $array = $this->service->getFormOptions($parameter);
+        $this->assertEquals('Name', $array['label']);
+        $this->assertEquals('Description', $array['help']);
+        $this->assertFalse($array['required']);
+        $this->assertEquals('test', $array['test']);
+        $this->assertSame($parameter, $array['parameter_metadata']);
+        $this->assertInstanceOf(SettingsMetadata::class, $array['settings_metadata']);
 
         //Test for overriding by giving options to the builder
         $parameter = new ParameterMetadata(className: SimpleSettings::class, propertyName: 'test',
             type: StringType::class, nullable: false, name: 'Name', description: 'Description', formOptions: ['required' => false, 'test' => 'test']);
 
         //The text field should not be required
-        $this->assertEquals(['label' => 'Name', 'help' => 'Description', 'required' => true, 'test' => 'other'], $this->service->getFormOptions($parameter, ['required' => true, 'test' => 'other']));
+        $array = $this->service->getFormOptions($parameter, ['required' => true, 'test' => 'other']);
+        $this->assertEquals('Name', $array['label']);
+        $this->assertEquals('Description', $array['help']);
+        $this->assertTrue($array['required']);
+        $this->assertEquals('other', $array['test']);
+        $this->assertSame($parameter, $array['parameter_metadata']);
+        $this->assertInstanceOf(SettingsMetadata::class, $array['settings_metadata']);
+
     }
 
     public function testGetFormOptionsEnvVarOverride(): void

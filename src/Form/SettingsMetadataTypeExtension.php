@@ -54,7 +54,13 @@ class SettingsMetadataTypeExtension extends AbstractTypeExtension
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefined('settings_metadata');
-        $resolver->setAllowedTypes('settings_metadata', ['null', ParameterMetadata::class, SettingsMetadata::class, EmbeddedSettingsMetadata::class]);
+        $resolver->setAllowedTypes('settings_metadata', ['null', SettingsMetadata::class]);
+
+        $resolver->setDefined('parameter_metadata');
+        $resolver->setAllowedTypes('parameter_metadata', ['null', ParameterMetadata::class]);
+
+        $resolver->setDefined('embedded_settings_metadata');
+        $resolver->setAllowedTypes('embedded_settings_metadata', ['null', EmbeddedSettingsMetadata::class]);
     }
 
     public function finishView(FormView $view, FormInterface $form, array $options): void
@@ -62,21 +68,15 @@ class SettingsMetadataTypeExtension extends AbstractTypeExtension
         //Only become active, if the settings_metadata option is set
         if (isset($options['settings_metadata'])) {
             $view->vars['settings_metadata'] = $options['settings_metadata'];
+        }
 
-            if ($options['settings_metadata'] instanceof SettingsMetadata) {
-                $view->vars['settings_metadata_type'] = 'settings';
-            } elseif ($options['settings_metadata'] instanceof EmbeddedSettingsMetadata) {
-                $view->vars['settings_metadata_type'] = 'embedded';
-            } elseif ($options['settings_metadata'] instanceof ParameterMetadata) {
-                $view->vars['settings_metadata_type'] = 'parameter';
-            } else {
-                throw new \InvalidArgumentException('The "settings_metadata" option must be an instance of SettingsMetadata, EmbeddedSettingsMetadata or ParameterMetadata.');
-            }
+        if (isset($options['parameter_metadata'])) {
+            $view->vars['parameter_metadata'] = $options['parameter_metadata'];
+            $view->vars['parameter_envvar'] = $options['settings_metadata']->getBaseEnvVar();
+        }
 
-            //Add a special env variable to the form view
-            if ($options['settings_metadata'] instanceof ParameterMetadata) {
-                $view->vars['settings_envvar'] = $options['settings_metadata']->getBaseEnvVar();
-            }
+        if (isset($options['embedded_settings_metadata'])) {
+            $view->vars['embedded_settings_metadata'] = $options['embedded_settings_metadata'];
         }
     }
 }

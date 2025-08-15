@@ -31,6 +31,7 @@ namespace Jbtronics\SettingsBundle\Form;
 use Jbtronics\SettingsBundle\Metadata\EmbeddedSettingsMetadata;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
+use PhpParser\Node\Param;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormInterface;
@@ -72,7 +73,9 @@ class SettingsMetadataTypeExtension extends AbstractTypeExtension
 
         if (isset($options['parameter_metadata'])) {
             $view->vars['parameter_metadata'] = $options['parameter_metadata'];
-            $view->vars['parameter_envvar'] = $options['settings_metadata']->getBaseEnvVar();
+            if ($options['parameter_metadata'] instanceof ParameterMetadata) {
+                $view->vars['parameter_envvar'] = $options['parameter_metadata']->getBaseEnvVar();
+            }
         }
 
         if (isset($options['embedded_settings_metadata'])) {

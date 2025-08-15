@@ -69,6 +69,8 @@ final class SettingsFormFactory implements SettingsFormFactoryInterface
             $settings = $this->settingsManager->get($settings);
         }
 
+        $formOptions['settings_metadata'] = $settingsMetadata;
+
         $formBuilder = $this->formFactory->createBuilder(data: $settings, options: $formOptions);
         $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsMetadata, [], groups: $groups);
 
@@ -108,6 +110,8 @@ final class SettingsFormFactory implements SettingsFormFactoryInterface
                 $deprecation_triggered = true;
                 $setting = $this->settingsManager->get($setting);
             }
+
+            $formOptions['settings_metadata'] = $settingsMetadata;
 
             //Create sub form builder for the settings with the name of the settings class
             $subBuilder = $this->formFactory->createNamedBuilder($settingsMetadata->getName(),

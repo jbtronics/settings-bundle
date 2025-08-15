@@ -250,6 +250,10 @@ return static function (ContainerConfigurator $container) {
     $services->alias(\Jbtronics\SettingsBundle\Form\SettingsFormFactoryInterface::class,
         'jbtronics.settings.settings_form_factory');
 
+    $services->set('jbtronics.settings.settings_metadata_extension',
+        \Jbtronics\SettingsBundle\Form\SettingsMetadataTypeExtension::class)
+        ->tag('form.type_extension');
+
     /*************************************************************************************
      * Migrations subsystem
      *************************************************************************************/

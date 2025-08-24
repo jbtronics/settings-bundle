@@ -133,4 +133,24 @@ class SettingsCacheTest extends KernelTestCase
         //Invalidate cache to prevent side-effects
         $this->settingsCache->invalidateData($metadata);
     }
+
+    public function testEnvVARInvalidation(): void
+    {
+        $_ENV['ENV_VALUE2'] = "initial";
+
+        $metadata = $this->metadataManager->getSettingsMetadata(CacheableSettings::class);
+        $settings = new CacheableSettings();
+        $this->settingsCache->setData($metadata, $settings);
+        $this->assertTrue($this->settingsCache->hasData($metadata));
+
+        //Change the env var, the cache must be invalidated
+        $_ENV['ENV_VALUE2'] = "changed";
+        $this->assertFalse($this->settingsCache->hasData($metadata));
+        $this->settingsCache->setData($metadata, $settings);
+        $this->assertTrue($this->settingsCache->hasData($metadata));
+
+        unset($_ENV['ENV_VALUE2']);
+        //The cache must be invalidated again
+        $this->assertFalse($this->settingsCache->hasData($metadata));
+    }
 }

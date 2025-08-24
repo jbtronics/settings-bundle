@@ -383,4 +383,9 @@ class SettingsMetadataTest extends TestCase
         $params = $this->configSchema->getParametersWithEnvVar([EnvVarMode::OVERWRITE_PERSIST]);
         $this->assertEmpty($params);
     }
+
+    public function testGetCacheAffectingEnvVars(): void
+    {
+        $this->assertSame(['ENV_VAR2'], $this->configSchema->getCacheAffectingEnvVars());
+    }
 }

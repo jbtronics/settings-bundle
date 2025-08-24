@@ -71,6 +71,12 @@ class SettingsMetadata
     private readonly array $parametersWithEnvVars;
 
     /**
+     * @var string[] A list of environment variables, which affect the caching of this settings class.
+     * These are all env vars, which overwrite parameters which overwrite stored values.
+     */
+    private readonly array $cacheAffectingEnvVars;
+
+    /**
      * Create a new settings metadata instance
      * @param  string  $className  The class name of the settings class.
      * @phpstan-param  class-string<T> $className
@@ -155,6 +161,13 @@ class SettingsMetadata
             $parametersWithEnvVars[$mode->name][$parameterMetadatum->getName()] = $parameterMetadatum;
         }
         $this->parametersWithEnvVars = $parametersWithEnvVars;
+
+        $cacheAffectingEnvVars = array_map(
+            static fn(ParameterMetadata $param) => $param->getEnvVar(),
+            array_merge($this->parametersWithEnvVars[EnvVarMode::OVERWRITE->name] ?? [], $this->parametersWithEnvVars[EnvVarMode::OVERWRITE_PERSIST->name] ?? [])
+        );
+        //Ensure that the list is distinct
+        $this->cacheAffectingEnvVars = array_values(array_unique($cacheAffectingEnvVars));
     }
 
     /**
@@ -410,6 +423,16 @@ class SettingsMetadata
         if ($mode instanceof EnvVarMode) {
             return $this->parametersWithEnvVars[$mode->name] ?? [];
         }
+    }
+
+    /**
+     * Returns a list of all environment variables, which affect the cached values of this settings class.
+     * These are all env vars, which overwrite parameters which overwrite stored values.
+     * @return string[]
+     */
+    public function getCacheAffectingEnvVars(): array
+    {
+        return $this->cacheAffectingEnvVars;
     }
 
     /**

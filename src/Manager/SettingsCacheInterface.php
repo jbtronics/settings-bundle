@@ -74,4 +74,11 @@ interface SettingsCacheInterface
      * @return void
      */
     public function invalidateData(SettingsMetadata $settings): void;
+
+    /**
+     * Invalidates/removes all cached data for all settings objects.
+     * Afterward, hasData() will return false for all settings objects.
+     * @return void
+     */
+    public function invalidateAll(): void;
 }

@@ -32,6 +32,7 @@ use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Psr\Cache\CacheItemInterface;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 /**
  * @internal
@@ -39,9 +40,10 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 final class SettingsCache implements SettingsCacheInterface
 {
     private const CACHE_KEY_PREFIX = 'jbtronics_settings_';
+    private const CACHE_TAG = 'jbtronics_settings_cached_data';
 
     public function __construct(
-        private readonly AdapterInterface $cache,
+        private readonly TagAwareAdapterInterface $cache,
         private readonly int $ttl = 0
     )
     {
@@ -69,7 +71,9 @@ final class SettingsCache implements SettingsCacheInterface
 
     public function setData(SettingsMetadata $settings, object $value): void
     {
-        $item = $this->getCacheItem($settings)->set($this->toCacheableRepresentation($settings, $value));
+        $item = $this->getCacheItem($settings);
+        $item->set($this->toCacheableRepresentation($settings, $value));
+        $item->tag(self::CACHE_TAG);
         //Set the TTL if it is greater than 0
         if ($this->ttl > 0) {
             $item->expiresAfter($this->ttl);
@@ -120,5 +124,10 @@ final class SettingsCache implements SettingsCacheInterface
         }
 
         return $data;
+    }
+
+    public function invalidateAll(): void
+    {
+        $this->cache->invalidateTags([self::CACHE_TAG]);
     }
 }

@@ -33,6 +33,7 @@ use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
 use Psr\Cache\CacheItemInterface;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @internal
@@ -74,6 +75,9 @@ final class SettingsCache implements SettingsCacheInterface
     {
         $item = $this->getCacheItem($settings);
         $item->set($this->toCacheableRepresentation($settings, $value));
+        if (!$this->cache instanceof TagAwareAdapterInterface) {
+            throw new \RuntimeException('The cache pool must be tag-aware to use the settings cache.');
+        }
         $item->tag(self::CACHE_TAG);
         //Set the TTL if it is greater than 0
         if ($this->ttl > 0) {
@@ -87,7 +91,7 @@ final class SettingsCache implements SettingsCacheInterface
         $this->cache->deleteItem($this->getCacheKey($settings));
     }
 
-    private function getCacheItem(SettingsMetadata $settings): CacheItemInterface
+    private function getCacheItem(SettingsMetadata $settings): ItemInterface
     {
         return $this->cache->getItem($this->getCacheKey($settings));
     }

@@ -45,6 +45,7 @@ use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistry;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_locator;
 
@@ -201,7 +202,8 @@ return static function (ContainerConfigurator $container) {
         ->args([
             //The alias defined by JbtronicsSettingsExtension can be configured by users to use a different cache pool
             '$cache' => service('jbtronics.settings.cache.service'),
-            '$ttl' =>  '%jbtronics.settings.cache.ttl%'
+            '$ttl' =>  '%jbtronics.settings.cache.ttl%',
+            '$invalidateOnEnvChange' => param('jbtronics.settings.cache.invalidate_on_env_change'),
         ]);
     $services->alias(SettingsCacheInterface::class, 'jbtronics.settings.settings_cache');
 

@@ -51,6 +51,10 @@ jbtronics_settings:
         # The time in seconds, after which the cached settings expire
         # Zero means, that the settings never expire
         ttl: 0
+        
+        # If this is set to true, the cached settings data will be invalidated, if the environment variables change
+        # If this is set to false, you might need to clear the cache manually, to pick up changes to environment variables
+        invalidate_on_env_change: true
 
     # The configuration for file based storage adapters
     file_storage:

@@ -76,6 +76,7 @@ final class Configuration implements ConfigurationInterface
                 //By default, use the global cache pool
                 ->booleanNode('default_cacheable')->defaultFalse()->end()
                 ->integerNode('ttl')->defaultValue(0)->end()
+                ->booleanNode('invalidate_on_env_change')->defaultTrue()->end()
             ->end();
     }
 

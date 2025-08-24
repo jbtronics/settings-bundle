@@ -71,7 +71,7 @@ final class SettingsFormFactory implements SettingsFormFactoryInterface
 
         $formOptions['settings_metadata'] = $settingsMetadata;
 
-        $formOptions['help'] = $settingsMetadata->getDescription();
+        $formOptions['help'] = $formOptions['help'] ?? $settingsMetadata->getDescription();
 
         $formBuilder = $this->formFactory->createBuilder(data: $settings, options: $formOptions);
         $this->settingsFormBuilder->buildSettingsForm($formBuilder, $settingsMetadata, [], groups: $groups);

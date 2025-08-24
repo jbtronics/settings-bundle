@@ -152,5 +152,23 @@ class SettingsCacheTest extends KernelTestCase
         unset($_ENV['ENV_VALUE2']);
         //The cache must be invalidated again
         $this->assertFalse($this->settingsCache->hasData($metadata));
+
+        $this->settingsCache->invalidateData($metadata);
+    }
+
+    public function testInvalidateAll(): void
+    {
+        $simpleMetadata = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
+        $simpleSettings = new SimpleSettings();
+        $this->settingsCache->setData($simpleMetadata, $simpleSettings);
+        $this->assertTrue($this->settingsCache->hasData($simpleMetadata));
+        $cacheableMetadata = $this->metadataManager->getSettingsMetadata(CacheableSettings::class);
+        $cacheableSettings = new CacheableSettings();
+        $this->settingsCache->setData($cacheableMetadata, $cacheableSettings);
+        $this->assertTrue($this->settingsCache->hasData($cacheableMetadata));
+
+        $this->settingsCache->invalidateAll();
+        $this->assertFalse($this->settingsCache->hasData($simpleMetadata));
+        $this->assertFalse($this->settingsCache->hasData($cacheableMetadata));
     }
 }

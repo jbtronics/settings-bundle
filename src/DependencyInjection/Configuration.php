@@ -72,7 +72,7 @@ final class Configuration implements ConfigurationInterface
             ->arrayNode('cache')
                 ->addDefaultsIfNotSet()
                 ->children()
-                ->scalarNode('service')->defaultValue('cache.app')->end()
+                ->scalarNode('service')->defaultValue('cache.app.taggable')->end()
                 //By default, use the global cache pool
                 ->booleanNode('default_cacheable')->defaultFalse()->end()
                 ->integerNode('ttl')->defaultValue(0)->end()

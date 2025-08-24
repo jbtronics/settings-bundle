@@ -42,7 +42,7 @@ jbtronics_settings:
     # The configuration for caching of settings
     cache:
         # The service id of the cache pool in which the settings should be cached
-        service: 'cache.app'
+        service: 'cache.app.taggable'
         
         # The default value for all classes, where the cacheable option is not explictly set
         # True means, that the settings are cacheable and will be cached if possible

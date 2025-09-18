@@ -34,7 +34,7 @@ class SettingsNotValidException extends \RuntimeException
      */
     private readonly array $errors_per_class;
 
-    public function __construct(array $errors_per_class, Throwable $previous = null)
+    public function __construct(array $errors_per_class, ?Throwable $previous = null)
     {
         $this->errors_per_class = $errors_per_class;
 

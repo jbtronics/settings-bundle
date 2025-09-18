@@ -133,7 +133,7 @@ final class SettingsCloner implements SettingsClonerInterface
                 $copyEmbedded = PropertyAccessHelper::getProperty($copy, $embeddedSetting->getPropertyName());
 
                 //If the embedded setting is a lazy proxy and it was not yet initialized, we can skip it as the data was not modified
-                if (PHP_VERSION_ID >= 80400 && (new \ReflectionClass($copyEmbedded)->isUninitializedLazyObject($copyEmbedded))) { //PHP native way
+                if (PHP_VERSION_ID >= 80400 && (new \ReflectionClass($copyEmbedded))->isUninitializedLazyObject($copyEmbedded)) { //PHP native way
                     continue;
                 }
 

@@ -53,6 +53,11 @@ final class ProxyCacheWarmer implements CacheWarmerInterface
     public function warmUp(string $cacheDir, ?string $buildDir = null): array
     {
         $proxyDir = $this->proxyFactory->getProxyCacheDir();
+        if ($proxyDir === null) {
+            //No proxy classes needed (e.g. when using PHP 8.4 native objects)
+            return [];
+        }
+
         $files = [];
 
         //Retrieve all defined settings classes

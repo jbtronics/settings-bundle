@@ -78,8 +78,8 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         if (!$lazy) { //If we are not lazy, we initialize the settings class immediately
             $settings = $this->getInitializedVersion($settingsClass);
         } else { //Otherwise we create a lazy loading proxy
-            $settings = $this->proxyFactory->createProxy($settingsClass, function (SettingsProxyInterface $instance) use ($settingsClass) {
-                return $this->getInitializedVersion($settingsClass, $instance);
+            $settings = $this->proxyFactory->createProxy($settingsClass, function (object $instance) use ($settingsClass) {
+                $this->getInitializedVersion($settingsClass, $instance);
             });
         }
 
@@ -205,7 +205,11 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
             $instance = $this->get($class, true);
 
             //If the settings class is a proxy and was not yet initialized, we do not need to save it as it was not changed
-            if ($instance instanceof SettingsProxyInterface && $instance instanceof LazyObjectInterface && !$instance->isLazyObjectInitialized()) {
+            if (PHP_VERSION_ID >= 80400 && (new \ReflectionClass($instance)->isUninitializedLazyObject($instance))) { //PHP native way
+                continue;
+            }
+
+            if ($instance instanceof SettingsProxyInterface && $instance instanceof LazyObjectInterface && !$instance->isLazyObjectInitialized()) { //Fallback for older PHP versions
                 continue;
             }
 

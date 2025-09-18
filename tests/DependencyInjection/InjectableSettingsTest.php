@@ -29,7 +29,7 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\Tests\DependencyInjection;
 
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
-use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
+use Jbtronics\SettingsBundle\Tests\Proxy\LazyObjectTestHelper;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Service\InjectableSettingsTestService;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -55,7 +55,7 @@ class InjectableSettingsTest extends KernelTestCase
         $injectedInstance = $this->injectableSettingsTestService->simpleSettings;
 
         //The injected Instance should be lazy loaded
-        $this->assertInstanceOf(SettingsProxyInterface::class, $injectedInstance);
+        $this->assertTrue(LazyObjectTestHelper::isLazyObject($injectedInstance));
 
         $this->assertSame($this->simpleSettingsAsService, $injectedInstance);
 

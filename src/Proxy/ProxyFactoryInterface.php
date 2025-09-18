@@ -34,9 +34,10 @@ namespace Jbtronics\SettingsBundle\Proxy;
 interface ProxyFactoryInterface
 {
     /**
-     * Returns the directory, where the proxy classes are stored.
+     * Returns the directory, where the proxy classes are stored, or null if no proxies classes need to be cached
+     * (e.g. when using PHP 8.4 native objects)
      */
-    public function getProxyCacheDir(): string;
+    public function getProxyCacheDir(): ?string;
 
     /**
      * Generates the proxy classes for the given metadata.
@@ -53,9 +54,9 @@ interface ProxyFactoryInterface
      * @param  string $class
      * @phpstan-param class-string<T> $class
      * @param  \Closure  $initializer
-     * @return SettingsProxyInterface
-     * @phpstan-return T&SettingsProxyInterface
+     * @return object
+     * @phpstan-return T
      * @throws \ReflectionException
      */
-    public function createProxy(string $class, \Closure $initializer): SettingsProxyInterface;
+    public function createProxy(string $class, \Closure $initializer): object;
 }

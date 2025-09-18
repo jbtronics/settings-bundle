@@ -61,19 +61,32 @@ class_exists(\Symfony\Component\VarExporter\Internal\LazyObjectState::class);
 
 PHP;
 
+    /**
+     * @var bool If true the native ghost objects from PHP 8.4+ are used
+     */
+    private readonly bool $useNativeGhostObject;
+
 
     public function __construct(
         private readonly string $proxyDir,
         private readonly string $proxyNamespace,
     ) {
-
+        if (PHP_VERSION_ID >= 80400) {
+            $this->useNativeGhostObject = true;
+        } else {
+            $this->useNativeGhostObject = false;
+        }
     }
 
     /**
      * Returns the directory, where the proxy classes are stored.
      */
-    public function getProxyCacheDir(): string
+    public function getProxyCacheDir(): ?string
     {
+        if ($this->useNativeGhostObject) {
+            return null;
+        }
+
         return $this->proxyDir;
     }
 
@@ -85,6 +98,11 @@ PHP;
      */
     public function generateProxyClassFiles(array $classes): void
     {
+        //If we use native ghost objects, we don't need to generate proxy classes
+        if ($this->useNativeGhostObject) {
+            return;
+        }
+
         foreach ($classes as $class) {
             $this->generateProxyClassFile($class);
         }
@@ -94,11 +112,16 @@ PHP;
      * Creates a new lazy proxy/ghost instance for the given settings class and initializer.
      * @param  string $class
      * @param  \Closure  $initializer
-     * @return SettingsProxyInterface
+     * @return object
      * @throws \ReflectionException
      */
-    public function createProxy(string $class, \Closure $initializer): SettingsProxyInterface
+    public function createProxy(string $class, \Closure $initializer): object
     {
+        if ($this->useNativeGhostObject) {
+            $reflClass = new \ReflectionClass($class);
+            return $reflClass->newLazyGhost($initializer);
+        }
+
         $proxyClassName = $this->getProxyClassName($class);
         if (!class_exists($proxyClassName, false)) {
             // Load the proxy class file

@@ -32,6 +32,7 @@ use \Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * This interface is implemented by proxies that lazy load settings.
+ * @internal
  */
 interface SettingsProxyInterface extends LazyObjectInterface
 {

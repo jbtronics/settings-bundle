@@ -29,6 +29,7 @@ use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Manager\SettingsManager;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
+use Jbtronics\SettingsBundle\Tests\Proxy\LazyObjectTestHelper;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
@@ -110,7 +111,7 @@ class SettingsManagerTest extends KernelTestCase
     {
         $settings = $this->service->get(SimpleSettings::class, true);
         $this->assertInstanceOf(SimpleSettings::class, $settings);
-        $this->assertInstanceOf(SettingsProxyInterface::class, $settings);
+        $this->assertTrue(LazyObjectTestHelper::isLazyObject($settings));
 
         //Test if we can read the value
         $this->assertEquals('default', $settings->getValue1());
@@ -127,7 +128,7 @@ class SettingsManagerTest extends KernelTestCase
     {
         $settings = $this->service->get(SimpleSettings::class, true);
         $this->assertInstanceOf(SimpleSettings::class, $settings);
-        $this->assertInstanceOf(SettingsProxyInterface::class, $settings);
+        $this->assertTrue(LazyObjectTestHelper::isLazyObject($settings));
 
         //Change the value of the settings
         $settings->setValue1('changed');
@@ -149,10 +150,8 @@ class SettingsManagerTest extends KernelTestCase
 
         $this->assertInstanceOf(SimpleSettings::class, $settings->simpleSettings);
         //Should be a lazy loaded instance
-        $this->assertInstanceOf(SettingsProxyInterface::class, $settings->simpleSettings);
-        if ($settings->simpleSettings instanceof LazyObjectInterface) {
-            $this->assertFalse($settings->simpleSettings->isLazyObjectInitialized());
-        }
+        $this->assertTrue(LazyObjectTestHelper::isLazyObject($settings->simpleSettings));
+        $this->assertFalse(LazyObjectTestHelper::isLazyObjectInitialized($settings->simpleSettings));
 
         //The embedded settings should be identical to the ones we get via the settings manager
         $this->assertSame($settings->simpleSettings, $this->service->get(SimpleSettings::class));

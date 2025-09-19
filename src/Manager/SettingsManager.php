@@ -205,6 +205,7 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
             $instance = $this->get($class, true);
 
             //If the settings class is a proxy and was not yet initialized, we do not need to save it as it was not changed
+            //@phpstan-ignore-next-line (PHPStan does not handle the dynamic checks here well)
             if (PHP_VERSION_ID >= 80400 && (new \ReflectionClass($instance))->isUninitializedLazyObject($instance)) { //PHP native way
                 continue;
             }

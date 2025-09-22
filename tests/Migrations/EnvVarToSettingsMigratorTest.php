@@ -154,7 +154,6 @@ class EnvVarToSettingsMigratorTest extends KernelTestCase
         $this->settingsHydrator->persist($obj, $metadata);
 
         $original = $this->storageAdapter->load($metadata->getStorageKey()) ?? [];
-        var_dump($original);
         $this->assertIsArray($original);
 
         $this->service->migrate($class);

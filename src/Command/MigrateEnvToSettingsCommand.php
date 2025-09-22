@@ -52,7 +52,7 @@ class MigrateEnvToSettingsCommand extends Command
         parent::__construct(null);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setHelp('This command allows to migrate environment variables to settings parameters. The env variables will be applied to the selected settings objects and all parameters will be stored, no matter of the envVarMode. This is useful if you want to use the settings system instead of environment variables for configuration.')

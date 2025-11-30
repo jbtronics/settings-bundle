@@ -42,6 +42,8 @@ final class JbtronicsSettingsExtension extends Extension
 
     public const TAG_INJECTABLE_SETTINGS = 'jbtronics.settings.injectable_settings';
 
+    public const RESSOURCE_TAG_SETTINGS = 'jbtronics.settings';
+
 
     public function load(array $configs, ContainerBuilder $container): void
     {

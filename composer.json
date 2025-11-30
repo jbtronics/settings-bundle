@@ -52,7 +52,7 @@
     "doctrine/doctrine-bundle": "^2.11",
     "doctrine/orm": "^3.0",
     "doctrine/doctrine-fixtures-bundle": "^3.5",
-    "symfony/var-exporter": "^7.0|^8.0" 
+    "symfony/var-exporter": "^7.0|^8.0|^6.4" 
   },
   "config": {
     "allow-plugins": {

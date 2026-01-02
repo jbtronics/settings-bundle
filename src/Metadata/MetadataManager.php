@@ -86,7 +86,7 @@ final class MetadataManager implements MetadataManagerInterface
         if ($this->debug_mode) {
             $metadata = $this->getMetadataUncached($className);
         } else {
-            $metadata = $this->cache->get(self::CACHE_KEY_PREFIX.md5($className), function () use ($className) {
+            $metadata = $this->cache->get(self::CACHE_KEY_PREFIX.hash('xxh3', $className), function () use ($className) {
                 return $this->getMetadataUncached($className);
             });
         }
@@ -280,7 +280,7 @@ final class MetadataManager implements MetadataManagerInterface
         if ($this->debug_mode) {
             $embeddedCascade = $this->resolveEmbeddedCascadeUncached($className);
         } else {
-            $embeddedCascade = $this->cache->get(self::CACHE_KEY_EMBEDDED_PREFIX.md5($className), function () use ($className) {
+            $embeddedCascade = $this->cache->get(self::CACHE_KEY_EMBEDDED_PREFIX.hash('xxh3', $className), function () use ($className) {
                 return $this->resolveEmbeddedCascadeUncached($className);
             });
         }

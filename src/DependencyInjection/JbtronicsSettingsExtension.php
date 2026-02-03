@@ -78,6 +78,7 @@ final class JbtronicsSettingsExtension extends Extension
 
         $container->setParameter('jbtronics.settings.cache.default_cacheable', $config['cache']['default_cacheable']);
         $container->setAlias('jbtronics.settings.cache.service', $config['cache']['service']);
+        $container->setAlias('jbtronics.settings.cache.metadata_service', $config['cache']['metadata_service']);
         $container->setParameter('jbtronics.settings.cache.ttl', $config['cache']['ttl']);
         $container->setParameter('jbtronics.settings.cache.invalidate_on_env_change', $config['cache']['invalidate_on_env_change']);
     }

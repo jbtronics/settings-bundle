@@ -63,14 +63,14 @@ return static function (ContainerConfigurator $container) {
     $services->set('jbtronics.settings.settings_registry', SettingsRegistry::class)
         ->args([
             '$directories' => '%jbtronics.settings.search_paths%',
-            '$cache' => service('cache.app'),
+            '$cache' => service('jbtronics.settings.cache.metadata_service'),
             '$debug_mode' => '%kernel.debug%',
         ]);
     $services->alias(SettingsRegistryInterface::class, 'jbtronics.settings.settings_registry');
 
     $services->set('jbtronics.settings.metadata_manager', MetadataManager::class)
         ->args([
-            '$cache' => service('cache.app'),
+            '$cache' => service('jbtronics.settings.cache.metadata_service'),
             '$debug_mode' => '%kernel.debug%',
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$parameterTypeGuesser' => service('jbtronics.settings.parameter_type_guesser'),

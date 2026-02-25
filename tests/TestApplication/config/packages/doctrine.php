@@ -26,24 +26,30 @@
 declare(strict_types=1);
 
 
+$ormConfig = [
+    'auto_generate_proxy_classes' => true,
+    'naming_strategy' => 'doctrine.orm.naming_strategy.underscore_number_aware',
+    'auto_mapping' => true,
+    'mappings' => [
+        'TestEntities' => [
+            'is_bundle' => false,
+            'type' => 'attribute',
+            'dir' => '%kernel.project_dir%/src/Entity',
+            'prefix' => 'Jbtronics\SettingsBundle\Tests\TestApplication\Entity',
+            'alias' => 'app',
+        ],
+    ],
+];
+
+// Doctrine ORM supports native lazy objects on PHP 8.4+ via config.
+if (PHP_VERSION_ID >= 80400) {
+    $ormConfig['enable_native_lazy_objects'] = true;
+}
+
 $container->loadFromExtension('doctrine', [
     'dbal' => [
         'driver' => 'pdo_sqlite',
         'path' => '%kernel.cache_dir%/test_database.sqlite',
     ],
-
-    'orm' => [
-        'auto_generate_proxy_classes' => true,
-        'naming_strategy' => 'doctrine.orm.naming_strategy.underscore_number_aware',
-        'auto_mapping' => true,
-        'mappings' => [
-            'TestEntities' => [
-                'is_bundle' => false,
-                'type' => 'attribute',
-                'dir' => '%kernel.project_dir%/src/Entity',
-                'prefix' => 'Jbtronics\SettingsBundle\Tests\TestApplication\Entity',
-                'alias' => 'app',
-            ],
-        ],
-    ],
+    'orm' => $ormConfig,
 ]);

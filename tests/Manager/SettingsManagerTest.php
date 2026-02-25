@@ -37,7 +37,6 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\DataCollector\ValidatorDataCollector;
-use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * The functional/integration test for the SettingsManager
@@ -160,9 +159,7 @@ class SettingsManagerTest extends KernelTestCase
         $this->assertEquals('default', $settings->simpleSettings->getValue1());
 
 
-        if ($settings->simpleSettings instanceof LazyObjectInterface) {
-            $this->assertTrue($settings->simpleSettings->isLazyObjectInitialized());
-        }
+        $this->assertTrue(LazyObjectTestHelper::isLazyObjectInitialized($settings->simpleSettings));
     }
 
     public function testGetEmbeddedCircular(): void

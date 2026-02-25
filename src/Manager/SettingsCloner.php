@@ -37,7 +37,6 @@ use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\CloneAndMergeAwareSettingsInterface;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 use PhpParser\Node\Param;
-use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * @internal
@@ -138,7 +137,7 @@ final class SettingsCloner implements SettingsClonerInterface
                     continue;
                 }
 
-                if ($copyEmbedded instanceof SettingsProxyInterface && $copyEmbedded instanceof LazyObjectInterface && !$copyEmbedded->isLazyObjectInitialized()) { //Fallback for older PHP versions
+                if ($copyEmbedded instanceof SettingsProxyInterface && $this->isLegacyProxyUninitialized($copyEmbedded)) { //Fallback for older PHP versions
                     continue;
                 }
 
@@ -196,6 +195,23 @@ final class SettingsCloner implements SettingsClonerInterface
 
         //Otherwise use the cloneable flag from the parameter metadata
         return $parameterMetadata->isCloneable();
+    }
+
+    /**
+     * Checks if a legacy (pre-PHP 8.4) proxy is still uninitialized.
+     */
+    private function isLegacyProxyUninitialized(object $instance): bool
+    {
+        if (!method_exists($instance, 'isLazyObjectInitialized')) {
+            return false;
+        }
+
+        $method = new \ReflectionMethod($instance, 'isLazyObjectInitialized');
+        if ($method->getNumberOfParameters() >= 1) {
+            return !$instance->isLazyObjectInitialized(false);
+        }
+
+        return !$instance->isLazyObjectInitialized();
     }
 
     /**

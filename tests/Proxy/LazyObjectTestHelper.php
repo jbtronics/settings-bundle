@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\Tests\Proxy;
 
 use ReflectionClass;
-use Symfony\Component\VarExporter\LazyObjectInterface;
 
 final class LazyObjectTestHelper
 {
@@ -16,7 +15,13 @@ final class LazyObjectTestHelper
      */
     public static function isLazyObject(object $obj): bool
     {
-        if ($obj instanceof LazyObjectInterface){
+        if (interface_exists(\Symfony\Component\VarExporter\LazyObjectInterface::class)
+            && $obj instanceof \Symfony\Component\VarExporter\LazyObjectInterface
+        ) {
+            return true;
+        }
+
+        if (method_exists($obj, 'isLazyObjectInitialized')) {
             return true;
         }
 
@@ -36,8 +41,13 @@ final class LazyObjectTestHelper
      */
     public static function isLazyObjectInitialized(object $obj, bool $partial = false): bool
     {
-        if ($obj instanceof LazyObjectInterface){
-            return $obj->isLazyObjectInitialized($partial);
+        if (method_exists($obj, 'isLazyObjectInitialized')) {
+            $method = new \ReflectionMethod($obj, 'isLazyObjectInitialized');
+            if ($method->getNumberOfParameters() >= 1) {
+                return $obj->isLazyObjectInitialized($partial);
+            }
+
+            return $obj->isLazyObjectInitialized();
         }
 
         if (PHP_VERSION_ID >= 80400) {

@@ -66,7 +66,6 @@ PHP;
      */
     private readonly bool $useNativeGhostObject;
 
-
     public function __construct(
         private readonly string $proxyDir,
         private readonly string $proxyNamespace,

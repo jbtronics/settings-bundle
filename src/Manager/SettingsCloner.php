@@ -32,12 +32,12 @@ use Jbtronics\SettingsBundle\Exception\ParameterDataNotCloneableException;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Metadata\MetadataManager;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\Proxy\LegacyProxyHelper;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\CloneAndMergeAwareSettingsInterface;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 use PhpParser\Node\Param;
-use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * @internal
@@ -138,7 +138,7 @@ final class SettingsCloner implements SettingsClonerInterface
                     continue;
                 }
 
-                if ($copyEmbedded instanceof SettingsProxyInterface && $copyEmbedded instanceof LazyObjectInterface && !$copyEmbedded->isLazyObjectInitialized()) { //Fallback for older PHP versions
+                if ($copyEmbedded instanceof SettingsProxyInterface && LegacyProxyHelper::isLegacyProxyUninitialized($copyEmbedded)) { //Fallback for older PHP versions
                     continue;
                 }
 

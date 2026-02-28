@@ -30,7 +30,6 @@ use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\VarExporter\LazyObjectInterface;
 
 class ProxyFactoryTest extends KernelTestCase
 {
@@ -64,7 +63,7 @@ class ProxyFactoryTest extends KernelTestCase
             $instance->setValue1('Initialized');
         };
 
-        /** @var LazyObjectInterface&SimpleSettings&SettingsProxyInterface $proxy */
+        /** @var SimpleSettings&SettingsProxyInterface $proxy */
         $proxy = $this->proxyFactory->createProxy(SimpleSettings::class, $initializer);
         $this->assertInstanceOf(SimpleSettings::class, $proxy);
 

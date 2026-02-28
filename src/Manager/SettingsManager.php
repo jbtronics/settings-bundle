@@ -31,9 +31,9 @@ use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
 use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\Proxy\LegacyProxyHelper;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
-use Symfony\Component\VarExporter\LazyObjectInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -210,7 +210,7 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
                 continue;
             }
 
-            if ($instance instanceof SettingsProxyInterface && $instance instanceof LazyObjectInterface && !$instance->isLazyObjectInitialized()) { //Fallback for older PHP versions
+            if ($instance instanceof SettingsProxyInterface && LegacyProxyHelper::isLegacyProxyUninitialized($instance)) { //Fallback for older PHP versions
                 continue;
             }
 
@@ -233,6 +233,7 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         //Reset all cached settings classes, to trigger a reload on new requests
         $this->settings_by_class = [];
     }
+
 
     public function isEnvVarOverwritten(
         object|string $settings,

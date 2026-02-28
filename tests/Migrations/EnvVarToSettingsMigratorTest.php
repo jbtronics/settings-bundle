@@ -44,7 +44,6 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\VersionedSettings;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\VarExporter\LazyObjectInterface;
 
 class EnvVarToSettingsMigratorTest extends KernelTestCase
 {

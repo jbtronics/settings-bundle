@@ -66,7 +66,6 @@ PHP;
      */
     private readonly bool $useNativeGhostObject;
 
-
     public function __construct(
         private readonly string $proxyDir,
         private readonly string $proxyNamespace,
@@ -187,7 +186,12 @@ PHP;
      */
     protected function generateUseLazyGhostTrait(\ReflectionClass $reflClass): string
     {
-        $code = ProxyHelper::generateLazyGhost($reflClass);
+        $proxyHelper = new \ReflectionClass(ProxyHelper::class);
+        if (!$proxyHelper->hasMethod('generateLazyGhost')) {
+            throw new \RuntimeException('Lazy ghost proxy generation requires symfony/var-exporter < 8 or PHP 8.4+ native lazy objects.');
+        }
+
+        $code = (string) $proxyHelper->getMethod('generateLazyGhost')->invoke(null, $reflClass);
         $code = substr($code, 7 + (int) strpos($code, "\n{"));
         $code = substr($code, 0, (int) strpos($code, "\n}"));
         /*$code = str_replace('LazyGhostTrait;', str_replace("\n    ", "\n", 'LazyGhostTrait {

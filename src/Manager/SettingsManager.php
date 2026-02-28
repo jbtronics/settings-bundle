@@ -31,6 +31,7 @@ use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
 use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\Proxy\LegacyProxyHelper;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -209,7 +210,7 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
                 continue;
             }
 
-            if ($instance instanceof SettingsProxyInterface && $this->isLegacyProxyUninitialized($instance)) { //Fallback for older PHP versions
+            if ($instance instanceof SettingsProxyInterface && LegacyProxyHelper::isLegacyProxyUninitialized($instance)) { //Fallback for older PHP versions
                 continue;
             }
 
@@ -233,22 +234,6 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
         $this->settings_by_class = [];
     }
 
-    /**
-     * Checks if a legacy (pre-PHP 8.4) proxy is still uninitialized.
-     */
-    private function isLegacyProxyUninitialized(object $instance): bool
-    {
-        if (!method_exists($instance, 'isLazyObjectInitialized')) {
-            return false;
-        }
-
-        $method = new \ReflectionMethod($instance, 'isLazyObjectInitialized');
-        if ($method->getNumberOfParameters() >= 1) {
-            return !$instance->isLazyObjectInitialized(false);
-        }
-
-        return !$instance->isLazyObjectInitialized();
-    }
 
     public function isEnvVarOverwritten(
         object|string $settings,

@@ -27,12 +27,14 @@ namespace Jbtronics\SettingsBundle\Manager;
 
 use Ergebnis\Classy\Construct;
 use Ergebnis\Classy\Constructs;
+use Jbtronics\SettingsBundle\Metadata\Driver\MetadataDriverInterface;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * This class is responsible for getting all configuration classes, defined in the application.
- * It scans the files in the defined directories for classes with the #[ConfigClass] attribute.
+ * It scans the files in the defined directories for classes with the #[ConfigClass] attribute,
+ * and also discovers classes registered via metadata drivers (e.g. YAML configuration).
  */
 final class SettingsRegistry implements SettingsRegistryInterface
 {
@@ -43,11 +45,13 @@ final class SettingsRegistry implements SettingsRegistryInterface
      * @param  array  $directories The directories to scan for configuration classes
      * @param  CacheInterface  $cache The cache to use for caching the configuration classes
      * @param  bool  $debug_mode If true, the cache is ignored and the directories are scanned on every request
+     * @param  MetadataDriverInterface|null  $metadataDriver The metadata driver to use for discovering additional settings classes
      */
     public function __construct(
         private readonly array $directories,
         private readonly CacheInterface $cache,
         private readonly bool $debug_mode,
+        private readonly ?MetadataDriverInterface $metadataDriver = null,
     )
     {
     }
@@ -66,30 +70,57 @@ final class SettingsRegistry implements SettingsRegistryInterface
     {
         $classes = $this->searchInPathes($this->directories);
 
+        // Also discover classes from the metadata driver (e.g. YAML-configured classes)
+        if ($this->metadataDriver !== null) {
+            $driverClasses = $this->metadataDriver->getAllManagedClassNames();
+            $classes = array_unique(array_merge($classes, $driverClasses));
+        }
+
         $tmp = [];
 
         //Determine the short name for each class
         foreach ($classes as $class) {
-            $reflClass = new \ReflectionClass($class);
-            $attributes = $reflClass->getAttributes(Settings::class);
+            $name = $this->resolveSettingsName($class);
 
-            if (count($attributes) > 0) {
-                $attribute = $attributes[0];
-                /** @var Settings $settings */
-                $settings = $attribute->newInstance();
-
-                $name = $settings->name ?? self::generateDefaultNameFromClassName($class);
-
-                //Ensure that the name is unique
-                if (isset($tmp[$name])) {
-                    throw new \InvalidArgumentException(sprintf('There is already a class with the name %s (%s)!', $name, $tmp[$name]));
-                }
-
-                $tmp[$name] = $class;
+            if ($name === null) {
+                continue;
             }
+
+            //Ensure that the name is unique
+            if (isset($tmp[$name])) {
+                throw new \InvalidArgumentException(sprintf('There is already a class with the name %s (%s)!', $name, $tmp[$name]));
+            }
+
+            $tmp[$name] = $class;
         }
 
         return $tmp;
+    }
+
+    /**
+     * Resolves the settings name for a given class, using either attributes or the metadata driver.
+     * @return string|null The name, or null if the class is not a settings class
+     */
+    private function resolveSettingsName(string $class): ?string
+    {
+        $reflClass = new \ReflectionClass($class);
+        $attributes = $reflClass->getAttributes(Settings::class);
+
+        if (count($attributes) > 0) {
+            /** @var Settings $settings */
+            $settings = $attributes[0]->newInstance();
+            return $settings->name ?? self::generateDefaultNameFromClassName($class);
+        }
+
+        // Try the metadata driver for non-attribute classes (e.g. YAML)
+        if ($this->metadataDriver !== null && $this->metadataDriver->isSettingsClass($class)) {
+            $classMetadata = $this->metadataDriver->loadClassMetadata($class);
+            if ($classMetadata !== null) {
+                return $classMetadata->name ?? self::generateDefaultNameFromClassName($class);
+            }
+        }
+
+        return null;
     }
 
     /**

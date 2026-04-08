@@ -56,6 +56,11 @@ final class Configuration implements ConfigurationInterface
 
             ->booleanNode('save_after_migration')->defaultTrue()->end()
 
+            ->arrayNode('yaml_mapping_paths')
+                ->defaultValue([])
+                ->scalarPrototype()->end()
+            ->end()
+
             ->end();
 
         $this->addFileStorageConfiguration($rootNode);

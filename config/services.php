@@ -33,6 +33,10 @@ use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsResetter;
 use Jbtronics\SettingsBundle\Manager\SettingsResetterInterface;
+use Jbtronics\SettingsBundle\Metadata\Driver\AttributeDriver;
+use Jbtronics\SettingsBundle\Metadata\Driver\ChainDriver;
+use Jbtronics\SettingsBundle\Metadata\Driver\MetadataDriverInterface;
+use Jbtronics\SettingsBundle\Metadata\Driver\YamlDriver;
 use Jbtronics\SettingsBundle\Metadata\MetadataManager;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Migrations\SettingsMigrationInterface;
@@ -60,11 +64,31 @@ return static function (ContainerConfigurator $container) {
     $services->instanceof(\Jbtronics\SettingsBundle\Migrations\SettingsMigration::class)
         ->call('setParameterTypeRegistry', [service('jbtronics.settings.parameter_type_registry')]);
 
+    /**********************************************************************************
+     * Metadata Drivers
+     **********************************************************************************/
+    $services->set('jbtronics.settings.metadata_driver.attribute', AttributeDriver::class);
+
+    $services->set('jbtronics.settings.metadata_driver.yaml', YamlDriver::class)
+        ->args([
+            '$yamlMappingPaths' => '%jbtronics.settings.yaml_mapping_paths%',
+        ]);
+
+    $services->set('jbtronics.settings.metadata_driver', ChainDriver::class)
+        ->args([
+            '$drivers' => [
+                service('jbtronics.settings.metadata_driver.attribute'),
+                service('jbtronics.settings.metadata_driver.yaml'),
+            ],
+        ]);
+    $services->alias(MetadataDriverInterface::class, 'jbtronics.settings.metadata_driver');
+
     $services->set('jbtronics.settings.settings_registry', SettingsRegistry::class)
         ->args([
             '$directories' => '%jbtronics.settings.search_paths%',
             '$cache' => service('jbtronics.settings.cache.metadata_service'),
             '$debug_mode' => '%kernel.debug%',
+            '$metadataDriver' => service('jbtronics.settings.metadata_driver'),
         ]);
     $services->alias(SettingsRegistryInterface::class, 'jbtronics.settings.settings_registry');
 
@@ -74,6 +98,7 @@ return static function (ContainerConfigurator $container) {
             '$debug_mode' => '%kernel.debug%',
             '$settingsRegistry' => service('jbtronics.settings.settings_registry'),
             '$parameterTypeGuesser' => service('jbtronics.settings.parameter_type_guesser'),
+            '$metadataDriver' => service('jbtronics.settings.metadata_driver'),
             '$defaultStorageAdapter' => '%jbtronics.settings.default_storage_adapter%',
             '$defaultCacheable' => '%jbtronics.settings.cache.default_cacheable%',
         ]);

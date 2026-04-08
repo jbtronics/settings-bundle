@@ -21,6 +21,13 @@ jbtronics_settings:
     search_paths:
         - '%kernel.project_dir%/src/Settings'
 
+    # Directories containing YAML mapping files for settings classes.
+    # This allows defining settings metadata in YAML instead of PHP attributes.
+    # See the YAML Configuration documentation for more information.
+    yaml_mapping_paths: []
+    # Example:
+    #   - '%kernel.project_dir%/config/settings'
+
     # The class name of the service, which is used on all storage adapters if
     # non is set explicitly. Can be null, if the storage adapter is configured # explicitly everywhere
     default_storage_adapter: ~

@@ -29,6 +29,7 @@ use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
 use Jbtronics\SettingsBundle\Manager\SettingsRegistryInterface;
+use Jbtronics\SettingsBundle\Metadata\Driver\MetadataDriverInterface;
 use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
@@ -49,6 +50,7 @@ final class MetadataManager implements MetadataManagerInterface
         private readonly bool $debug_mode,
         private readonly SettingsRegistryInterface $settingsRegistry,
         private readonly ParameterTypeGuesserInterface $parameterTypeGuesser,
+        private readonly MetadataDriverInterface $metadataDriver,
         private readonly ?string $defaultStorageAdapter = null,
         private readonly bool $defaultCacheable = false,
     ) {
@@ -56,18 +58,14 @@ final class MetadataManager implements MetadataManagerInterface
 
     public function isSettingsClass(string|object $className): bool
     {
-        //If the given name is not a class name, try to resolve the name via SettingsRegistry
-        if (!class_exists($className)) {
+        if (is_object($className)) {
+            $className = ProxyClassNameHelper::resolveEffectiveClass($className);
+        } elseif (!class_exists($className)) {
+            //If the given name is not a class name, try to resolve the name via SettingsRegistry
             $className = $this->settingsRegistry->getSettingsClassByName($className);
         }
 
-        //Check if the given class contains a #[ConfigClass] attribute.
-        //If yes, return true, otherwise return false.
-
-        $reflClass = new \ReflectionClass($className);
-        $attributes = $reflClass->getAttributes(Settings::class);
-
-        return count($attributes) > 0;
+        return $this->metadataDriver->isSettingsClass($className);
     }
 
     public function getSettingsMetadata(string|object $className): SettingsMetadata
@@ -97,43 +95,34 @@ final class MetadataManager implements MetadataManagerInterface
 
     private function getMetadataUncached(string $className): SettingsMetadata
     {
-        //Retrieve the #[ConfigClass] attribute from the given class.
-        $reflClass = new \ReflectionClass($className);
-        $attributes = $reflClass->getAttributes(Settings::class);
+        $classAttribute = $this->metadataDriver->loadClassMetadata($className);
 
-        if (count($attributes) < 1) {
-            throw new \LogicException(sprintf('The class "%s" is not a config class. Add the #[Settings] attribute to the class.',
-                $className));
-        }
-        if (count($attributes) > 1) {
-            throw new \LogicException(sprintf('The class "%s" has more than one Settings atrributes! Only one is allowed',
+        if ($classAttribute === null) {
+            throw new \LogicException(sprintf('The class "%s" is not a settings class. Add the #[Settings] attribute to the class or configure it via YAML.',
                 $className));
         }
 
-        /** @var Settings $classAttribute */
-        $classAttribute = $attributes[0]->newInstance();
+        $parameterAttributes = $this->metadataDriver->loadParameterMetadata($className);
+        $embeddedAttributes = $this->metadataDriver->loadEmbeddedMetadata($className);
+
         $parameters = [];
         $embeddeds = [];
 
-
-        //Retrieve all parameter attributes on the properties of the given class
-        $reflProperties = PropertyAccessHelper::getProperties($className);
-        foreach ($reflProperties as $reflProperty) {
-
-            //Try to parse the parameter metadata from the property
-            $parameterMetadata = $this->parseParameterMetadata($className, $reflProperty, $classAttribute);
-            if ($parameterMetadata !== null) {
-                $parameters[] = $parameterMetadata;
-            }
-
-            //Try to parse the embedded metadata from the property
-            $embeddedMetadata = $this->parseEmbeddedMetadata($className, $reflProperty, $classAttribute);
-            if ($embeddedMetadata !== null) {
-                $embeddeds[] = $embeddedMetadata;
-            }
+        //Build parameter metadata from driver-provided attributes
+        foreach ($parameterAttributes as $propertyName => $attribute) {
+            $reflProperty = PropertyAccessHelper::getAccessibleReflectionProperty($className, $propertyName);
+            $parameterMetadata = $this->buildParameterMetadata($className, $reflProperty, $attribute, $classAttribute);
+            $parameters[] = $parameterMetadata;
         }
 
-        //Ensure that the settings version is greather than 0
+        //Build embedded metadata from driver-provided attributes
+        foreach ($embeddedAttributes as $propertyName => $attribute) {
+            $reflProperty = PropertyAccessHelper::getAccessibleReflectionProperty($className, $propertyName);
+            $embeddedMetadata = $this->buildEmbeddedMetadata($className, $reflProperty, $attribute, $classAttribute);
+            $embeddeds[] = $embeddedMetadata;
+        }
+
+        //Ensure that the settings version is greater than 0
         if ($classAttribute->version !== null && $classAttribute->version <= 0) {
             throw new \LogicException(sprintf("The version of the settings class %s must be greater than zero! %d given", $className, $classAttribute->version));
         }
@@ -159,29 +148,10 @@ final class MetadataManager implements MetadataManagerInterface
     }
 
     /**
-     * Tries to parse the embedded metadata from the given property. If the property is not an embedded settings, null is returned.
-     * @param  string  $className
-     * @param  \ReflectionProperty  $reflProperty
-     * @param  Settings  $classAttribute
-     * @return EmbeddedSettingsMetadata|null
+     * Builds embedded metadata from the given EmbeddedSettings attribute and reflection property.
      */
-    private function parseEmbeddedMetadata(string $className, \ReflectionProperty $reflProperty, Settings $classAttribute): ?EmbeddedSettingsMetadata
+    private function buildEmbeddedMetadata(string $className, \ReflectionProperty $reflProperty, EmbeddedSettings $attribute, Settings $classAttribute): EmbeddedSettingsMetadata
     {
-        $attributes = $reflProperty->getAttributes(EmbeddedSettings::class);
-        //Skip properties without a EmbeddedSettings attribute
-        if (count($attributes) < 1) {
-            return null;
-        }
-
-        if (count($attributes) > 1) {
-            throw new \LogicException(sprintf('The property "%s" of the class "%s" has more than one EmbeddedSettings attributes! Only one is allowed',
-                $reflProperty->getName(), $className));
-        }
-
-        //Create a new instance of the attribute
-        /** @var EmbeddedSettings $attribute */
-        $attribute = $attributes[0]->newInstance();
-
         //If the target class is not set explicitly, try to guess it from the property type
         $targetClass = $attribute->target;
         if ($targetClass === null) {
@@ -207,28 +177,10 @@ final class MetadataManager implements MetadataManagerInterface
     }
 
     /**
-     * Tries to parse the parameter metadata from the given property. If the property is not a settings parameter, null is returned.
-     * @param  string  $className
-     * @param  \ReflectionProperty  $reflProperty
-     * @param  Settings  $classAttribute
-     * @return ParameterMetadata|null
+     * Builds parameter metadata from the given SettingsParameter attribute and reflection property.
      */
-    private function parseParameterMetadata(string $className, \ReflectionProperty $reflProperty, Settings $classAttribute): ?ParameterMetadata
+    private function buildParameterMetadata(string $className, \ReflectionProperty $reflProperty, SettingsParameter $attribute, Settings $classAttribute): ParameterMetadata
     {
-        $attributes = $reflProperty->getAttributes(SettingsParameter::class);
-        //Skip properties without a SettingsParameter attribute
-        if (count($attributes) < 1) {
-            return null;
-        }
-        if (count($attributes) > 1) {
-            throw new \LogicException(sprintf('The property "%s" of the class "%s" has more than one ConfigEntry attributes! Only one is allowed',
-                $reflProperty->getName(), $className));
-        }
-
-        //Add it to our list
-        /** @var SettingsParameter $attribute */
-        $attribute = $attributes[0]->newInstance();
-
         //Try to guess type
         $type = $attribute->type ?? $this->parameterTypeGuesser->guessParameterType($reflProperty);
         if ($type === null) {

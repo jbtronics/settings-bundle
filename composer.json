@@ -18,10 +18,12 @@
   "authors": [
     {
       "name": "Jan Böhmer",
-      "email": "mail@jan-boehmer.de"
+      "email": "mail@jan-boehmer.de",
+      "role": "Maintainer"
     },
     {
-      "name": "Sviatoslav Vysitskyi"
+      "name": "Github Contributors",
+      "homepage": "https://github.com/jbtronics/settings-bundle/graphs/contributors"
     }
   ],
   "suggest": {

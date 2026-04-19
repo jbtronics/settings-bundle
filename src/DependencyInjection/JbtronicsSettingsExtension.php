@@ -91,9 +91,24 @@ final class JbtronicsSettingsExtension extends Extension
         $container->setParameter('jbtronics.settings.cache.invalidate_on_env_change', $config['cache']['invalidate_on_env_change']);
 
 
-        $container->setParameter('jbtronics.settings.metadata_compiler_providers', [
-            YamlDriver::class,
-        ]);
+        //When metadata compiler providers are configured, use that value
+        if (count($config['metadata_compiler_providers'] ?? []) > 0) {
+            //Set empty array, when first value is an empty string
+            if (count($config['metadata_compiler_providers']) === 1 && $config['metadata_compiler_providers'][0] === '') {
+                $config['metadata_compiler_providers'] = [];
+            }
+
+            $container->setParameter('jbtronics.settings.metadata_compiler_providers', $config['metadata_compiler_providers']);
+        } else {
+            $providers = [];
+
+            //Add YamlDriver as default, if yaml_mapping_paths are configured, otherwise don't add it, as it would be useless and just consume resources
+            if (count($container->getParameter('jbtronics.settings.yaml_mapping_paths')) > 0) {
+                $providers[] = YamlDriver::class;
+            }
+
+            $container->setParameter('jbtronics.settings.metadata_compiler_providers', $providers);
+        }
 
     }
 }

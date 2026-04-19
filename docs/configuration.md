@@ -45,6 +45,13 @@ jbtronics_settings:
 
     # The directory where the proxy classes should be stored
     proxy_dir: '%kernel.cache_dir%/jbtronics_settings/proxies'
+    
+    # ADVANCED: The metadata drivers to retrieve the settings metadata, when the container is compiled.
+    # You do not need to configure this, unless you implement a custom metadata driver, whose settings should be dependency injectable.
+    # By default, the YamlDriver is registered, when yaml mapping paths are configured
+    metadata_compiler_providers: ~
+    # Example:
+    # - 'Jbtronics\SettingsBundle\Metadata\Driver\YamlDriver'
 
     # The configuration for caching of settings
     cache:

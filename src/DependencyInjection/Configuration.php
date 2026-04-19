@@ -61,6 +61,12 @@ final class Configuration implements ConfigurationInterface
                 ->scalarPrototype()->end()
             ->end()
 
+            ->arrayNode('metadata_compiler_providers')
+                ->treatNullLike([])
+                ->defaultValue([])
+                ->scalarPrototype()->end()
+            ->end()
+
             ->end();
 
         $this->addFileStorageConfiguration($rootNode);

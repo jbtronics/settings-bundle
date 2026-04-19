@@ -39,8 +39,10 @@ use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 interface MetadataDriverInterface
 {
     /**
-     * Returns whether this driver can provide metadata for the given class.
+     * Returns whether this driver can provide metadata for the given class, which effectively means that his is a
+     * managed settings class under the responsibility of this driver.
      * @param  string  $className  The fully qualified class name
+     * @phpstan-var class-string $className
      * @return bool
      */
     public function isSettingsClass(string $className): bool;
@@ -48,6 +50,7 @@ interface MetadataDriverInterface
     /**
      * Load the class-level settings configuration for the given class.
      * @param  string  $className  The fully qualified class name
+     * @phpstan-var class-string $className
      * @return Settings|null The Settings attribute-equivalent object, or null if not managed by this driver
      */
     public function loadClassMetadata(string $className): ?Settings;
@@ -56,6 +59,7 @@ interface MetadataDriverInterface
      * Load property-level parameter metadata for the given class.
      * Returns an associative array keyed by property name.
      * @param  string  $className  The fully qualified class name
+     * @phpstan-param class-string $className
      * @return array<string, SettingsParameter>
      */
     public function loadParameterMetadata(string $className): array;
@@ -64,6 +68,7 @@ interface MetadataDriverInterface
      * Load property-level embedded settings metadata for the given class.
      * Returns an associative array keyed by property name.
      * @param  string  $className  The fully qualified class name
+     * @phpstan-param class-string $className
      * @return array<string, EmbeddedSettings>
      */
     public function loadEmbeddedMetadata(string $className): array;
@@ -72,6 +77,7 @@ interface MetadataDriverInterface
      * Returns all class names this driver knows about.
      * Used for discovery of settings classes that may not be found by directory scanning.
      * @return string[]
+     * @phpstan-return class-string[]
      */
     public function getAllManagedClassNames(): array;
 }

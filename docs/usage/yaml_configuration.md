@@ -7,6 +7,9 @@ nav_order: 2
 
 # YAML Configuration
 
+{: .important }
+> It is recommended to use PHP attributes for settings configuration. This YAML configuration option is currently more considered experimentally, and might change in the future or be removed completely in future versions.
+
 By default, settings classes are configured using PHP attributes (`#[Settings]`, `#[SettingsParameter]`, etc.). As an alternative, you can define settings metadata in YAML files. This allows you to keep your settings classes as plain PHP in the application layer, while the infrastructure-level configuration (storage adapters, parameter types, labels, etc.) lives in YAML files — following the same pattern as Doctrine ORM's YAML mapping.
 
 ## Requirements

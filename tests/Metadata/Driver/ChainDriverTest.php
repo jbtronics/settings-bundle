@@ -20,7 +20,9 @@ class ChainDriverTest extends TestCase
     protected function setUp(): void
     {
         $this->driver = new ChainDriver([
-            new AttributeDriver(),
+            new AttributeDriver([
+                __DIR__.'/../../TestApplication/src/Settings',
+            ], ),
             new YamlDriver([self::YAML_MAPPING_DIR]),
         ]);
     }

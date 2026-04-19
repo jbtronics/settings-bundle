@@ -67,7 +67,11 @@ return static function (ContainerConfigurator $container) {
     /**********************************************************************************
      * Metadata Drivers
      **********************************************************************************/
-    $services->set('jbtronics.settings.metadata_driver.attribute', AttributeDriver::class);
+    $services->set('jbtronics.settings.metadata_driver.attribute', AttributeDriver::class)
+        ->args([
+            '$searchPathes' =>  '%jbtronics.settings.search_paths%',
+            ])
+    ;
 
     $services->set('jbtronics.settings.metadata_driver.yaml', YamlDriver::class)
         ->args([
@@ -85,7 +89,6 @@ return static function (ContainerConfigurator $container) {
 
     $services->set('jbtronics.settings.settings_registry', SettingsRegistry::class)
         ->args([
-            '$directories' => '%jbtronics.settings.search_paths%',
             '$cache' => service('jbtronics.settings.cache.metadata_service'),
             '$debug_mode' => '%kernel.debug%',
             '$metadataDriver' => service('jbtronics.settings.metadata_driver'),

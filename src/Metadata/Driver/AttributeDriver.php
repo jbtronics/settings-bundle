@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Metadata\Driver;
 
+use Ergebnis\Classy\Construct;
+use Ergebnis\Classy\Constructs;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Settings\Settings;
@@ -39,6 +41,15 @@ use Jbtronics\SettingsBundle\Settings\SettingsParameter;
  */
 final class AttributeDriver implements MetadataDriverInterface
 {
+    /**
+     * @param  string[]  $searchPathes Directories to search for settings classes (e.g. src/Settings/)
+     */
+    public function __construct(
+        private readonly array $searchPathes,
+    ) {
+
+    }
+
     public function isSettingsClass(string $className): bool
     {
         if (!class_exists($className)) {
@@ -116,8 +127,35 @@ final class AttributeDriver implements MetadataDriverInterface
 
     public function getAllManagedClassNames(): array
     {
-        // The attribute driver relies on directory scanning in SettingsRegistry,
-        // so it does not independently know about managed classes.
-        return [];
+        $pathes = $this->searchPathes;
+        $classes = [];
+
+        foreach ($pathes as $path) {
+            //Skip non-existing directories
+            if (!is_dir($path)) {
+                continue;
+            }
+
+            //Find all PHP classes in the given directories
+            $constructs = Constructs::fromDirectory($path);
+            $names = array_map(static function (Construct $construct): string {
+                return $construct->name();
+            }, $constructs);
+
+            $classes = array_merge($classes, $names);
+        }
+
+        //Now filter out all classes, which donot have the #[Settings] attribute
+        $settings_classes = [];
+
+        foreach ($classes as $class) {
+            $reflClass = new \ReflectionClass($class);
+            $attributes = $reflClass->getAttributes(Settings::class);
+            if (count($attributes) > 0) {
+                $settings_classes[] = $class;
+            }
+        }
+
+        return $settings_classes;
     }
 }

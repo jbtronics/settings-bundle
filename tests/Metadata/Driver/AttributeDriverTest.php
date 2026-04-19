@@ -18,7 +18,9 @@ class AttributeDriverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->driver = new AttributeDriver();
+        $this->driver = new AttributeDriver([
+            __DIR__.'/../../TestApplication/src/Settings/',
+        ]);
     }
 
     public function testIsSettingsClassReturnsTrueForAnnotatedClass(): void
@@ -75,7 +77,9 @@ class AttributeDriverTest extends TestCase
 
     public function testGetAllManagedClassNamesReturnsEmpty(): void
     {
-        // AttributeDriver relies on directory scanning, not self-discovery
-        $this->assertEmpty($this->driver->getAllManagedClassNames());
+        $classes = $this->driver->getAllManagedClassNames();
+        $this->assertIsArray($classes);
+        $this->assertContainsOnly('string', $classes);
+        $this->assertContains(SimpleSettings::class, $classes);
     }
 }

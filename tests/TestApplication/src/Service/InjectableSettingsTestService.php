@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 
 namespace Jbtronics\SettingsBundle\Tests\TestApplication\Service;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\AppYamlConfiguredSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
@@ -34,7 +35,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 #[Autoconfigure(public: true)]
 class InjectableSettingsTestService
 {
-    public function __construct(public readonly SimpleSettings $simpleSettings)
+    public function __construct(public readonly SimpleSettings $simpleSettings, public readonly AppYamlConfiguredSettings $appYamlConfiguredSettings)
     {
     }
 }

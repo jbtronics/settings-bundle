@@ -21,6 +21,13 @@ jbtronics_settings:
     search_paths:
         - '%kernel.project_dir%/src/Settings'
 
+    # Directories containing YAML mapping files for settings classes.
+    # This allows defining settings metadata in YAML instead of PHP attributes.
+    # See the YAML Configuration documentation for more information.
+    yaml_mapping_paths: []
+    # Example:
+    #   - '%kernel.project_dir%/config/settings'
+
     # The class name of the service, which is used on all storage adapters if
     # non is set explicitly. Can be null, if the storage adapter is configured # explicitly everywhere
     default_storage_adapter: ~
@@ -38,6 +45,13 @@ jbtronics_settings:
 
     # The directory where the proxy classes should be stored
     proxy_dir: '%kernel.cache_dir%/jbtronics_settings/proxies'
+    
+    # ADVANCED: The metadata drivers to retrieve the settings metadata, when the container is compiled.
+    # You do not need to configure this, unless you implement a custom metadata driver, whose settings should be dependency injectable.
+    # By default, the YamlDriver is registered, when yaml mapping paths are configured
+    metadata_compiler_providers: ~
+    # Example:
+    # - 'Jbtronics\SettingsBundle\Metadata\Driver\YamlDriver'
 
     # The configuration for caching of settings
     cache:

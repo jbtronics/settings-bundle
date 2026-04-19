@@ -26,6 +26,7 @@
 namespace Jbtronics\SettingsBundle\Tests\Manager;
 
 use Jbtronics\SettingsBundle\Manager\SettingsRegistry;
+use Jbtronics\SettingsBundle\Metadata\Driver\AttributeDriver;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\NonCloneableClass;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CacheableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
@@ -44,12 +45,16 @@ class SettingsRegistryTest extends TestCase
 {
     public function testGetConfigClasses(): void
     {
-        $configurationRegistry = new SettingsRegistry(
+        $metadataDriver = new AttributeDriver(
             [
                 __DIR__.'/../TestApplication/src/Settings/',
             ],
+        );
+
+        $configurationRegistry = new SettingsRegistry(
+            $metadataDriver,
             new NullAdapter(),
-            false,
+            false
         );
 
         $this->assertEquals([
@@ -68,10 +73,14 @@ class SettingsRegistryTest extends TestCase
 
     public function testGetSettingsClassByName(): void
     {
-        $configurationRegistry = new SettingsRegistry(
+        $metadataDriver = new AttributeDriver(
             [
                 __DIR__.'/../TestApplication/src/Settings/',
             ],
+        );
+
+        $configurationRegistry = new SettingsRegistry(
+            $metadataDriver,
             new NullAdapter(),
             false,
         );

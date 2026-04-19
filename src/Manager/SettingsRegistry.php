@@ -25,14 +25,13 @@
 
 namespace Jbtronics\SettingsBundle\Manager;
 
-use Ergebnis\Classy\Construct;
-use Ergebnis\Classy\Constructs;
-use Jbtronics\SettingsBundle\Settings\Settings;
+use Jbtronics\SettingsBundle\Metadata\Driver\MetadataDriverInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * This class is responsible for getting all configuration classes, defined in the application.
- * It scans the files in the defined directories for classes with the #[ConfigClass] attribute.
+ * It scans the files in the defined directories for classes with the #[ConfigClass] attribute,
+ * and also discovers classes registered via metadata drivers (e.g. YAML configuration).
  */
 final class SettingsRegistry implements SettingsRegistryInterface
 {
@@ -40,14 +39,14 @@ final class SettingsRegistry implements SettingsRegistryInterface
     private const CACHE_KEY = 'jbtronics.settings.settings_classes';
 
     /**
-     * @param  array  $directories The directories to scan for configuration classes
+     * @param  MetadataDriverInterface  $metadataDriver The metadata driver to use for discovering additional settings classes
      * @param  CacheInterface  $cache The cache to use for caching the configuration classes
      * @param  bool  $debug_mode If true, the cache is ignored and the directories are scanned on every request
      */
     public function __construct(
-        private readonly array $directories,
+        private readonly MetadataDriverInterface $metadataDriver,
         private readonly CacheInterface $cache,
-        private readonly bool $debug_mode,
+        private readonly bool $debug_mode
     )
     {
     }
@@ -64,69 +63,41 @@ final class SettingsRegistry implements SettingsRegistryInterface
     }
     private function getSettingsClassUncached(): array
     {
-        $classes = $this->searchInPathes($this->directories);
+        $classes = $this->metadataDriver->getAllManagedClassNames();
 
         $tmp = [];
 
         //Determine the short name for each class
         foreach ($classes as $class) {
-            $reflClass = new \ReflectionClass($class);
-            $attributes = $reflClass->getAttributes(Settings::class);
+            $name = $this->resolveSettingsName($class);
 
-            if (count($attributes) > 0) {
-                $attribute = $attributes[0];
-                /** @var Settings $settings */
-                $settings = $attribute->newInstance();
-
-                $name = $settings->name ?? self::generateDefaultNameFromClassName($class);
-
-                //Ensure that the name is unique
-                if (isset($tmp[$name])) {
-                    throw new \InvalidArgumentException(sprintf('There is already a class with the name %s (%s)!', $name, $tmp[$name]));
-                }
-
-                $tmp[$name] = $class;
+            if ($name === null) {
+                continue;
             }
+
+            //Ensure that the name is unique
+            if (isset($tmp[$name])) {
+                throw new \InvalidArgumentException(sprintf('There is already a class with the name %s (%s)!', $name, $tmp[$name]));
+            }
+
+            $tmp[$name] = $class;
         }
 
         return $tmp;
     }
 
     /**
-     * @param string[]  $pathes
-     * @return string[]
+     * Resolves the settings name for a given class, using either attributes or the metadata driver.
+     * @return string|null The name, or null if the class is not a settings class
      */
-    private function searchInPathes(array $pathes): array
+    private function resolveSettingsName(string $class): ?string
     {
-        $classes = [];
-
-        foreach ($pathes as $path) {
-            //Skip non-existing directories
-            if (!is_dir($path)) {
-                continue;
-            }
-
-            //Find all PHP classes in the given directories
-            $constructs = Constructs::fromDirectory($path);
-            $names = array_map(static function (Construct $construct): string {
-                return $construct->name();
-            }, $constructs);
-
-            $classes = array_merge($classes, $names);
+        $classMetadata = $this->metadataDriver->loadClassMetadata($class);
+        if ($classMetadata !== null) {
+            return $classMetadata->name ?? self::generateDefaultNameFromClassName($class);
         }
 
-        //Now filter out all classes, which donot have the #[Settings] attribute
-        $settings_classes = [];
-
-        foreach ($classes as $class) {
-            $reflClass = new \ReflectionClass($class);
-            $attributes = $reflClass->getAttributes(Settings::class);
-            if (count($attributes) > 0) {
-                $settings_classes[] = $class;
-            }
-        }
-
-        return $settings_classes;
+        return null;
     }
 
     /**

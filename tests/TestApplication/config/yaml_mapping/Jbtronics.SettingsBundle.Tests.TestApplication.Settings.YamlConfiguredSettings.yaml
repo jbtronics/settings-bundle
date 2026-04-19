@@ -1,0 +1,26 @@
+Jbtronics\SettingsBundle\Tests\TestApplication\Settings\AppYamlConfiguredSettings:
+  storageAdapter: Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter
+  name: app_yaml_configured
+  label: "YAML Configured Settings"
+  description: "Settings configured via YAML"
+  groups:
+    - admin
+  dependencyInjectable: true
+  cacheable: false
+
+  parameters:
+    name:
+      type: Jbtronics\SettingsBundle\ParameterTypes\StringType
+      label: "Name"
+      description: "The name parameter"
+
+    count:
+      type: Jbtronics\SettingsBundle\ParameterTypes\IntType
+      label: "Count"
+      nullable: true
+
+    enabled:
+      type: Jbtronics\SettingsBundle\ParameterTypes\BoolType
+      label: "Enabled"
+      groups:
+        - general

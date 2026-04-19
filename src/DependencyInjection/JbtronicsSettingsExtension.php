@@ -25,11 +25,16 @@
 
 namespace Jbtronics\SettingsBundle\DependencyInjection;
 
+use Jbtronics\SettingsBundle\Metadata\Driver\CompileTimeMetadataDriverInterface;
+use Jbtronics\SettingsBundle\Metadata\Driver\MetadataDriverInterface;
+use Jbtronics\SettingsBundle\Metadata\Driver\YamlDriver;
 use Jbtronics\SettingsBundle\Migrations\SettingsMigrationInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
@@ -39,6 +44,8 @@ final class JbtronicsSettingsExtension extends Extension
     public const TAG_PARAMETER_TYPE = 'jbtronics.settings.parameter_type';
     public const TAG_STORAGE_ADAPTER = 'jbtronics.settings.storage_adapter';
     public const TAG_MIGRATION = 'jbtronics.settings.migration';
+
+
 
     public const TAG_INJECTABLE_SETTINGS = 'jbtronics.settings.injectable_settings';
 
@@ -66,6 +73,7 @@ final class JbtronicsSettingsExtension extends Extension
         $container->setParameter('jbtronics.settings.proxy_dir', $config['proxy_dir']);
         $container->setParameter('jbtronics.settings.proxy_namespace', $config['proxy_namespace']);
         $container->setParameter('jbtronics.settings.search_paths', $config['search_paths']);
+        $container->setParameter('jbtronics.settings.yaml_mapping_paths', $config['yaml_mapping_paths']);
         $container->setParameter('jbtronics.settings.default_storage_adapter', $config['default_storage_adapter']);
         $container->setParameter('jbtronics.settings.save_after_migration', $config['save_after_migration']);
 
@@ -81,5 +89,26 @@ final class JbtronicsSettingsExtension extends Extension
         $container->setAlias('jbtronics.settings.cache.metadata_service', $config['cache']['metadata_service']);
         $container->setParameter('jbtronics.settings.cache.ttl', $config['cache']['ttl']);
         $container->setParameter('jbtronics.settings.cache.invalidate_on_env_change', $config['cache']['invalidate_on_env_change']);
+
+
+        //When metadata compiler providers are configured, use that value
+        if (count($config['metadata_compiler_providers'] ?? []) > 0) {
+            //Set empty array, when first value is an empty string
+            if (count($config['metadata_compiler_providers']) === 1 && $config['metadata_compiler_providers'][0] === '') {
+                $config['metadata_compiler_providers'] = [];
+            }
+
+            $container->setParameter('jbtronics.settings.metadata_compiler_providers', $config['metadata_compiler_providers']);
+        } else {
+            $providers = [];
+
+            //Add YamlDriver as default, if yaml_mapping_paths are configured, otherwise don't add it, as it would be useless and just consume resources
+            if (count($container->getParameter('jbtronics.settings.yaml_mapping_paths')) > 0) {
+                $providers[] = YamlDriver::class;
+            }
+
+            $container->setParameter('jbtronics.settings.metadata_compiler_providers', $providers);
+        }
+
     }
 }

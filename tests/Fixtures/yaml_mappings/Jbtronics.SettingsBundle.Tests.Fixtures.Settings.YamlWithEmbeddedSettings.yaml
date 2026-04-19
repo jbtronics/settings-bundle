@@ -1,0 +1,15 @@
+Jbtronics\SettingsBundle\Tests\Fixtures\Settings\YamlWithEmbeddedSettings:
+  storageAdapter: Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter
+  name: yaml_with_embedded
+  label: "YAML With Embedded Settings"
+
+  parameters:
+    title:
+      type: Jbtronics\SettingsBundle\ParameterTypes\StringType
+      label: "Title"
+
+  embeddedSettings:
+    child:
+      target: Jbtronics\SettingsBundle\Tests\Fixtures\Settings\YamlEmbeddedTarget
+      label: "Child Settings"
+      description: "An embedded child"

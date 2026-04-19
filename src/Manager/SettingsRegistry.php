@@ -42,7 +42,6 @@ final class SettingsRegistry implements SettingsRegistryInterface
      * @param  MetadataDriverInterface  $metadataDriver The metadata driver to use for discovering additional settings classes
      * @param  CacheInterface  $cache The cache to use for caching the configuration classes
      * @param  bool  $debug_mode If true, the cache is ignored and the directories are scanned on every request
-     * @param  array  $directories The directories to scan for configuration classes
      */
     public function __construct(
         private readonly MetadataDriverInterface $metadataDriver,

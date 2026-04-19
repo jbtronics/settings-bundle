@@ -42,7 +42,7 @@ interface MetadataDriverInterface
      * Returns whether this driver can provide metadata for the given class, which effectively means that his is a
      * managed settings class under the responsibility of this driver.
      * @param  string  $className  The fully qualified class name
-     * @phpstan-var class-string $className
+     * @phpstan-param  class-string $className
      * @return bool
      */
     public function isSettingsClass(string $className): bool;
@@ -50,7 +50,7 @@ interface MetadataDriverInterface
     /**
      * Load the class-level settings configuration for the given class.
      * @param  string  $className  The fully qualified class name
-     * @phpstan-var class-string $className
+     * @phpstan-param  class-string $className
      * @return Settings|null The Settings attribute-equivalent object, or null if not managed by this driver
      */
     public function loadClassMetadata(string $className): ?Settings;

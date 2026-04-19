@@ -45,7 +45,7 @@ use Symfony\Component\Yaml\Yaml;
  * Note: callable envVarMapper is not supported in YAML configuration.
  * Only class-string mappers (service references) can be used.
  */
-final class YamlDriver implements MetadataDriverInterface
+final class YamlDriver implements MetadataDriverInterface, CompileTimeMetadataDriverInterface
 {
     /** @var array<string, array>|null Parsed YAML config keyed by class name */
     private ?array $classConfigs = null;
@@ -232,5 +232,31 @@ final class YamlDriver implements MetadataDriverInterface
 
             $this->classConfigs[$className] = $config;
         }
+    }
+
+    public static function getServiceMetadataForContainerCompilation(array $containerParameters): array
+    {
+        $yamlMappingPaths = $containerParameters['jbtronics.settings.yaml_mapping_paths'] ?? [];
+
+        if (empty($yamlMappingPaths) || !class_exists(\Symfony\Component\Yaml\Yaml::class)) {
+            return [];
+        }
+
+        // Use the YamlDriver to discover classes at build time
+        $yamlDriver = new YamlDriver($yamlMappingPaths);
+        $classNames = $yamlDriver->getAllManagedClassNames();
+
+        $output = [];
+
+        foreach ($classNames as $className) {
+            $classMetadata = $yamlDriver->loadClassMetadata($className);
+            if ($classMetadata === null) {
+                continue;
+            }
+
+            $output[$className] = $classMetadata;
+        }
+
+        return $output;
     }
 }

@@ -28,6 +28,7 @@ namespace Jbtronics\SettingsBundle;
 use Closure;
 use Jbtronics\SettingsBundle\DependencyInjection\JbtronicsSettingsExtension;
 use Jbtronics\SettingsBundle\DependencyInjection\ConfigureInjectableSettingsPass;
+use Jbtronics\SettingsBundle\DependencyInjection\TagSettingsPass;
 use Jbtronics\SettingsBundle\Proxy\Autoloader;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Settings\Settings;
@@ -51,6 +52,7 @@ final class JbtronicsSettingsBundle extends AbstractBundle
         parent::build($container);
         $this->processSettingsServices($container);
 
+        $container->addCompilerPass(new TagSettingsPass());
         $container->addCompilerPass(new ConfigureInjectableSettingsPass());
     }
 

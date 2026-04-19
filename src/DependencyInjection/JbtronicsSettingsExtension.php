@@ -25,6 +25,8 @@
 
 namespace Jbtronics\SettingsBundle\DependencyInjection;
 
+use Jbtronics\SettingsBundle\Metadata\Driver\CompileTimeMetadataDriverInterface;
+use Jbtronics\SettingsBundle\Metadata\Driver\MetadataDriverInterface;
 use Jbtronics\SettingsBundle\Metadata\Driver\YamlDriver;
 use Jbtronics\SettingsBundle\Migrations\SettingsMigrationInterface;
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
@@ -32,6 +34,7 @@ use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
@@ -41,6 +44,8 @@ final class JbtronicsSettingsExtension extends Extension
     public const TAG_PARAMETER_TYPE = 'jbtronics.settings.parameter_type';
     public const TAG_STORAGE_ADAPTER = 'jbtronics.settings.storage_adapter';
     public const TAG_MIGRATION = 'jbtronics.settings.migration';
+
+
 
     public const TAG_INJECTABLE_SETTINGS = 'jbtronics.settings.injectable_settings';
 
@@ -85,54 +90,10 @@ final class JbtronicsSettingsExtension extends Extension
         $container->setParameter('jbtronics.settings.cache.ttl', $config['cache']['ttl']);
         $container->setParameter('jbtronics.settings.cache.invalidate_on_env_change', $config['cache']['invalidate_on_env_change']);
 
-        // Register YAML-configured settings classes as injectable services
-        $this->registerYamlSettingsServices($container, $config['yaml_mapping_paths']);
-    }
 
-    /**
-     * Eagerly discovers YAML-configured settings classes and registers them as services,
-     * so that they can be dependency-injected just like attribute-configured settings.
-     */
-    private function registerYamlSettingsServices(ContainerBuilder $container, array $yamlMappingPaths): void
-    {
-        return;
+        $container->setParameter('jbtronics.settings.metadata_compiler_providers', [
+            YamlDriver::class,
+        ]);
 
-        if (empty($yamlMappingPaths) || !class_exists(\Symfony\Component\Yaml\Yaml::class)) {
-            return;
-        }
-
-        // Use the YamlDriver to discover classes at build time
-        $yamlDriver = new YamlDriver($yamlMappingPaths);
-        $classNames = $yamlDriver->getAllManagedClassNames();
-
-        foreach ($classNames as $className) {
-            $classMetadata = $yamlDriver->loadClassMetadata($className);
-            if ($classMetadata === null) {
-                continue;
-            }
-
-            $dependencyInjectable = $classMetadata->dependencyInjectable;
-
-            // Register the class as a service definition so the compiler pass can configure it
-            if (!$container->hasDefinition($className)) {
-                $definition = new Definition($className);
-                $definition->setAutoconfigured(true);
-                $container->setDefinition($className, $definition);
-            }
-
-            $definition = $container->getDefinition($className);
-
-            if (method_exists($definition, 'addResourceTag')) { //Symfony 7.3+
-                $definition->addResourceTag(self::RESSOURCE_TAG_SETTINGS, [
-                    'injectable' => $dependencyInjectable,
-                ]);
-            } else {
-                if ($dependencyInjectable) {
-                    $definition->addTag(self::TAG_INJECTABLE_SETTINGS);
-                } else {
-                    $definition->addTag(ConfigureInjectableSettingsPass::TAG_TO_REMOVE);
-                }
-            }
-        }
     }
 }

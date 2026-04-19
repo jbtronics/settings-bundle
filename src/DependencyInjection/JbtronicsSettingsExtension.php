@@ -95,6 +95,8 @@ final class JbtronicsSettingsExtension extends Extension
      */
     private function registerYamlSettingsServices(ContainerBuilder $container, array $yamlMappingPaths): void
     {
+        return;
+
         if (empty($yamlMappingPaths) || !class_exists(\Symfony\Component\Yaml\Yaml::class)) {
             return;
         }

@@ -15,4 +15,8 @@ return static function (JbtronicsSettingsConfig $config)
         ->defaultEntityClass(SettingsEntry::class)
         ->prefetchAll(true)
     ;
+
+    $config->yamlMappingPaths([
+        __DIR__ . '/../yaml_mapping'
+    ]);
 };

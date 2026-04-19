@@ -38,6 +38,8 @@ use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 /**
  * Metadata driver that reads settings metadata from PHP 8.1+ attributes.
  * This is the default driver and provides backwards compatibility with the existing attribute-based configuration.
+ *
+ * The compile time registration for dependency injection is done in the JbtronicsSettingsExtension class
  */
 final class AttributeDriver implements MetadataDriverInterface
 {

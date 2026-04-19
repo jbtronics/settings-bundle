@@ -15,6 +15,8 @@ use Symfony\Component\DependencyInjection\Exception\LogicException;
 /**
  * This compiler pass is responsible for processing the metadata provided by compile-time metadata providers and tagging the corresponding service definitions accordingly.
  * It ensures that the classes provided by the metadata providers are registered as services and tagged with the appropriate tags for further processing by other compiler passes.
+ *
+ * This only handles compile time metadata providers. The registration of the attributes is donne in JbtronicsSettingsBundle, as it has to happen before the compiler pass runs.
  * @internal
  */
 final class TagSettingsPass implements CompilerPassInterface

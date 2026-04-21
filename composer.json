@@ -3,7 +3,7 @@
   "type": "symfony-bundle",
   "license": "MIT",
   "description": "A symfony bundle to easily create typesafe, user-configurable settings for symfony applications",
-  "keywords": ["settings", "config", "symfony", "symfony-bundle", "user-configurable"],
+  "keywords": ["settings", "config", "symfony", "symfony-bundle", "user-configurable", "configuration", "dynamic-settings", "user-config", "options", "preferences"],
   "autoload": {
     "psr-4": {
       "Jbtronics\\SettingsBundle\\": "src/"

@@ -34,7 +34,7 @@ final class TagSettingsPass implements CompilerPassInterface
                 throw new LogicException('Metadata compiler provider class "' . $providerClass . '" does not exist. Please check your configuration.');
             }
             if (!is_a($providerClass, CompileTimeMetadataDriverInterface::class, true)) {
-                throw new LogicException('Metadata compiler provider class "' . $providerClass . '" must implement ' . MetadataDriverInterface::class . '. Please check your configuration.');
+                throw new LogicException('Metadata compiler provider class "' . $providerClass . '" must implement ' . CompileTimeMetadataDriverInterface::class . '. Please check your configuration.');
             }
 
 

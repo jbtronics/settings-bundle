@@ -73,18 +73,20 @@ return static function (ContainerConfigurator $container) {
             ])
     ;
 
-    $services->set('jbtronics.settings.metadata_driver.yaml', YamlDriver::class)
-        ->args([
-            '$yamlMappingPaths' => '%jbtronics.settings.yaml_mapping_paths%',
-        ]);
+    $drivers = [service('jbtronics.settings.metadata_driver.attribute')];
 
-    $services->set('jbtronics.settings.metadata_driver', ChainDriver::class)
-        ->args([
-            '$drivers' => [
-                service('jbtronics.settings.metadata_driver.attribute'),
-                service('jbtronics.settings.metadata_driver.yaml'),
-            ],
-        ]);
+    if (class_exists(\Symfony\Component\Yaml\Yaml::class)) {
+        $services->set('jbtronics.settings.metadata_driver.yaml', YamlDriver::class)
+            ->args([
+                '$yamlMappingPaths' => '%jbtronics.settings.yaml_mapping_paths%',
+            ]);
+        $drivers[] = service('jbtronics.settings.metadata_driver.yaml');
+    }
+
+  $services->set('jbtronics.settings.metadata_driver', ChainDriver::class)
+      ->args([
+          '$drivers' => $drivers,
+      ]);
     $services->alias(MetadataDriverInterface::class, 'jbtronics.settings.metadata_driver');
 
     $services->set('jbtronics.settings.settings_registry', SettingsRegistry::class)

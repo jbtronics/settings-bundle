@@ -28,7 +28,12 @@ namespace Jbtronics\SettingsBundle\Tests\Manager;
 use Jbtronics\SettingsBundle\Manager\SettingsCacheInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
+use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
+use Jbtronics\SettingsBundle\ParameterTypes\IntType;
+use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
+use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CacheableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
@@ -154,6 +159,109 @@ class SettingsCacheTest extends KernelTestCase
         $this->assertFalse($this->settingsCache->hasData($metadata));
 
         $this->settingsCache->invalidateData($metadata);
+    }
+
+    public function testAddedParameterMakesAnOldEntryAMiss(): void
+    {
+        $metadata = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
+
+        //An entry written before value3 was added to the settings class. Applied to the current class, it would
+        //leave value3 unset (a TypeError for a non-nullable property), so it must count as a miss.
+        $outdated = $this->withParameters($metadata, array_filter(
+            $metadata->getParameters(),
+            static fn (ParameterMetadata $parameter): bool => $parameter->getPropertyName() !== 'value3'
+        ));
+        $this->settingsCache->setData($outdated, new SimpleSettings());
+
+        try {
+            $this->assertTrue($this->settingsCache->hasData($outdated));
+            $this->assertFalse($this->settingsCache->hasData($metadata));
+        } finally {
+            $this->settingsCache->invalidateData($outdated);
+        }
+    }
+
+    public function testChangedParameterTypeMakesAnOldEntryAMiss(): void
+    {
+        //The same parameter before and after its type changed from string to int
+        $old = new class {
+            public string $value = 'written by the old schema';
+        };
+        $new = new class {
+            public int $value = 1;
+        };
+        $oldMetadata = $this->probeMetadata($old::class, StringType::class);
+        $newMetadata = $this->probeMetadata($new::class, IntType::class);
+
+        $this->settingsCache->setData($oldMetadata, $old);
+
+        try {
+            $this->assertTrue($this->settingsCache->hasData($oldMetadata));
+            //Applying the old string to the int property would throw a TypeError
+            $this->assertFalse($this->settingsCache->hasData($newMetadata));
+        } finally {
+            $this->settingsCache->invalidateData($oldMetadata);
+        }
+    }
+
+    public function testVersionChangeMakesAnOldEntryAMiss(): void
+    {
+        $metadata = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
+
+        //A migration to the new version may change the values without touching the parameters. The entry
+        //written before must not be served, as a cache hit skips the migrations.
+        $versioned = $this->withParameters($metadata, $metadata->getParameters(), 2);
+        $this->settingsCache->setData($metadata, new SimpleSettings());
+
+        try {
+            $this->assertTrue($this->settingsCache->hasData($metadata));
+            $this->assertFalse($this->settingsCache->hasData($versioned));
+        } finally {
+            $this->settingsCache->invalidateData($metadata);
+        }
+    }
+
+    public function testParameterOrderDoesNotChangeTheCacheKey(): void
+    {
+        $metadata = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
+        $this->settingsCache->setData($metadata, new SimpleSettings());
+
+        try {
+            $reordered = $this->withParameters($metadata, array_reverse($metadata->getParameters()));
+            $this->assertTrue($this->settingsCache->hasData($reordered));
+        } finally {
+            $this->settingsCache->invalidateData($metadata);
+        }
+    }
+
+    /**
+     * Builds metadata for the same settings class and storage key, with the given parameters and version.
+     * @param  ParameterMetadata[]  $parameters
+     */
+    private function withParameters(SettingsMetadata $metadata, array $parameters, ?int $version = null): SettingsMetadata
+    {
+        return new SettingsMetadata(
+            className: $metadata->getClassName(),
+            parameterMetadata: array_values($parameters),
+            storageAdapter: $metadata->getStorageAdapter(),
+            name: $metadata->getName(),
+            version: $version,
+            migrationService: $version !== null ? 'migration_service' : null,
+        );
+    }
+
+    /**
+     * Metadata for a class with a single parameter "value", always under the same storage key.
+     * @param  class-string  $className
+     */
+    private function probeMetadata(string $className, string $parameterType): SettingsMetadata
+    {
+        return new SettingsMetadata(
+            className: $className,
+            parameterMetadata: [new ParameterMetadata($className, 'value', $parameterType, false)],
+            storageAdapter: InMemoryStorageAdapter::class,
+            name: 'schema_probe',
+        );
     }
 
     public function testInvalidateAll(): void

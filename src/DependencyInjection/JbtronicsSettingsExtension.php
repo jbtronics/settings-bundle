@@ -83,6 +83,7 @@ final class JbtronicsSettingsExtension extends Extension
 
         $container->setParameter('jbtronics.settings.orm.default_entity_class', $config['orm_storage']['default_entity_class']);
         $container->setParameter('jbtronics.settings.orm.prefetch_all', $config['orm_storage']['prefetch_all']);
+        $container->setParameter('jbtronics.settings.orm.throw_on_connection_error', $config['orm_storage']['throw_on_connection_error']);
 
         $container->setParameter('jbtronics.settings.cache.default_cacheable', $config['cache']['default_cacheable']);
         $container->setAlias('jbtronics.settings.cache.service', $config['cache']['service']);

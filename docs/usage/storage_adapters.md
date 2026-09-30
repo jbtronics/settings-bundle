@@ -73,6 +73,9 @@ doctrine:
 For performance reasons the ORMStorageAdapter performs a `SELECT *` query to load all settings data at once, to save a lot of single queries. 
 This behavior can be disabled by setting the `prefetch_all` option under `orm_storage` to false in the bundle configuration.
 
+If the database connection fails, the adapter logs the error and the settings keep their default values. Set the
+`throw_on_connection_error` option under `orm_storage` to true to get the exception instead.
+
 If you have multiple entity managers, the adapter should detect the correct entity manager based on the entity class automatically. 
 If you want to use a specific entity manager, you can set the `entity_manager` option in the adapter options.
 

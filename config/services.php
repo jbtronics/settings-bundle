@@ -361,6 +361,7 @@ return static function (ContainerConfigurator $container) {
             '$defaultEntityClass' => '%jbtronics.settings.orm.default_entity_class%',
             '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
             '$logger' => service('logger')->nullOnInvalid(),
+            '$throwOnConnectionError' => '%jbtronics.settings.orm.throw_on_connection_error%',
         ]);
 
     /*************************************************************************************

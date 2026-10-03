@@ -41,6 +41,11 @@ use Symfony\Component\Cache\Adapter\NullAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 
+//Fixture for the default name generation, containing "Settings" not only as suffix
+class UserSettingsOverride
+{
+}
+
 class SettingsRegistryTest extends TestCase
 {
     public function testGetConfigClasses(): void
@@ -69,6 +74,16 @@ class SettingsRegistryTest extends TestCase
             'noncloneable' => NonCloneableSettings::class,
             'cacheable' => CacheableSettings::class
         ], $configurationRegistry->getSettingsClasses());
+    }
+
+    public function testGenerateDefaultNameFromClassName(): void
+    {
+        $this->assertSame('simple', SettingsRegistry::generateDefaultNameFromClassName(SimpleSettings::class));
+        $this->assertSame('simple', SettingsRegistry::generateDefaultNameFromClassName(new \ReflectionClass(SimpleSettings::class)));
+
+        //Every occurrence of "Settings" is removed, not only the suffix. This must not change, as the name is used as
+        //storage key, and existing persisted data would not be found anymore otherwise
+        $this->assertSame('useroverride', SettingsRegistry::generateDefaultNameFromClassName(UserSettingsOverride::class));
     }
 
     public function testGetSettingsClassByName(): void

@@ -23,18 +23,8 @@
  * SOFTWARE.
  */
 
-use Symfony\Config\FrameworkConfig;
+use Symfony\Config\WebProfilerConfig;
 
-return static function(FrameworkConfig $framework): void {
-    $framework->secret('F00');
-    $framework->csrfProtection()->enabled(true);
-    $framework->httpMethodOverride(true);
-    $framework->session()
-        ->handlerId(null)
-        ->storageFactoryId('session.storage.factory.mock_file');
-
-    $framework->test(true);
-
-    //Enable the profiler, so that we can test the settings data collector
-    $framework->profiler()->enabled(true)->collect(true);
+return static function (WebProfilerConfig $webProfiler): void {
+    $webProfiler->toolbar()->enabled(false);
 };

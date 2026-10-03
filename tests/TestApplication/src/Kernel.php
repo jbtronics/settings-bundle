@@ -28,8 +28,11 @@ namespace Jbtronics\SettingsBundle\Tests\TestApplication;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle;
 use Jbtronics\SettingsBundle\JbtronicsSettingsBundle;
+use Symfony\Bundle\DebugBundle\DebugBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Bundle\TwigBundle\TwigBundle;
+use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 
 use function dirname;
 
@@ -48,6 +51,9 @@ final class Kernel extends \Symfony\Component\HttpKernel\Kernel
         yield new FrameworkBundle();
         yield new DoctrineBundle();
         yield new DoctrineFixturesBundle();
+        yield new TwigBundle();
+        yield new WebProfilerBundle();
+        yield new DebugBundle();
         yield new JbtronicsSettingsBundle();
     }
 

@@ -23,18 +23,22 @@
  * SOFTWARE.
  */
 
-use Symfony\Config\FrameworkConfig;
+declare(strict_types=1);
 
-return static function(FrameworkConfig $framework): void {
-    $framework->secret('F00');
-    $framework->csrfProtection()->enabled(true);
-    $framework->httpMethodOverride(true);
-    $framework->session()
-        ->handlerId(null)
-        ->storageFactoryId('session.storage.factory.mock_file');
 
-    $framework->test(true);
+namespace Jbtronics\SettingsBundle\Tests\TestApplication\Controller;
 
-    //Enable the profiler, so that we can test the settings data collector
-    $framework->profiler()->enabled(true)->collect(true);
-};
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+
+/**
+ * A simple controller, which renders a page, so that a profile containing the settings collector data is created.
+ */
+class ProfilerTestController
+{
+    #[Route('/profiler_test', name: 'profiler_test')]
+    public function index(): Response
+    {
+        return new Response('<html><body>Profiler test</body></html>');
+    }
+}

@@ -36,7 +36,7 @@ final class IntType implements ParameterTypeInterface, ParameterTypeWithFormDefa
         ParameterMetadata $parameterMetadata,
     ): ?int {
         if (!is_int($value) && !is_null($value)) {
-            throw new \LogicException(sprintf('The value of the property "%s" must be a string, but "%s" given.', $parameterMetadata->getName(), gettype($value)));
+            throw new \LogicException(sprintf('The value of the property "%s" must be an integer, but "%s" given.', $parameterMetadata->getName(), gettype($value)));
         }
 
         return $value;

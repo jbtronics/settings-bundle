@@ -93,17 +93,20 @@ class MetadataManagerTest extends KernelTestCase
         $this->assertEquals('value1', $paramMetadata->getName());
         $this->assertEquals('value1', $paramMetadata->getPropertyName());
         $this->assertFalse($paramMetadata->isNullable());
+        $this->assertEquals('string', (string) $paramMetadata->getPHPType());
 
         $paramMetadata = $schema->getParameter('property2');
         $this->assertEquals(IntType::class, $paramMetadata->getType());
         $this->assertEquals('property2', $paramMetadata->getName());
         $this->assertEquals('value2', $paramMetadata->getPropertyName());
         $this->assertTrue($paramMetadata->isNullable());
+        $this->assertEquals('?int', (string) $paramMetadata->getPHPType());
 
         $paramMetadata = $schema->getParameter('value3');
         $this->assertEquals('value3', $paramMetadata->getName());
         $this->assertEquals('value3', $paramMetadata->getPropertyName());
         $this->assertFalse($paramMetadata->isNullable());
+        $this->assertEquals('bool', (string) $paramMetadata->getPHPType());
     }
 
     public function testGetSchemaGuessable(): void

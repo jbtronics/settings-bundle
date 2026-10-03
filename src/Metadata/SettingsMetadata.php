@@ -168,8 +168,14 @@ class SettingsMetadata
         }
         $this->parametersWithEnvVars = $parametersWithEnvVars;
 
+        //The env var definition can contain Symfony env var processors (e.g. "bool:FOO" or "default:fallback:FOO"),
+        //the name of the actual env var is always the last part after the last colon
         $cacheAffectingEnvVars = array_map(
-            static fn(ParameterMetadata $param) => $param->getEnvVar(),
+            static function (ParameterMetadata $param): string {
+                $envVar = (string) $param->getEnvVar();
+                $pos = strrpos($envVar, ':');
+                return $pos === false ? $envVar : substr($envVar, $pos + 1);
+            },
             array_merge($this->parametersWithEnvVars[EnvVarMode::OVERWRITE->name] ?? [], $this->parametersWithEnvVars[EnvVarMode::OVERWRITE_PERSIST->name] ?? [])
         );
         //Ensure that the list is distinct
@@ -469,6 +475,7 @@ class SettingsMetadata
     /**
      * Returns a list of all environment variables, which affect the cached values of this settings class.
      * These are all env vars, which overwrite parameters which overwrite stored values.
+     * Only the names of the env vars are returned, without any env var processors (e.g. "FOO" instead of "bool:FOO").
      * @return string[]
      */
     public function getCacheAffectingEnvVars(): array

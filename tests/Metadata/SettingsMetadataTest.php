@@ -394,6 +394,23 @@ class SettingsMetadataTest extends TestCase
         $this->assertSame(['ENV_VAR2'], $this->configSchema->getCacheAffectingEnvVars());
     }
 
+    public function testGetCacheAffectingEnvVarsStripsEnvProcessors(): void
+    {
+        $metadata = new SettingsMetadata(
+            className: self::class,
+            parameterMetadata: [
+                new ParameterMetadata(self::class, 'property1', BoolType::class, nullable: true, envVar: 'bool:ENV_VAR1', envVarMode: EnvVarMode::OVERWRITE),
+                new ParameterMetadata(self::class, 'property2', StringType::class, nullable: true, envVar: 'default:fallback:ENV_VAR2', envVarMode: EnvVarMode::OVERWRITE_PERSIST),
+                //Same env var with a different processor must not be listed twice
+                new ParameterMetadata(self::class, 'property3', StringType::class, nullable: true, envVar: 'ENV_VAR1', envVarMode: EnvVarMode::OVERWRITE),
+            ],
+            storageAdapter: InMemoryStorageAdapter::class,
+            name: 'test',
+        );
+
+        $this->assertSame(['ENV_VAR1', 'ENV_VAR2'], $metadata->getCacheAffectingEnvVars());
+    }
+
     private function phpType(string $property): \ReflectionType
     {
         return (new \ReflectionProperty(self::class, $property))->getType();

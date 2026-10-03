@@ -3,11 +3,17 @@
 This file describes the changes, which you need to do when upgrading to a new major version.
 The newest version is at the top.
 
-## Upgrade from 3.x to 4.0
+### Upgrade from 4.x to 5.0
 
 ### Minimum requirements raised
 
-The bundle now requires at least PHP 8.2 and Symfony 7.0. Support for PHP 8.1 and Symfony 6.4 was dropped.
+The bundle now requires at least PHP 8.2 and Symfony 7.4. Support for PHP 8.1 and Symfony versions below 7.4 was dropped.
+
+### Other BC changes
+
+* `ParameterMetadata::getPHPType()` returns symfony/type-info `Type` objects instead of strings
+
+## Upgrade from 3.x to 4.0
 
 ### Default settings names only remove the `Settings` suffix
 

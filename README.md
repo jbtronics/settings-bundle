@@ -30,7 +30,7 @@ All relevant definitions of settings are done directly in the settings class via
 
 ## Requirements
 * PHP 8.2 or higher
-* Symfony 7.0 or higher (compatible with Symfony 8.0)
+* Symfony 7.4 or higher (compatible with Symfony 8.0)
 * Symfony/forms and Symfony/validator required if forms should be generated or validation should be used
 * twig required if you want to use the twig extension to access settings in your templates
 * doctrine/orm and doctrine-bundle required if you want to use the doctrine storage adapter

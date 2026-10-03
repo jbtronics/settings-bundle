@@ -42,7 +42,7 @@ final class JbtronicsSettingsBundle extends AbstractBundle
 
     private ?Closure $autoloader = null;
 
-    public function getContainerExtension(): ?ExtensionInterface
+    public function getContainerExtension(): ExtensionInterface
     {
         return new JbtronicsSettingsExtension();
     }

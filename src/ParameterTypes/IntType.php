@@ -34,7 +34,7 @@ final class IntType implements ParameterTypeInterface, ParameterTypeWithFormDefa
     public function convertPHPToNormalized(
         mixed $value,
         ParameterMetadata $parameterMetadata,
-    ): int|string|float|bool|array|null {
+    ): ?int {
         if (!is_int($value) && !is_null($value)) {
             throw new \LogicException(sprintf('The value of the property "%s" must be a string, but "%s" given.', $parameterMetadata->getName(), gettype($value)));
         }

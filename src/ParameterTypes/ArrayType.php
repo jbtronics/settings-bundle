@@ -44,7 +44,7 @@ final class ArrayType implements ParameterTypeInterface
     public function convertPHPToNormalized(
         mixed $value,
         ParameterMetadata $parameterMetadata
-    ): int|string|float|bool|array|null {
+    ): ?array {
         if (!is_array($value) && !is_null($value)) {
             throw new \InvalidArgumentException(sprintf('The value of the property "%s" must be an array, but "%s" given.', $parameterMetadata->getName(), gettype($value)));
         }

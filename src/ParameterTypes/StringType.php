@@ -34,7 +34,7 @@ final class StringType implements ParameterTypeInterface, ParameterTypeWithFormD
     public function convertPHPToNormalized(
         mixed $value,
         ParameterMetadata $parameterMetadata,
-    ): int|string|float|bool|array|null
+    ): ?string
     {
         if (!is_string($value) && !is_null($value)) {
             throw new \LogicException(sprintf('The value of the property "%s" must be a string, but "%s" given.', $parameterMetadata->getName(), gettype($value)));

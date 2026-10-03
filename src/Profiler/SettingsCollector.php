@@ -68,7 +68,7 @@ final class SettingsCollector extends AbstractDataCollector
         ];
     }
 
-    public static function getTemplate(): ?string
+    public static function getTemplate(): string
     {
         return '@JbtronicsSettings/profiler/main.html.twig';
     }

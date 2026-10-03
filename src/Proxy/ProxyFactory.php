@@ -118,7 +118,6 @@ PHP;
     {
         if ($this->useNativeGhostObject) {
             $reflClass = new \ReflectionClass($class);
-            //@phpstan-ignore-next-line (PHPStan does not handle the dynamic checks here well)
             return $reflClass->newLazyGhost($initializer);
         }
 

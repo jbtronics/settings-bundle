@@ -27,12 +27,14 @@ namespace Jbtronics\SettingsBundle\Tests\Metadata;
 
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\ParameterTypes\BoolType;
+use Jbtronics\SettingsBundle\ParameterTypes\DatetimeType;
 use Jbtronics\SettingsBundle\ParameterTypes\EnumType;
 use Jbtronics\SettingsBundle\ParameterTypes\IntType;
 use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesser;
 use Jbtronics\SettingsBundle\Metadata\ParameterTypeGuesserInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
+use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestUnitEnum;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\GuessableSettings;
 use PHPUnit\Framework\TestCase;
 
@@ -71,6 +73,37 @@ class ParameterTypeGuesserTest extends TestCase
         $this->assertEquals(EnumType::class, $this->parameterTypeGuesser->guessParameterType(
             PropertyAccessHelper::getAccessibleReflectionProperty($settings, 'enum')
         ));
+    }
+
+    public function testGuessOnlySupportedEnumAndDatetimeTypes(): void
+    {
+        $settings = new class {
+            public TestEnum $backedEnum;
+            public TestUnitEnum $unitEnum;
+            public \DateTime $dateTime;
+            public \DateTimeImmutable $dateTimeImmutable;
+            public \DateTimeInterface $dateTimeInterface;
+        };
+
+        $guess = fn (string $property) => $this->parameterTypeGuesser->guessParameterType(
+            PropertyAccessHelper::getAccessibleReflectionProperty($settings, $property)
+        );
+        $guessOptions = fn (string $property) => $this->parameterTypeGuesser->guessOptions(
+            PropertyAccessHelper::getAccessibleReflectionProperty($settings, $property)
+        );
+
+        $this->assertEquals(EnumType::class, $guess('backedEnum'));
+        $this->assertEquals(DatetimeType::class, $guess('dateTime'));
+        $this->assertEquals(['class' => \DateTime::class], $guessOptions('dateTime'));
+        $this->assertEquals(DatetimeType::class, $guess('dateTimeImmutable'));
+        $this->assertEquals(['class' => \DateTimeImmutable::class], $guessOptions('dateTimeImmutable'));
+
+        //Non-backed enums and the DateTimeInterface are not supported by the parameter types, so they must not be
+        //guessed. Otherwise, the error would only occur later, when the settings are loaded or the form is built
+        $this->assertNull($guess('unitEnum'));
+        $this->assertNull($guessOptions('unitEnum'));
+        $this->assertNull($guess('dateTimeInterface'));
+        $this->assertNull($guessOptions('dateTimeInterface'));
     }
 
     public function testGuessExtraOptions(): void

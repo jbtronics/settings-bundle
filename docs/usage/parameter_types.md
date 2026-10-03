@@ -37,8 +37,10 @@ The following table shows the default mapping of property types to parameter typ
 | int           | IntType        |
 | bool          | BoolType       |
 | float         | FloatType      |
-| enum / BackedEnum          | EnumType       |
+| BackedEnum          | EnumType       |
 | DateTime / DateTimeImmutable | DateTimeType   |
+
+Other property types (including non-backed enums and properties typed as the `\DateTimeInterface`) cannot be guessed, and you have to set the parameter type explicitly. Otherwise an exception is thrown, when the settings metadata is built.
 
 A nullable property type is mapped to the same parameter type, but with the `nullable` option of the parameter metadata set to `true`.
 

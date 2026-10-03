@@ -58,11 +58,11 @@ final class ParameterTypeGuesser implements ParameterTypeGuesserInterface
                     return FloatType::class;
                 }
 
-                if (is_a($typeName, \UnitEnum::class, true)) {
+                if ($this->isSupportedEnum($typeName)) {
                     return EnumType::class;
                 }
 
-                if (is_a($typeName, \DateTimeInterface::class, true)) {
+                if ($this->isSupportedDateTime($typeName)) {
                     return DatetimeType::class;
                 }
             }
@@ -80,13 +80,13 @@ final class ParameterTypeGuesser implements ParameterTypeGuesserInterface
                 $typeName = $type->getName();
 
                 //Check if type is an enum class, then pass the class name to the metadata
-                if (is_a($typeName, \UnitEnum::class, true)) {
+                if ($this->isSupportedEnum($typeName)) {
                     return [
                         'class' => $type->getName(),
                     ];
                 }
 
-                if (is_a($typeName, \DateTimeInterface::class, true)) {
+                if ($this->isSupportedDateTime($typeName)) {
                     return [
                         'class' => $type->getName(),
                     ];
@@ -95,5 +95,27 @@ final class ParameterTypeGuesser implements ParameterTypeGuesserInterface
         }
 
         return null;
+    }
+
+    /**
+     * Checks if the given type is an enum, which can be handled by the EnumType (only backed enums are supported)
+     * @param  string  $typeName
+     * @return bool
+     */
+    private function isSupportedEnum(string $typeName): bool
+    {
+        return is_a($typeName, \BackedEnum::class, true);
+    }
+
+    /**
+     * Checks if the given type is a datetime class, which can be handled by the DatetimeType. The type must be a
+     * concrete datetime class (DateTime or DateTimeImmutable or a subclass), as we can not create instances of the
+     * DateTimeInterface
+     * @param  string  $typeName
+     * @return bool
+     */
+    private function isSupportedDateTime(string $typeName): bool
+    {
+        return is_a($typeName, \DateTime::class, true) || is_a($typeName, \DateTimeImmutable::class, true);
     }
 }

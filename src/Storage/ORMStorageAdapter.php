@@ -50,6 +50,11 @@ final class ORMStorageAdapter implements StorageAdapterInterface, ResetInterface
      */
     private array $cache = [];
 
+    /**
+     * @var array<string, true> The entity classes, for which all entities were already preloaded into the cache
+     */
+    private array $preloadedEntityClasses = [];
+
     private readonly ManagerRegistry $managerRegistry;
 
     public function __construct(
@@ -108,8 +113,10 @@ final class ORMStorageAdapter implements StorageAdapterInterface, ResetInterface
      */
     private function preloadAllEntityObjects(ObjectManager $entityManager, string $entityClass): void
     {
-        //If the cache is already filled, we do not need to preload the entities
-        if (!empty($this->cache)) {
+        //If the entities of this class were already preloaded, we do not need to do it again.
+        //This has to be tracked per entity class, as the cache can contain entities of multiple classes, and single
+        //entities (e.g. created by save()), which does not mean that all entities of this class were loaded
+        if (isset($this->preloadedEntityClasses[$entityClass])) {
             return;
         }
 
@@ -119,8 +126,11 @@ final class ORMStorageAdapter implements StorageAdapterInterface, ResetInterface
 
         $entities = $entityManager->getRepository($entityClass)->findAll();
         foreach ($entities as $entity) {
-            $this->cache[$entityClass][$entity->getKey()] = $entity;
+            //Do not overwrite entities which are already in the cache, as they might contain changes not yet visible in the database
+            $this->cache[$entityClass][$entity->getKey()] ??= $entity;
         }
+
+        $this->preloadedEntityClasses[$entityClass] = true;
     }
 
     public function save(string $key, array $data, array $options = []): void
@@ -212,6 +222,7 @@ final class ORMStorageAdapter implements StorageAdapterInterface, ResetInterface
     public function reset(): void
     {
         $this->cache = [];
+        $this->preloadedEntityClasses = [];
     }
 
     private function getEntityManager(string $entityClass, array $options): ObjectManager

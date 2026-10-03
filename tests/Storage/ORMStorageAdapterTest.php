@@ -93,6 +93,39 @@ class ORMStorageAdapterTest extends KernelTestCase
         $adapter = new ORMStorageAdapter($this->managerRegistry, OtherSettingsEntry::class, true);
     }
 
+    public function testFetchAllPreloadsEveryEntityClass(): void
+    {
+        //Each entity class must be preloaded exactly once, independent of which other entities are already in the cache
+        $settingsRepository = $this->createMock(EntityRepository::class);
+        $settingsRepository->expects($this->once())->method('findAll')->willReturn([(new SettingsEntry('existing1'))->setData(['foo' => 'preloaded1'])]);
+        //save() fetches the single entity, which must not prevent the preloading of the other entities later
+        $settingsRepository->expects($this->once())->method('findOneBy')->willReturn(null);
+
+        $otherRepository = $this->createMock(EntityRepository::class);
+        $otherRepository->expects($this->once())->method('findAll')->willReturn([(new OtherSettingsEntry('existing2'))->setData(['foo' => 'preloaded2'])]);
+        $otherRepository->expects($this->never())->method('findOneBy');
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('getRepository')->willReturnMap([
+            [SettingsEntry::class, $settingsRepository],
+            [OtherSettingsEntry::class, $otherRepository],
+        ]);
+        $entityManager->method('contains')->willReturn(true);
+
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->method('getManagerForClass')->willReturn($entityManager);
+
+        $adapter = new ORMStorageAdapter($registry, SettingsEntry::class, true);
+
+        $adapter->save('new', ['foo' => 'bar']);
+
+        //Both entity classes are preloaded once, and the saved entity is not replaced by the preloading
+        $this->assertEquals(['foo' => 'preloaded1'], $adapter->load('existing1'));
+        $this->assertEquals(['foo' => 'bar'], $adapter->load('new'));
+        $this->assertEquals(['foo' => 'preloaded2'], $adapter->load('existing2', ['entity_class' => OtherSettingsEntry::class]));
+        $this->assertEquals(['foo' => 'preloaded2'], $adapter->load('existing2', ['entity_class' => OtherSettingsEntry::class]));
+    }
+
     public function testThrowOnInvalidDefaultEntityClass(): void
     {
         //Must throw an exception, if the default entity class is not a subclass of AbstractSettingsORMEntry

@@ -75,9 +75,6 @@ final class SettingsCache implements SettingsCacheInterface
     {
         $item = $this->getCacheItem($settings);
         $item->set($this->toCacheableRepresentation($settings, $value));
-        if (!$this->cache instanceof TagAwareAdapterInterface) {
-            throw new \RuntimeException('The cache pool must be tag-aware to use the settings cache.');
-        }
         $item->tag(self::CACHE_TAG);
         //Set the TTL if it is greater than 0
         if ($this->ttl > 0) {

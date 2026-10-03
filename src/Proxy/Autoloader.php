@@ -84,10 +84,6 @@ final class Autoloader
     {
         $proxyNamespace = ltrim($proxyNamespace, '\\');
 
-        if ($notFoundCallback !== null && ! is_callable($notFoundCallback)) {
-            throw new InvalidArgumentException('The notFoundCallback must be a valid callback or null.');
-        }
-
         $autoloader = static function ($className) use ($proxyDir, $proxyNamespace, $notFoundCallback) {
             if ($proxyNamespace === '') {
                 return;

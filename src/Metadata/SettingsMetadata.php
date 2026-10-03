@@ -420,9 +420,8 @@ class SettingsMetadata
             return array_merge(...array_map(fn(EnvVarMode $m) => $this->parametersWithEnvVars[$m->name] ?? [], $mode));
         }
 
-        if ($mode instanceof EnvVarMode) {
-            return $this->parametersWithEnvVars[$mode->name] ?? [];
-        }
+        // If a single mode is passed, return the parameters with that mode
+        return $this->parametersWithEnvVars[$mode->name] ?? [];
     }
 
     /**

@@ -37,7 +37,6 @@ use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
 use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Jbtronics\SettingsBundle\Settings\CloneAndMergeAwareSettingsInterface;
 use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
-use PhpParser\Node\Param;
 
 /**
  * @internal

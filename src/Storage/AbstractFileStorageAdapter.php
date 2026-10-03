@@ -28,7 +28,9 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Storage;
 
-abstract class AbstractFileStorageAdapter implements StorageAdapterInterface
+use Symfony\Contracts\Service\ResetInterface;
+
+abstract class AbstractFileStorageAdapter implements StorageAdapterInterface, ResetInterface
 {
 
     protected array $cache = [];
@@ -38,6 +40,17 @@ abstract class AbstractFileStorageAdapter implements StorageAdapterInterface
         protected readonly string $defaultFilename
     )
     {
+    }
+
+    /**
+     * Clears the cached file contents, so that the files are read again on the next load. Long-running processes
+     * (Messenger workers, FrankenPHP or RoadRunner worker mode) call this between two requests/messages via the
+     * kernel.reset tag, otherwise they would never see changes made by other processes.
+     * @return void
+     */
+    public function reset(): void
+    {
+        $this->cache = [];
     }
 
     public function save(string $key, array $data, array $options = []): void
@@ -79,9 +92,9 @@ abstract class AbstractFileStorageAdapter implements StorageAdapterInterface
         //Determine which filename to use for the given key
         $filename = $options['filename'] ?? $this->defaultFilename;
 
-        //Check if we already have the content of the file in the cache, then return it
-        if (isset($this->cache[$filename]) && ($options['always_reload_file'] ?? false)) {
-            return $this->cache[$filename][$key];
+        //Check if we already have the content of the file in the cache, then return it (unless a reload is forced)
+        if (isset($this->cache[$filename]) && !($options['always_reload_file'] ?? false)) {
+            return $this->cache[$filename][$key] ?? null;
         }
 
         //Otherwise, try to load the content from the file

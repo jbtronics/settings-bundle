@@ -96,4 +96,30 @@ class JSONFileStorageAdapterTest extends TestCase
         $this->assertEquals(['test2' => 'value2'], $this->service->load('test2'));
         $this->assertEquals(['test3' => 'value3'], $this->service->load('test3'));
     }
+
+    public function testLoadUsesCacheUnlessReloadIsForced(): void
+    {
+        $this->service->save('test', ['test' => 'value']);
+        $this->assertEquals(['test' => 'value'], $this->service->load('test'));
+
+        //Simulate a change of the file by another process
+        file_put_contents(self::STORAGE_DIR.'/settings.json', json_encode(['test' => ['test' => 'changed']]));
+        if (function_exists('opcache_invalidate')) {
+            opcache_invalidate(self::STORAGE_DIR.'/settings.json', true);
+        }
+
+        //By default the cached content is used
+        $this->assertEquals(['test' => 'value'], $this->service->load('test'));
+
+        //With the always_reload_file option the file is read again
+        $this->assertEquals(['test' => 'changed'], $this->service->load('test', ['always_reload_file' => true]));
+
+        //After a reset the file is read again
+        file_put_contents(self::STORAGE_DIR.'/settings.json', json_encode(['test' => ['test' => 'reset']]));
+        if (function_exists('opcache_invalidate')) {
+            opcache_invalidate(self::STORAGE_DIR.'/settings.json', true);
+        }
+        $this->service->reset();
+        $this->assertEquals(['test' => 'reset'], $this->service->load('test'));
+    }
 }

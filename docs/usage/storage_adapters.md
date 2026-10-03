@@ -34,6 +34,8 @@ class MySettings
 // ...
 ```
 
+The content of a file is read only once per request and then kept in memory. If you need to always read the current file content (e.g. because the file is changed by another process during a long-running request), you can set the `always_reload_file` option to `true` in the `storageAdapterOptions`.
+
 The PHPFileStorageAdapter loads the data directly into PHP, which is faster than parsing JSON. Be sure that the file contains only safe PHP code, as it will be executed directly by the PHP interpreter.
 
 ### ORMStorageAdapter

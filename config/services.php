@@ -346,12 +346,14 @@ return static function (ContainerConfigurator $container) {
         ->args([
             '$storageDirectory' => '%jbtronics.settings.file_storage.storage_directory%',
             '$defaultFilename' => '%jbtronics.settings.file_storage.default_filename%.json',
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
     $services->set(\Jbtronics\SettingsBundle\Storage\PHPFileStorageAdapter::class)
         ->args([
             '$storageDirectory' => '%jbtronics.settings.file_storage.storage_directory%',
             '$defaultFilename' => '%jbtronics.settings.file_storage.default_filename%.php',
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
 
     $services->set(\Jbtronics\SettingsBundle\Storage\ORMStorageAdapter::class)

@@ -31,6 +31,7 @@ namespace Jbtronics\SettingsBundle\Manager;
 use Jbtronics\SettingsBundle\Exception\ParameterDataNotCloneableException;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Metadata\MetadataManager;
+use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
 use Jbtronics\SettingsBundle\Proxy\LegacyProxyHelper;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
@@ -44,7 +45,7 @@ use Jbtronics\SettingsBundle\Settings\ResettableSettingsInterface;
 final class SettingsCloner implements SettingsClonerInterface
 {
     public function __construct(
-        private readonly MetadataManager $metadataManager,
+        private readonly MetadataManagerInterface $metadataManager,
         private readonly ProxyFactoryInterface $proxyFactory,
     )
     {

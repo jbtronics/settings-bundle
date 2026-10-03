@@ -95,7 +95,7 @@ final class SettingsHydrator implements SettingsHydratorInterface
         //If we went here, then the application of the normalized representation was successful.
         //If the settings object was migrated, we save it to the storage adapter, to make later retrievals faster.
         if ($this->saveAfterMigration && $migrated) {
-            $storageAdapter->save($metadata->getStorageKey(), $normalizedRepresentation);
+            $storageAdapter->save($metadata->getStorageKey(), $normalizedRepresentation, $metadata->getStorageAdapterOptions());
         }
 
         //If the settings object is cacheable, we store the data in the cache.

@@ -25,11 +25,17 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Manager;
 
+use Jbtronics\SettingsBundle\Manager\EnvVarValueResolverInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsCacheInterface;
 use Jbtronics\SettingsBundle\Manager\SettingsHydrator;
 use Jbtronics\SettingsBundle\Manager\SettingsHydratorInterface;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
+use Jbtronics\SettingsBundle\Metadata\SettingsMetadata;
+use Jbtronics\SettingsBundle\Migrations\MigrationsManagerInterface;
+use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeRegistryInterface;
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
+use Jbtronics\SettingsBundle\Storage\StorageAdapterInterface;
+use Jbtronics\SettingsBundle\Storage\StorageAdapterRegistryInterface;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CacheableSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EnvVarSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
@@ -173,6 +179,44 @@ class SettingsHydratorTest extends WebTestCase
             'old' => 1,
             'new' => VersionedSettings::VERSION,
         ], $data);
+    }
+
+    public function testHydrateVersionedSavesWithStorageAdapterOptions(): void
+    {
+        $options = ['filename' => 'custom.json'];
+        $metadata = new SettingsMetadata(
+            className: \stdClass::class,
+            parameterMetadata: [],
+            storageAdapter: 'adapter',
+            name: 'test',
+            version: 2,
+            migrationService: 'migrator',
+            storageAdapterOptions: $options,
+        );
+
+        //The storage adapter must receive the storage adapter options, not only when loading, but also when
+        //saving the migrated data. Otherwise the data would be written to the wrong location (e.g. the default file)
+        $storageAdapter = $this->createMock(StorageAdapterInterface::class);
+        $storageAdapter->expects($this->once())->method('load')->with('test', $options)
+            ->willReturn(['$META$' => ['version' => 1]]);
+        $storageAdapter->expects($this->once())->method('save')->with('test', ['$META$' => ['version' => 2]], $options);
+
+        $storageAdapterRegistry = $this->createMock(StorageAdapterRegistryInterface::class);
+        $storageAdapterRegistry->method('getStorageAdapter')->willReturn($storageAdapter);
+
+        $migrationsManager = $this->createMock(MigrationsManagerInterface::class);
+        $migrationsManager->method('requireUpgrade')->willReturn(true);
+        $migrationsManager->method('performUpgrade')->willReturn(['$META$' => ['version' => 2]]);
+
+        $hydrator = new SettingsHydrator(
+            storageAdapterRegistry: $storageAdapterRegistry,
+            parameterTypeRegistry: $this->createMock(ParameterTypeRegistryInterface::class),
+            migrationsManager: $migrationsManager,
+            envVarValueResolver: $this->createMock(EnvVarValueResolverInterface::class),
+            settingsCache: $this->createMock(SettingsCacheInterface::class),
+        );
+
+        $hydrator->hydrate(new \stdClass(), $metadata);
     }
 
     public function testHydrateEnvVars(): void

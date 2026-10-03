@@ -78,4 +78,22 @@ class PHPFileStorageAdapterTest extends TestCase
         //Or if we request a file that does not exist
         $this->assertNull($this->service->load('does_not_exist', ['filename' => 'does_not_exist.php']));
     }
+
+    public function testSaveWithoutPriorLoadKeepsOtherKeys(): void
+    {
+        $this->service->save('test', ['test' => 'value']);
+
+        //A fresh instance (e.g. in a new request, where the settings were retrieved from the settings cache) never
+        //called load() before saving. This must not remove the other keys from the file
+        $other = new PHPFileStorageAdapter(self::STORAGE_DIR, 'settings.php');
+        $other->save('test2', ['test2' => 'value2']);
+
+        $this->assertEquals(['test' => 'value'], $other->load('test'));
+        $this->assertEquals(['test2' => 'value2'], $other->load('test2'));
+
+        //The first instance must not overwrite the changes of the other instance with its outdated cache either
+        $this->service->save('test3', ['test3' => 'value3']);
+        $this->assertEquals(['test2' => 'value2'], $this->service->load('test2'));
+        $this->assertEquals(['test3' => 'value3'], $this->service->load('test3'));
+    }
 }

@@ -48,10 +48,30 @@ abstract class AbstractFileStorageAdapter implements StorageAdapterInterface
         //Save the content to the file
         $filePath = $this->getFilePath($filename);
 
-        $this->cache[$filename][$key] = $data;
+        $this->ensureDirectoryExists(dirname($filePath));
 
-        //Write the content to the file
-        $this->saveFileContent($filePath, $this->cache[$filename]);
+        //Lock the file for the whole read-modify-write cycle, so that concurrent saves of different keys
+        //(in other processes) do not overwrite each other
+        $lockHandle = fopen($filePath . '.lock', 'c');
+        if ($lockHandle === false || !flock($lockHandle, LOCK_EX)) {
+            throw new \RuntimeException(sprintf('Could not acquire lock for settings file "%s"', $filePath));
+        }
+
+        try {
+            //Always reload the current file content, as our cache might be empty (if load() was never called in this
+            //process, e.g. because the settings came from the settings cache) or outdated (if another process changed the file).
+            //Otherwise, we would overwrite all other keys in the file.
+            $content = $this->loadFileContent($filePath) ?? [];
+            $content[$key] = $data;
+
+            //Write the content to the file
+            $this->saveFileContent($filePath, $content);
+
+            $this->cache[$filename] = $content;
+        } finally {
+            flock($lockHandle, LOCK_UN);
+            fclose($lockHandle);
+        }
     }
 
     public function load(string $key, array $options = []): ?array
@@ -106,14 +126,31 @@ abstract class AbstractFileStorageAdapter implements StorageAdapterInterface
         $content = $this->serialize($data);
 
         //Create the directory if it doesn't exist
-        if (!is_dir(dirname($filePath))) {
-            if (!mkdir($concurrentDirectory = dirname($filePath), 0777, true) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
+        $this->ensureDirectoryExists(dirname($filePath));
+
+        //Write the content to a temporary file first and then move it to the final location. The rename is atomic,
+        //so concurrent readers never see a partially written file
+        $tmpFilePath = $filePath . '.' . bin2hex(random_bytes(8)) . '.tmp';
+        if (file_put_contents($tmpFilePath, $content) === false) {
+            throw new \RuntimeException(sprintf('Could not write settings file "%s"', $tmpFilePath));
         }
 
-        //Save the content to the file
-        file_put_contents($filePath, $content);
+        if (!rename($tmpFilePath, $filePath)) {
+            @unlink($tmpFilePath);
+            throw new \RuntimeException(sprintf('Could not move temporary settings file to "%s"', $filePath));
+        }
+    }
+
+    /**
+     * Creates the given directory (recursively), if it does not exist yet
+     * @param  string  $directory
+     * @return void
+     */
+    private function ensureDirectoryExists(string $directory): void
+    {
+        if (!is_dir($directory) && !mkdir($directory, 0777, true) && !is_dir($directory)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $directory));
+        }
     }
 
     /**

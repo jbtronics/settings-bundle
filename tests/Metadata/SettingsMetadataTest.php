@@ -38,6 +38,8 @@ use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\Migration\TestMigration;
 use LogicException;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\TypeResolver\TypeResolver;
 
 class SettingsMetadataTest extends TestCase
 {
@@ -411,9 +413,9 @@ class SettingsMetadataTest extends TestCase
         $this->assertSame(['ENV_VAR1', 'ENV_VAR2'], $metadata->getCacheAffectingEnvVars());
     }
 
-    private function phpType(string $property): \ReflectionType
+    private function phpType(string $property): Type
     {
-        return (new \ReflectionProperty(self::class, $property))->getType();
+        return TypeResolver::create()->resolve(new \ReflectionProperty(self::class, $property));
     }
 
     /**

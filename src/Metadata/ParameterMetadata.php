@@ -27,6 +27,7 @@ namespace Jbtronics\SettingsBundle\Metadata;
 
 use Jbtronics\SettingsBundle\ParameterTypes\ParameterTypeInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\TypeInfo\Type;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
@@ -56,6 +57,7 @@ class ParameterMetadata
      * @param  callable|string|null  $envVarMapper  A mapper, which is used to map the value from the environment variable to the parameter value. It can be either a ParameterTypeInterface service, or a callable, which takes the value from the environment variable as argument and returns the mapped value.
      * @phpstan-param callable(mixed): mixed|class-string<ParameterTypeInterface>|null $envVarMapper
      * @param  bool $cloneable Whether this property should be cloned (a new instance is created), when the settings class is cloned. If false, the property instance is shared between the original and the cloned settings class. This does only affect object properties.
+     * @param  Type|null  $phpType  The PHP type of the property, as resolved by symfony/type-info. Null if not available.
      */
     public function __construct(
         private readonly string $className,
@@ -73,7 +75,7 @@ class ParameterMetadata
         private readonly EnvVarMode $envVarMode = EnvVarMode::INITIAL,
         callable|string|null $envVarMapper = null,
         private readonly bool $cloneable = true,
-        private readonly ?string $phpType = null
+        private readonly ?Type $phpType = null
     ) {
         $this->envVarMapper = $envVarMapper;
     }
@@ -205,11 +207,11 @@ class ParameterMetadata
     }
 
     /**
-     * Returns the PHP type of the property this parameter is associated with, as a string, if available.
+     * Returns the PHP type of the property this parameter is associated with, if available.
      * Null if the type is not available (e.g. for untyped properties, or unmapped parameters).
-     * @return string|null
+     * @return Type|null
      */
-    public function getPhpType(): ?string
+    public function getPHPType(): ?Type
     {
         return $this->phpType;
     }

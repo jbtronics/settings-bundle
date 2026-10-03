@@ -106,6 +106,8 @@ return static function (ContainerConfigurator $container) {
             '$metadataDriver' => service('jbtronics.settings.metadata_driver'),
             '$defaultStorageAdapter' => '%jbtronics.settings.default_storage_adapter%',
             '$defaultCacheable' => '%jbtronics.settings.cache.default_cacheable%',
+            //Null if type_info is disabled in the framework config, then a default resolver is used
+            '$typeResolver' => service('type_info.resolver')->nullOnInvalid(),
         ]);
     $services->alias(MetadataManagerInterface::class, 'jbtronics.settings.metadata_manager');
 

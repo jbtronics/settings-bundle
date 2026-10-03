@@ -33,6 +33,10 @@ use Jbtronics\SettingsBundle\Metadata\Driver\MetadataDriverInterface;
 use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Symfony\Component\TypeInfo\Exception\UnsupportedException;
+use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\TypeResolver\TypeResolver;
+use Symfony\Component\TypeInfo\TypeResolver\TypeResolverInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 final class MetadataManager implements MetadataManagerInterface
@@ -45,6 +49,8 @@ final class MetadataManager implements MetadataManagerInterface
 
     private const CACHE_KEY_EMBEDDED_PREFIX = 'jbtronics_settings.embedded.';
 
+    private readonly TypeResolverInterface $typeResolver;
+
     public function __construct(
         private readonly CacheInterface $cache,
         private readonly bool $debug_mode,
@@ -53,7 +59,9 @@ final class MetadataManager implements MetadataManagerInterface
         private readonly MetadataDriverInterface $metadataDriver,
         private readonly ?string $defaultStorageAdapter = null,
         private readonly bool $defaultCacheable = false,
+        ?TypeResolverInterface $typeResolver = null,
     ) {
+        $this->typeResolver = $typeResolver ?? TypeResolver::create();
     }
 
     public function isSettingsClass(string|object $className): bool
@@ -219,8 +227,20 @@ final class MetadataManager implements MetadataManagerInterface
             envVarMode: $attribute->envVarMode,
             envVarMapper: $attribute->envVarMapper,
             cloneable: $attribute->cloneable,
-            phpType: (string) $reflProperty->getType()
+            phpType: $this->resolvePhpType($reflProperty)
         );
+    }
+
+    /**
+     * Resolves the PHP type of the given property. Returns null if the type could not be resolved (e.g. for untyped properties).
+     */
+    private function resolvePhpType(\ReflectionProperty $reflProperty): ?Type
+    {
+        try {
+            return $this->typeResolver->resolve($reflProperty);
+        } catch (UnsupportedException) {
+            return null;
+        }
     }
 
     public function resolveEmbeddedCascade(string $className): array

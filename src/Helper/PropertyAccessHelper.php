@@ -36,6 +36,11 @@ namespace Jbtronics\SettingsBundle\Helper;
 class PropertyAccessHelper
 {
     /**
+     * @var array<string, array<string, \ReflectionProperty>> Cache of the reflection properties, indexed by class name and property name
+     */
+    private static array $reflectionPropertyCache = [];
+
+    /**
      * Get a reflection class that has this property.
      *
      * @param string $class
@@ -73,16 +78,18 @@ class PropertyAccessHelper
      */
     public static function getAccessibleReflectionProperty(object|string $objectOrClass, string $propertyName): \ReflectionProperty
     {
-        $class = $objectOrClass;
-        if (!is_string($objectOrClass)) {
-            $class = get_class($objectOrClass);
+        $class = is_string($objectOrClass) ? $objectOrClass : $objectOrClass::class;
+
+        //Creating the reflection objects is expensive, so we cache the reflection property for each class and property
+        if (isset(self::$reflectionPropertyCache[$class][$propertyName])) {
+            return self::$reflectionPropertyCache[$class][$propertyName];
         }
 
         if (null === $refl = static::getReflectionClassWithProperty($class, $propertyName)) {
             throw new \LogicException(sprintf('The property %s does not exist on %s or any of its parents.', $propertyName, $class));
         }
 
-        return $refl->getProperty($propertyName);
+        return self::$reflectionPropertyCache[$class][$propertyName] = $refl->getProperty($propertyName);
     }
 
     /**
@@ -101,10 +108,13 @@ class PropertyAccessHelper
     {
         $reflectionProperty = static::getAccessibleReflectionProperty($objectOrClass, $propertyName);
 
-        $object = $objectOrClass;
-        if ($reflectionProperty->isStatic()) {
-            $object = null;
-        } elseif (is_string($objectOrClass)) {
+        //Fast path for the common case: For objects, getValue() works for both static and non-static properties
+        if (is_object($objectOrClass)) {
+            return $reflectionProperty->getValue($objectOrClass);
+        }
+
+        $object = null;
+        if (!$reflectionProperty->isStatic()) {
             $object = (new \ReflectionClass($objectOrClass))->newInstanceWithoutConstructor();
         }
 
@@ -126,10 +136,14 @@ class PropertyAccessHelper
     {
         $reflectionProperty = static::getAccessibleReflectionProperty($objectOrClass, $propertyName);
 
-        $object = $objectOrClass;
-        if ($reflectionProperty->isStatic()) {
-            $object = null;
-        } elseif (is_string($objectOrClass)) {
+        //Fast path for the common case: For objects, setValue() works for both static and non-static properties
+        if (is_object($objectOrClass)) {
+            $reflectionProperty->setValue($objectOrClass, $value);
+            return;
+        }
+
+        $object = null;
+        if (!$reflectionProperty->isStatic()) {
             $object = (new \ReflectionClass($objectOrClass))->newInstanceWithoutConstructor();
         }
 

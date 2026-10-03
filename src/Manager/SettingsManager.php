@@ -31,9 +31,8 @@ use Jbtronics\SettingsBundle\Helper\ProxyClassNameHelper;
 use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
 use Jbtronics\SettingsBundle\Metadata\MetadataManagerInterface;
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
-use Jbtronics\SettingsBundle\Proxy\LegacyProxyHelper;
+use Jbtronics\SettingsBundle\Proxy\LazyObjectHelper;
 use Jbtronics\SettingsBundle\Proxy\ProxyFactoryInterface;
-use Jbtronics\SettingsBundle\Proxy\SettingsProxyInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -205,11 +204,7 @@ final class SettingsManager implements SettingsManagerInterface, ResetInterface
             $instance = $this->get($class, true);
 
             //If the settings class is a proxy and was not yet initialized, we do not need to save it as it was not changed
-            if (PHP_VERSION_ID >= 80400 && (new \ReflectionClass($instance))->isUninitializedLazyObject($instance)) { //PHP native way
-                continue;
-            }
-
-            if ($instance instanceof SettingsProxyInterface && LegacyProxyHelper::isLegacyProxyUninitialized($instance)) { //Fallback for older PHP versions
+            if (LazyObjectHelper::isUninitializedLazyObject($instance)) {
                 continue;
             }
 

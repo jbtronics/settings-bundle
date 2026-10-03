@@ -362,7 +362,8 @@ return static function (ContainerConfigurator $container) {
             '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
             '$logger' => service('logger')->nullOnInvalid(),
             '$throwOnConnectionError' => '%jbtronics.settings.orm.throw_on_connection_error%',
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     /*************************************************************************************
      * Commands

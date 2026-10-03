@@ -37,7 +37,7 @@ final class EnumType implements ParameterTypeInterface, ParameterTypeWithFormDef
     public function convertPHPToNormalized(
         mixed $value,
         ParameterMetadata $parameterMetadata,
-    ): int|string|float|bool|array|null {
+    ): int|string|null {
         //Null values get directly returned
         if ($value === null) {
             return null;

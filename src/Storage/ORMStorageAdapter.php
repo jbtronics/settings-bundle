@@ -35,12 +35,13 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Jbtronics\SettingsBundle\Entity\AbstractSettingsORMEntry;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * This class provides a storage adapter for the Doctrine ORM, it allows to store settings in the database using Doctrine ORM entities.
  * You will need to implement your own entity class that extends AbstractSettingsORMEntry and configure the storage adapter to use it.
  */
-final class ORMStorageAdapter implements StorageAdapterInterface
+final class ORMStorageAdapter implements StorageAdapterInterface, ResetInterface
 {
 
     /**
@@ -200,6 +201,17 @@ final class ORMStorageAdapter implements StorageAdapterInterface
 
             return null;
         }
+    }
+
+    /**
+     * Clears the entity cache. The cached entities are detached, once the entity manager is cleared, and would
+     * never see changes made by other processes. Long-running processes (Messenger workers, FrankenPHP or
+     * RoadRunner worker mode) call this between two requests/messages via the kernel.reset tag.
+     * @return void
+     */
+    public function reset(): void
+    {
+        $this->cache = [];
     }
 
     private function getEntityManager(string $entityClass, array $options): ObjectManager

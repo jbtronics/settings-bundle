@@ -23,9 +23,6 @@ parameters:
 
     checkFunctionNameCase: false
 
-    checkAlwaysTrueInstanceof: false
-    checkAlwaysTrueCheckTypeFunctionCall: false
-    checkAlwaysTrueStrictComparison: false
     reportAlwaysTrueInLastCondition: false
 
     reportMaybesInPropertyPhpDocTypes: false
@@ -36,15 +33,28 @@ parameters:
     	booleansInConditions: false
     	uselessCast: false
     	requireParentConstructorCall: true
-    	disallowedConstructs: false
+    	disallowedBacktick: false
+    	disallowedEmpty: false
+    	disallowedImplicitArrayCreation: false
+    	disallowedShortTernary: false
     	overwriteVariablesWithLoop: false
     	closureUsesThis: false
     	matchingInheritedMethodNames: true
     	numericOperandsInArithmeticOperators: true
-    	strictCalls: true
+    	strictFunctionCalls: true
     	switchConditionsMatchingType: false
     	noVariableVariables: false
 
-    #ignoreErrors:
-    #    # Ignore errors caused by complex mapping with AbstractStructuralDBElement
-    #    - '#AbstractStructuralDBElement does not have a field named \$parent#'
+    ignoreErrors:
+        # Compatibility checks for older Symfony versions, which are always true with the latest Symfony version
+        -
+            identifier: function.alreadyNarrowedType
+            message: '#^Call to function method_exists\(\)#'
+            reportUnmatched: false
+        # Runtime check, as the enum class comes from user configuration
+        -
+            identifier: function.alreadyNarrowedType
+            path: src/ParameterTypes/EnumType.php
+        # These traits are meant to be used by the settings classes of the bundle users
+        -
+            identifier: trait.unused

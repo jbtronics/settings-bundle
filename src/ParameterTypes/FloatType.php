@@ -34,7 +34,7 @@ final class FloatType implements ParameterTypeInterface, ParameterTypeWithFormDe
     public function convertPHPToNormalized(
         mixed $value,
         ParameterMetadata $parameterMetadata,
-    ): int|string|float|bool|array|null {
+    ): ?float {
         if (!is_float($value) && !is_null($value)) {
             throw new \LogicException(sprintf('The value of the property "%s" must be a float or null, but "%s" given.', $parameterMetadata->getName(), gettype($value)));
         }

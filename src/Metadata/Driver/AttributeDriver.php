@@ -28,8 +28,9 @@ declare(strict_types=1);
 
 namespace Jbtronics\SettingsBundle\Metadata\Driver;
 
-use Ergebnis\Classy\Construct;
-use Ergebnis\Classy\Constructs;
+use Ergebnis\Classy\Collector\DefaultConstructFromFinderCollector;
+use Ergebnis\Classy\Collector\PhpTokenTokenizeConstructFromSourceCollector;
+use Ergebnis\Classy\ConstructFromSplFileInfo;
 use Jbtronics\SettingsBundle\Helper\PropertyAccessHelper;
 use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
 use Jbtronics\SettingsBundle\Settings\Settings;
@@ -139,12 +140,7 @@ final class AttributeDriver implements MetadataDriverInterface
             }
 
             //Find all PHP classes in the given directories
-            $constructs = Constructs::fromDirectory($path);
-            $names = array_map(static function (Construct $construct): string {
-                return $construct->name();
-            }, $constructs);
-
-            $classes = array_merge($classes, $names);
+            $classes = array_merge($classes, $this->findClassNamesInDirectory($path));
         }
 
         //Now filter out all classes, which donot have the #[Settings] attribute
@@ -159,5 +155,32 @@ final class AttributeDriver implements MetadataDriverInterface
         }
 
         return $settings_classes;
+    }
+
+    /**
+     * Returns the names of all classy constructs (classes, enums, interfaces, traits) defined in PHP files in the given directory.
+     * Supports ergebnis/classy 1.x as well as 2.x and newer, which replaced the Constructs API with collectors.
+     * @param  string  $directory
+     * @return string[]
+     */
+    private function findClassNamesInDirectory(string $directory): array
+    {
+        //ergebnis/classy 1.x
+        if (class_exists(\Ergebnis\Classy\Constructs::class)) {
+            return array_map(static fn($construct): string => $construct->name(), \Ergebnis\Classy\Constructs::fromDirectory($directory));
+        }
+
+        //ergebnis/classy 2.x and newer
+        $files = new \CallbackFilterIterator(
+            new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::FOLLOW_SYMLINKS)),
+            static fn(\SplFileInfo $file): bool => $file->isFile() && $file->getExtension() === 'php'
+        );
+
+        $collector = new DefaultConstructFromFinderCollector(new PhpTokenTokenizeConstructFromSourceCollector());
+
+        return array_values(array_unique(array_map(
+            static fn(ConstructFromSplFileInfo $construct): string => $construct->name()->toString(),
+            $collector->collectFromFinder($files)
+        )));
     }
 }

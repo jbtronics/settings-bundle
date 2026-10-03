@@ -34,7 +34,7 @@ final class BoolType implements ParameterTypeInterface, ParameterTypeWithFormDef
     public function convertPHPToNormalized(
         mixed $value,
         ParameterMetadata $parameterMetadata,
-    ): int|string|float|bool|array|null {
+    ): ?bool {
         if (!is_bool($value) && !is_null($value)) {
             throw new \LogicException(sprintf('The value of the property "%s" must be a bool, but "%s" given.', $parameterMetadata->getName(), gettype($value)));
         }

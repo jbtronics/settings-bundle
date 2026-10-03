@@ -40,7 +40,7 @@ final class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('jbtronics_settings');
         $rootNode = $treeBuilder->getRootNode();
 
-        $rootNode // @phpstan-ignore-line
+        $rootNode
             ->children()
 
             ->arrayNode('search_paths')
@@ -78,7 +78,7 @@ final class Configuration implements ConfigurationInterface
 
     private function addCacheConfiguration(ArrayNodeDefinition $rootNode): void
     {
-        $rootNode  //@phpstan-ignore-line
+        $rootNode
             ->children()
             ->arrayNode('cache')
                 ->addDefaultsIfNotSet()
@@ -97,7 +97,7 @@ final class Configuration implements ConfigurationInterface
 
     private function addFileStorageConfiguration(ArrayNodeDefinition $rootNode): void
     {
-        $rootNode //@phpstan-ignore-line
+        $rootNode
             ->children()
             ->arrayNode('file_storage')
                 ->addDefaultsIfNotSet()
@@ -109,7 +109,7 @@ final class Configuration implements ConfigurationInterface
 
     private function addORMStorageConfiguration(ArrayNodeDefinition $rootNode): void
     {
-        $rootNode //@phpstan-ignore-line
+        $rootNode
             ->children()
             ->arrayNode('orm_storage')
                 ->addDefaultsIfNotSet()

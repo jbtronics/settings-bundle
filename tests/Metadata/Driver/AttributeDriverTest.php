@@ -7,6 +7,7 @@ namespace Jbtronics\SettingsBundle\Tests\Metadata\Driver;
 use Jbtronics\SettingsBundle\Metadata\Driver\AttributeDriver;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
+use Jbtronics\SettingsBundle\Tests\Fixtures\Settings\InheritedSettings;
 use Jbtronics\SettingsBundle\Tests\Fixtures\Settings\YamlConfiguredSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
@@ -61,6 +62,21 @@ class AttributeDriverTest extends TestCase
         $this->assertArrayHasKey('value2', $parameters);
         $this->assertArrayHasKey('value3', $parameters);
         $this->assertContainsOnlyInstancesOf(SettingsParameter::class, $parameters);
+    }
+
+    public function testLoadParameterMetadataChildDeclarationWins(): void
+    {
+        $parameters = $this->driver->loadParameterMetadata(InheritedSettings::class);
+
+        //The attribute of the child class must be used, not the one of the parent class
+        $this->assertSame('child', $parameters['redeclared']->label);
+
+        //A property redeclared without attribute is no parameter anymore
+        $this->assertArrayNotHasKey('redeclaredWithoutAttribute', $parameters);
+
+        //Parameters only declared in the parent class (also private ones) are still found
+        $this->assertSame('parent', $parameters['inherited']->label);
+        $this->assertSame('parent', $parameters['parentPrivate']->label);
     }
 
     public function testLoadParameterMetadataReturnsEmptyForPlainClass(): void

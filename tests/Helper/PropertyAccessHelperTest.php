@@ -40,6 +40,11 @@ class PropertyAccessHelperTestChild extends PropertyAccessHelperTestParent
     protected int $protected = 2;
 }
 
+class PropertyAccessHelperTestRedeclaringChild extends PropertyAccessHelperTestParent
+{
+    public string $parentPrivate = 'child';
+}
+
 class PropertyAccessHelperTest extends TestCase
 {
     public function testGetSetOwnProperty(): void
@@ -78,6 +83,26 @@ class PropertyAccessHelperTest extends TestCase
             PropertyAccessHelper::getAccessibleReflectionProperty($object, 'protected'),
             PropertyAccessHelper::getAccessibleReflectionProperty(PropertyAccessHelperTestChild::class, 'protected')
         );
+    }
+
+    public function testGetPropertiesContainsEveryPropertyOnce(): void
+    {
+        $properties = PropertyAccessHelper::getProperties(PropertyAccessHelperTestChild::class);
+
+        //Own properties and the private properties of the parents are contained exactly once, indexed by name
+        $this->assertEqualsCanonicalizing(['static', 'protected', 'parentPrivate'], array_keys($properties));
+        $this->assertSame(PropertyAccessHelperTestParent::class, $properties['parentPrivate']->getDeclaringClass()->getName());
+
+        //Passing an object must give the same result
+        $this->assertEquals($properties, PropertyAccessHelper::getProperties(new PropertyAccessHelperTestChild()));
+    }
+
+    public function testGetPropertiesPrefersChildDeclaration(): void
+    {
+        $properties = PropertyAccessHelper::getProperties(PropertyAccessHelperTestRedeclaringChild::class);
+
+        $this->assertSame(['parentPrivate'], array_keys($properties));
+        $this->assertSame(PropertyAccessHelperTestRedeclaringChild::class, $properties['parentPrivate']->getDeclaringClass()->getName());
     }
 
     public function testNonExistingPropertyThrows(): void

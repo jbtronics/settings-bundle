@@ -151,27 +151,25 @@ class PropertyAccessHelper
     }
 
     /**
-     * Get all property reflection objects of a class.
+     * Get all property reflection objects of a class, including the private properties of its parents.
+     * Every property name is only contained once. If a property is redeclared in a child class, the declaration
+     * of the child class is returned.
      *
      * @param object|string $objectOrClass
-     * @return \ReflectionProperty[] of strings
+     * @return array<string, \ReflectionProperty> The reflection properties indexed by property name
      * @throws \InvalidArgumentException
      */
     public static function getProperties(object|string $objectOrClass): array
     {
-        $class = $objectOrClass;
-        if (!is_string($objectOrClass)) {
-            $class = get_class($objectOrClass);
-        }
+        $properties = [];
 
-        $refl = new \ReflectionClass($class);
-        $properties = $refl->getProperties();
-
-        // check parents
-        while (false !== $parent = get_parent_class($class)) {
-            $parentRefl = new \ReflectionClass($parent);
-            $properties = array_merge($properties, $parentRefl->getProperties());
-            $class = $parent;
+        //Walk from the class up to its parents, so that the declaration of the most derived class wins.
+        //ReflectionClass::getProperties() already contains the inherited public and protected properties,
+        //we only need to check the parents for their private properties
+        for ($class = is_string($objectOrClass) ? $objectOrClass : $objectOrClass::class; $class !== false; $class = get_parent_class($class)) {
+            foreach ((new \ReflectionClass($class))->getProperties() as $property) {
+                $properties[$property->getName()] ??= $property;
+            }
         }
 
         return $properties;

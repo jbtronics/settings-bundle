@@ -43,18 +43,12 @@ final class SettingsCache implements SettingsCacheInterface
     private const CACHE_KEY_PREFIX = 'jbtronics_settings_';
     private const CACHE_TAG = 'jbtronics_settings_cached_data';
 
-    /**
-     * @var \WeakMap<SettingsMetadata, string> The schema hash per metadata instance, see getSchemaHash()
-     */
-    private \WeakMap $schemaHashes;
-
     public function __construct(
         private readonly TagAwareAdapterInterface $cache,
         private readonly int $ttl = 0,
         private readonly bool $invalidateOnEnvChange = true,
     )
     {
-        $this->schemaHashes = new \WeakMap();
     }
 
     public function hasData(SettingsMetadata $metadata): bool
@@ -111,36 +105,10 @@ final class SettingsCache implements SettingsCacheInterface
         return substr(sha1(json_encode($relevantEnvData, JSON_THROW_ON_ERROR)), 0, 8);
     }
 
-    /**
-     * Returns a hash of everything that shapes the cached representation of the settings class: its version and
-     * the name and PHP type of each parameter property.
-     * The cached data holds the raw property values in that shape. An entry written for another schema (a parameter
-     * added, renamed or retyped, or a version bump whose migration changed the values) would otherwise still be a hit,
-     * and applying it fails (e.g. a TypeError for a non-nullable property) or silently applies outdated values.
-     * As the key changes with the schema, such an entry is never read, and old and new code do not overwrite each
-     * others entries while both are deployed.
-     */
-    private function getSchemaHash(SettingsMetadata $settings): string
-    {
-        if (!isset($this->schemaHashes[$settings])) {
-            $schema = ['version' => $settings->getVersion(), 'parameters' => []];
-            foreach ($settings->getParameters() as $parameter) {
-                $property = PropertyAccessHelper::getAccessibleReflectionProperty($parameter->getClassName(), $parameter->getPropertyName());
-                $schema['parameters'][$parameter->getPropertyName()] = (string) $property->getType();
-            }
-            //The order of the parameters does not affect the cached data
-            ksort($schema['parameters']);
-
-            $this->schemaHashes[$settings] = substr(sha1(json_encode($schema, JSON_THROW_ON_ERROR)), 0, 8);
-        }
-
-        return $this->schemaHashes[$settings];
-    }
-
     private function getCacheKey(SettingsMetadata $settings): string
     {
         //The storage key should be unique enough to avoid conflicts
-        $tmp = self::CACHE_KEY_PREFIX . $settings->getStorageKey() . '_' . $this->getSchemaHash($settings);
+        $tmp = self::CACHE_KEY_PREFIX . $settings->getStorageKey();
 
         if ($this->invalidateOnEnvChange) {
             $tmp .= '_' . $this->getEnvVarHash($settings);

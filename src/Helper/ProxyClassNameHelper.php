@@ -46,7 +46,7 @@ class ProxyClassNameHelper
     {
         //for proxies return the parent class
         if ($obj instanceof SettingsProxyInterface) {
-            return (new \ReflectionClass($obj))->getParentClass()->getName();
+            return get_parent_class($obj);
         }
 
         //Otherwise we can just return the class

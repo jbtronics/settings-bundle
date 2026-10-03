@@ -5,6 +5,10 @@ The newest version is at the top.
 
 ## Upgrade from 3.x to 4.0
 
+### Minimum requirements raised
+
+The bundle now requires at least PHP 8.2 and Symfony 7.0. Support for PHP 8.1 and Symfony 6.4 was dropped.
+
 ### Default settings names only remove the `Settings` suffix
 
 If no `name` is set explicitly on a settings class, the name is generated from the short class name. Before 4.0,

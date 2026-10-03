@@ -219,7 +219,7 @@ final class MetadataManager implements MetadataManagerInterface
             envVarMode: $attribute->envVarMode,
             envVarMapper: $attribute->envVarMapper,
             cloneable: $attribute->cloneable,
-            phpType: $reflProperty->getType()
+            phpType: (string) $reflProperty->getType()
         );
     }
 

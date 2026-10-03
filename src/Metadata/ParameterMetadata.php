@@ -73,7 +73,7 @@ class ParameterMetadata
         private readonly EnvVarMode $envVarMode = EnvVarMode::INITIAL,
         callable|string|null $envVarMapper = null,
         private readonly bool $cloneable = true,
-        private readonly ?\ReflectionType $phpType = null
+        private readonly ?string $phpType = null
     ) {
         $this->envVarMapper = $envVarMapper;
     }
@@ -205,11 +205,11 @@ class ParameterMetadata
     }
 
     /**
-     * Returns the PHP type of the property this parameter is associated with, if available.
+     * Returns the PHP type of the property this parameter is associated with, as a string, if available.
      * Null if the type is not available (e.g. for untyped properties, or unmapped parameters).
-     * @return \ReflectionType|null
+     * @return string|null
      */
-    public function getPhpType(): ?\ReflectionType
+    public function getPhpType(): ?string
     {
         return $this->phpType;
     }

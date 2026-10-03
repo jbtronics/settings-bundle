@@ -47,6 +47,11 @@ class SettingsMetadataTest extends TestCase
 
     private array $embeddedMetadata = [];
 
+    //These properties are only used to retrieve real PHP reflection types for the schema hash tests
+    private int $intTypeProperty;
+    private ?int $nullableIntTypeProperty;
+    private string $stringTypeProperty;
+
     public function setUp(): void
     {
         $this->parameterMetadata = [
@@ -387,5 +392,163 @@ class SettingsMetadataTest extends TestCase
     public function testGetCacheAffectingEnvVars(): void
     {
         $this->assertSame(['ENV_VAR2'], $this->configSchema->getCacheAffectingEnvVars());
+    }
+
+    private function phpType(string $property): \ReflectionType
+    {
+        return (new \ReflectionProperty(self::class, $property))->getType();
+    }
+
+    /**
+     * Creates a settings metadata instance with a fixed base schema, which can be modified by the given arguments.
+     */
+    private function createSchemaHashMetadata(
+        ?array $parameters = null,
+        ?array $embeddeds = null,
+        string $className = self::class,
+        ?int $version = null,
+        string $name = 'test',
+    ): SettingsMetadata {
+        $parameters ??= [
+            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: false, phpType: $this->phpType('intTypeProperty')),
+            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: false, phpType: $this->phpType('stringTypeProperty')),
+        ];
+
+        $embeddeds ??= [
+            new EmbeddedSettingsMetadata(self::class, 'embedded1', self::class),
+        ];
+
+        return new SettingsMetadata(
+            className: $className,
+            parameterMetadata: $parameters,
+            storageAdapter: InMemoryStorageAdapter::class,
+            name: $name,
+            version: $version,
+            migrationService: $version !== null ? TestMigration::class : null,
+            embeddedMetadata: $embeddeds,
+        );
+    }
+
+    public function testGetSchemaHash(): void
+    {
+        $hash = $this->createSchemaHashMetadata()->getSchemaHash();
+        $this->assertNotEmpty($hash);
+
+        //The hash must be deterministic for identical schemas
+        $this->assertSame($hash, $this->createSchemaHashMetadata()->getSchemaHash());
+
+        //The global test object must also have a hash, even without PHP types set
+        $this->assertNotEmpty($this->configSchema->getSchemaHash());
+        $this->assertNotSame($hash, $this->configSchema->getSchemaHash());
+    }
+
+    public function testGetSchemaHashIndependentOfParameterOrder(): void
+    {
+        $param1 = new ParameterMetadata(self::class, 'property1', IntType::class, nullable: false, phpType: $this->phpType('intTypeProperty'));
+        $param2 = new ParameterMetadata(self::class, 'property2', StringType::class, nullable: false, phpType: $this->phpType('stringTypeProperty'));
+
+        $this->assertSame(
+            $this->createSchemaHashMetadata(parameters: [$param1, $param2])->getSchemaHash(),
+            $this->createSchemaHashMetadata(parameters: [$param2, $param1])->getSchemaHash()
+        );
+    }
+
+    public function testGetSchemaHashIgnoresNonSchemaChanges(): void
+    {
+        $hash = $this->createSchemaHashMetadata()->getSchemaHash();
+
+        //Labels, descriptions, groups, env vars and the parameter name do not affect the data shape
+        $parameters = [
+            new ParameterMetadata(self::class, 'property1', IntType::class, nullable: false, name: 'otherName',
+                label: 'label', description: 'description', groups: ['group1'], envVar: 'ENV_VAR1', envVarMode: EnvVarMode::OVERWRITE,
+                phpType: $this->phpType('intTypeProperty')),
+            new ParameterMetadata(self::class, 'property2', StringType::class, nullable: false, phpType: $this->phpType('stringTypeProperty')),
+        ];
+        $this->assertSame($hash, $this->createSchemaHashMetadata(parameters: $parameters)->getSchemaHash());
+
+        //The short name of the settings class does not affect the data shape
+        $this->assertSame($hash, $this->createSchemaHashMetadata(name: 'other')->getSchemaHash());
+
+        //Groups and labels of embeddeds do not affect the data shape
+        $embeddeds = [
+            new EmbeddedSettingsMetadata(self::class, 'embedded1', self::class, groups: ['group1'], label: 'label'),
+        ];
+        $this->assertSame($hash, $this->createSchemaHashMetadata(embeddeds: $embeddeds)->getSchemaHash());
+    }
+
+    public function testGetSchemaHashChangesWithClassAndVersion(): void
+    {
+        $hash = $this->createSchemaHashMetadata()->getSchemaHash();
+
+        $this->assertNotSame($hash, $this->createSchemaHashMetadata(className: ParameterMetadataTest::class)->getSchemaHash());
+
+        $hashV1 = $this->createSchemaHashMetadata(version: 1)->getSchemaHash();
+        $hashV2 = $this->createSchemaHashMetadata(version: 2)->getSchemaHash();
+        $this->assertNotSame($hash, $hashV1);
+        $this->assertNotSame($hashV1, $hashV2);
+    }
+
+    public function testGetSchemaHashChangesWithParameters(): void
+    {
+        $hash = $this->createSchemaHashMetadata()->getSchemaHash();
+        $param2 = new ParameterMetadata(self::class, 'property2', StringType::class, nullable: false, phpType: $this->phpType('stringTypeProperty'));
+
+        $variants = [
+            'removed parameter' => [$param2],
+            'added parameter' => [
+                new ParameterMetadata(self::class, 'property1', IntType::class, nullable: false, phpType: $this->phpType('intTypeProperty')),
+                $param2,
+                new ParameterMetadata(self::class, 'property3', BoolType::class, nullable: false),
+            ],
+            'renamed property' => [
+                new ParameterMetadata(self::class, 'propertyRenamed', IntType::class, nullable: false, phpType: $this->phpType('intTypeProperty')),
+                $param2,
+            ],
+            'changed parameter type' => [
+                new ParameterMetadata(self::class, 'property1', BoolType::class, nullable: false, phpType: $this->phpType('intTypeProperty')),
+                $param2,
+            ],
+            'changed nullability' => [
+                new ParameterMetadata(self::class, 'property1', IntType::class, nullable: true, phpType: $this->phpType('intTypeProperty')),
+                $param2,
+            ],
+            'changed PHP type' => [
+                new ParameterMetadata(self::class, 'property1', IntType::class, nullable: false, phpType: $this->phpType('nullableIntTypeProperty')),
+                $param2,
+            ],
+            'removed PHP type' => [
+                new ParameterMetadata(self::class, 'property1', IntType::class, nullable: false),
+                $param2,
+            ],
+        ];
+
+        foreach ($variants as $description => $parameters) {
+            $this->assertNotSame($hash, $this->createSchemaHashMetadata(parameters: $parameters)->getSchemaHash(),
+                sprintf('The schema hash must change for: %s', $description));
+        }
+    }
+
+    public function testGetSchemaHashChangesWithEmbeddeds(): void
+    {
+        $hash = $this->createSchemaHashMetadata()->getSchemaHash();
+
+        $variants = [
+            'removed embedded' => [],
+            'added embedded' => [
+                new EmbeddedSettingsMetadata(self::class, 'embedded1', self::class),
+                new EmbeddedSettingsMetadata(self::class, 'embedded2', self::class),
+            ],
+            'renamed embedded' => [
+                new EmbeddedSettingsMetadata(self::class, 'embeddedRenamed', self::class),
+            ],
+            'changed target class' => [
+                new EmbeddedSettingsMetadata(self::class, 'embedded1', ParameterMetadataTest::class),
+            ],
+        ];
+
+        foreach ($variants as $description => $embeddeds) {
+            $this->assertNotSame($hash, $this->createSchemaHashMetadata(embeddeds: $embeddeds)->getSchemaHash(),
+                sprintf('The schema hash must change for: %s', $description));
+        }
     }
 }

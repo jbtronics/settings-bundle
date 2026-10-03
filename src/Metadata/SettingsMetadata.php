@@ -77,6 +77,12 @@ class SettingsMetadata
     private readonly array $cacheAffectingEnvVars;
 
     /**
+     * @var string A hash of the schema (class, version, parameter properties with their types, and embeddings) of this
+     * settings class. It changes whenever the shape of the stored/cached data changes.
+     */
+    private readonly string $schemaHash;
+
+    /**
      * Create a new settings metadata instance
      * @param  string  $className  The class name of the settings class.
      * @phpstan-param  class-string<T> $className
@@ -168,7 +174,43 @@ class SettingsMetadata
         );
         //Ensure that the list is distinct
         $this->cacheAffectingEnvVars = array_values(array_unique($cacheAffectingEnvVars));
+
+        //This has to be done at the end, because it uses the parameters and embeds to compute the hash
+        $this->schemaHash = $this->computeSchemaHash();
     }
+
+    /**
+     * Computes a hash of everything that shapes the data representation of the settings class: its version and
+     * the name, parameter type and PHP type of each parameter property.
+     * The order of the parameters does not affect the hash.
+     * @return string
+     * @throws \JsonException
+     */
+    private function computeSchemaHash(): string
+    {
+        $parameters = [];
+        foreach ($this->parametersByPropertyNames as $propertyName => $parameter) {
+            $parameters[$propertyName] = [$parameter->getType(), $parameter->isNullable(), (string) ($parameter->getPHPType() ?? '?')];
+        }
+        //The order of the parameters does not affect the data
+        ksort($parameters);
+
+        $embeddeds = [];
+        foreach ($this->embeddedsByPropertyNames as $propertyName => $embed)
+        {
+            $embeddeds[$propertyName] = [
+                'target' => $embed->getTargetClass()
+            ];
+        }
+
+        return hash('xxh3', json_encode([
+            'class' => $this->className,
+            'version' => $this->version,
+            'parameters' => $parameters,
+            'embeddeds' => $embeddeds
+        ], JSON_THROW_ON_ERROR));
+    }
+
 
     /**
      * Returns the class name of the configuration class, which is managed by this metadata.
@@ -432,6 +474,16 @@ class SettingsMetadata
     public function getCacheAffectingEnvVars(): array
     {
         return $this->cacheAffectingEnvVars;
+    }
+
+    /**
+     * Returns a hash of the schema of this settings class (its version and the names and types of its parameters).
+     * The hash changes, whenever the shape of the settings data changes, so it can be used to invalidate cached data.
+     * @return string
+     */
+    public function getSchemaHash(): string
+    {
+        return $this->schemaHash;
     }
 
     /**

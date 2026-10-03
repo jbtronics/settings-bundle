@@ -107,8 +107,9 @@ final class SettingsCache implements SettingsCacheInterface
 
     private function getCacheKey(SettingsMetadata $settings): string
     {
-        //The storage key should be unique enough to avoid conflicts
-        $tmp = self::CACHE_KEY_PREFIX . $settings->getStorageKey();
+        //Use the schema hash, this is unique for the settings class and its parameters, and will change if the schema changes
+        //giving us a unique cache key for the settings class, and automatically invalidates the cache if the schema changes
+        $tmp = self::CACHE_KEY_PREFIX . $settings->getSchemaHash();
 
         if ($this->invalidateOnEnvChange) {
             $tmp .= '_' . $this->getEnvVarHash($settings);

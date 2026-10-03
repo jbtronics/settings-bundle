@@ -60,6 +60,16 @@ interface SettingsCacheInterface
     public function applyData(SettingsMetadata $metadata, object $data): object;
 
     /**
+     * Applies the cached data to the given settings object, if the cache contains data for it.
+     * This is equivalent to calling hasData() and applyData(), but only needs a single cache lookup.
+     * Only the parameter properties of the settings object are updated. Embedded settings and other properties are not affected.
+     * @param  SettingsMetadata  $metadata
+     * @param  object  $data
+     * @return bool True if cached data was found and applied, false otherwise (the object is unchanged then)
+     */
+    public function tryApplyData(SettingsMetadata $metadata, object $data): bool;
+
+    /**
      * Saves the data of the given settings object to the cache.
      * @param  SettingsMetadata  $settings
      * @param  object  $value

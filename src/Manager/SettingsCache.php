@@ -71,6 +71,22 @@ final class SettingsCache implements SettingsCacheInterface
         return $this->applyCacheableRepresentation($metadata, $data, $cachedData);
     }
 
+    public function tryApplyData(SettingsMetadata $metadata, object $data): bool
+    {
+        $item = $this->getCacheItem($metadata);
+        if (!$item->isHit()) {
+            return false;
+        }
+
+        $cachedData = $item->get();
+        if (!is_array($cachedData)) {
+            throw new \RuntimeException('Invalid data found in cache for ' . $metadata->getClassName());
+        }
+
+        $this->applyCacheableRepresentation($metadata, $data, $cachedData);
+        return true;
+    }
+
     public function setData(SettingsMetadata $settings, object $value): void
     {
         $item = $this->getCacheItem($settings);

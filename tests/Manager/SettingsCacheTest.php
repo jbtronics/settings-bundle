@@ -71,6 +71,28 @@ class SettingsCacheTest extends KernelTestCase
         $this->assertFalse($this->settingsCache->hasData($metadata));
     }
 
+    public function testTryApplyData(): void
+    {
+        $metadata = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);
+        $this->settingsCache->invalidateData($metadata);
+
+        //Without cached data, the object must be left unchanged
+        $other = new SimpleSettings();
+        $this->assertFalse($this->settingsCache->tryApplyData($metadata, $other));
+        $this->assertEquals(new SimpleSettings(), $other);
+
+        $settings = new SimpleSettings();
+        $settings->setValue1('changed value1');
+        $settings->setValue2(100);
+        $this->settingsCache->setData($metadata, $settings);
+
+        $this->assertTrue($this->settingsCache->tryApplyData($metadata, $other));
+        $this->assertEquals('changed value1', $other->getValue1());
+        $this->assertEquals(100, $other->getValue2());
+
+        $this->settingsCache->invalidateData($metadata);
+    }
+
     public function testExceptionOnNotExistingData(): void
     {
         $metadata = $this->metadataManager->getSettingsMetadata(NonCloneableSettings::class);

@@ -62,8 +62,8 @@ final class SettingsHydrator implements SettingsHydratorInterface
     public function hydrate(object $settings, SettingsMetadata $metadata, bool $ignoreCache = false): object
     {
         //If the settings object is cacheable, and we have a cached version, we can skip the following steps
-        if ($this->cacheEnabled  && !$ignoreCache && $metadata->isCacheable() && $this->settingsCache->hasData($metadata) ) {
-            return $this->settingsCache->applyData($metadata, $settings);
+        if ($this->cacheEnabled  && !$ignoreCache && $metadata->isCacheable() && $this->settingsCache->tryApplyData($metadata, $settings)) {
+            return $settings;
         }
 
         //Retrieve the storage adapter for the given settings object.

@@ -124,4 +124,31 @@ class ORMStorageAdapterTest extends KernelTestCase
         $adapter->load('foo', ['entity_manager' => 'non_existing']);
     }
 
+    public function testResetLoadsChangesOfOtherProcesses(): void
+    {
+        $adapter = new ORMStorageAdapter($this->managerRegistry, SettingsEntry::class, true);
+        $this->assertEquals(['foo' => 'existing1'], $adapter->load('existing1'));
+
+        //Another process changes the entry, and the entity manager is cleared between two requests.
+        //Inside a transaction, so the fixture is untouched for the other tests.
+        $entityManager = $this->managerRegistry->getManagerForClass(SettingsEntry::class);
+        $connection = $entityManager->getConnection();
+        $connection->beginTransaction();
+        try {
+            $connection->executeStatement(
+                'UPDATE ' . $entityManager->getClassMetadata(SettingsEntry::class)->getTableName() . ' SET data = ? WHERE `key` = ?',
+                ['{"foo":"changed"}', 'existing1']
+            );
+            $entityManager->clear();
+
+            //Without a reset, the adapter still returns the data of its cached (now detached) entity
+            $this->assertEquals(['foo' => 'existing1'], $adapter->load('existing1'));
+
+            $adapter->reset();
+            $this->assertEquals(['foo' => 'changed'], $adapter->load('existing1'));
+        } finally {
+            $connection->rollBack();
+        }
+    }
+
 }

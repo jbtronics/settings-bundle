@@ -178,6 +178,39 @@ class SettingsCacheTest extends KernelTestCase
         $this->settingsCache->invalidateData($metadata);
     }
 
+    public function testEnvVarInvalidationWithEnvProcessor(): void
+    {
+        //ENV_VALUE1 is defined as "bool:ENV_VALUE1", changing it must invalidate the cache too
+        $_ENV['ENV_VALUE1'] = "processor_true";
+
+        $metadata = $this->metadataManager->getSettingsMetadata(CacheableSettings::class);
+        $this->settingsCache->setData($metadata, new CacheableSettings());
+        $this->assertTrue($this->settingsCache->hasData($metadata));
+
+        $_ENV['ENV_VALUE1'] = "processor_false";
+        $this->assertFalse($this->settingsCache->hasData($metadata));
+
+        unset($_ENV['ENV_VALUE1']);
+        $this->settingsCache->invalidateData($metadata);
+    }
+
+    public function testEnvVarInvalidationWithServerVar(): void
+    {
+        //Env vars might only be available in $_SERVER (if variables_order does not contain "E")
+        unset($_ENV['ENV_VALUE2']);
+        $_SERVER['ENV_VALUE2'] = "server_initial";
+
+        $metadata = $this->metadataManager->getSettingsMetadata(CacheableSettings::class);
+        $this->settingsCache->setData($metadata, new CacheableSettings());
+        $this->assertTrue($this->settingsCache->hasData($metadata));
+
+        $_SERVER['ENV_VALUE2'] = "server_changed";
+        $this->assertFalse($this->settingsCache->hasData($metadata));
+
+        unset($_SERVER['ENV_VALUE2']);
+        $this->settingsCache->invalidateData($metadata);
+    }
+
     public function testInvalidateAll(): void
     {
         $simpleMetadata = $this->metadataManager->getSettingsMetadata(SimpleSettings::class);

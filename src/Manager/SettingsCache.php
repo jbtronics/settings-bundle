@@ -111,13 +111,21 @@ final class SettingsCache implements SettingsCacheInterface
 
     private function getEnvVarHash(SettingsMetadata $settings): string
     {
-        //Only get the part of $_ENV that is relevant for the settings
+        //Only get the env vars that are relevant for the settings
         $relevantEnvVars = $settings->getCacheAffectingEnvVars();
         if (empty($relevantEnvVars)) {
             return 'noenv';
         }
 
-        $relevantEnvData = array_intersect_key($_ENV, array_flip($relevantEnvVars));
+        //Resolve the env vars the same way as Symfony's EnvVarProcessor does: $_ENV first, then $_SERVER and getenv().
+        //Only checking $_ENV is not enough, as it is empty, if variables_order does not contain "E" (the default in production)
+        $relevantEnvData = [];
+        foreach ($relevantEnvVars as $envVar) {
+            $relevantEnvData[$envVar] = $_ENV[$envVar]
+                ?? (str_starts_with($envVar, 'HTTP_') ? null : ($_SERVER[$envVar] ?? null))
+                ?? getenv($envVar);
+        }
+
         return substr(hash("xxh3", json_encode($relevantEnvData, JSON_THROW_ON_ERROR)), 0, 8);
     }
 

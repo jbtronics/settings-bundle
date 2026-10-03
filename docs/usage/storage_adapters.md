@@ -75,6 +75,9 @@ This behavior can be disabled by setting the `prefetch_all` option under `orm_st
 The loaded entities are cached in the adapter until the service is reset (tagged `kernel.reset`), so long-running processes
 like Messenger workers or FrankenPHP/RoadRunner worker mode load them fresh for every request or message.
 
+If the database connection fails, the adapter logs the error and the settings keep their default values. Set the
+`throw_on_connection_error` option under `orm_storage` to true to get the exception instead.
+
 If you have multiple entity managers, the adapter should detect the correct entity manager based on the entity class automatically. 
 If you want to use a specific entity manager, you can set the `entity_manager` option in the adapter options.
 

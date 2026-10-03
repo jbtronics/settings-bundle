@@ -116,6 +116,7 @@ final class Configuration implements ConfigurationInterface
                 ->children()
                 ->scalarNode('default_entity_class')->defaultNull()->end()
                 ->booleanNode('prefetch_all')->defaultTrue()->end()
+                ->booleanNode('throw_on_connection_error')->defaultFalse()->end()
             ->end();
     }
 }

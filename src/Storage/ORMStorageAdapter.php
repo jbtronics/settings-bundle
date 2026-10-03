@@ -57,6 +57,7 @@ final class ORMStorageAdapter implements StorageAdapterInterface, ResetInterface
         private readonly ?string $defaultEntityClass = null,
         private readonly bool $prefetchAll = false,
         private readonly ?LoggerInterface $logger = null,
+        private readonly bool $throwOnConnectionError = false,
     )
     {
         if ($managerRegistry === null) {
@@ -182,6 +183,12 @@ final class ORMStorageAdapter implements StorageAdapterInterface, ResetInterface
 
             return null;
         } catch (ConnectionException $exception) {
+            //The default values would silently replace the persisted ones (this includes a connection lost in a
+            //long-running process, e.g. "MySQL server has gone away"). Let the caller decide, if configured so.
+            if ($this->throwOnConnectionError) {
+                throw $exception;
+            }
+
             //If the connection to the database failed, we fail gracefully and return null to indicate that no data was persisted yet
 
             //If a logger is available, log the problem, so that the user knows he still need to create the table

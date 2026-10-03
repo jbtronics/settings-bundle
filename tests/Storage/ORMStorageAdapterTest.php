@@ -25,7 +25,10 @@
 
 namespace Jbtronics\SettingsBundle\Tests\Storage;
 
+use Doctrine\DBAL\Driver\Exception as DriverException;
+use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use InvalidArgumentException;
 use Jbtronics\SettingsBundle\Storage\ORMStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\OtherSettingsEntry;
@@ -124,6 +127,38 @@ class ORMStorageAdapterTest extends KernelTestCase
         $adapter->load('foo', ['entity_manager' => 'non_existing']);
     }
 
+    public function testConnectionErrorFallsBackToDefaultsByDefault(): void
+    {
+        $adapter = new ORMStorageAdapter($this->createFailingManagerRegistry(), SettingsEntry::class, false);
+
+        $this->assertNull($adapter->load('existing1'));
+    }
+
+    public function testConnectionErrorIsThrownIfConfigured(): void
+    {
+        $adapter = new ORMStorageAdapter($this->createFailingManagerRegistry(), SettingsEntry::class, false,
+            throwOnConnectionError: true);
+
+        $this->expectException(ConnectionException::class);
+        $adapter->load('existing1');
+    }
+
+    private function createFailingManagerRegistry(): ManagerRegistry
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('findOneBy')->willThrowException(
+            new ConnectionException($this->createMock(DriverException::class), null)
+        );
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('getRepository')->willReturn($repository);
+
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->method('getManagerForClass')->willReturn($entityManager);
+
+        return $registry;
+    }
+    
     public function testResetLoadsChangesOfOtherProcesses(): void
     {
         $adapter = new ORMStorageAdapter($this->managerRegistry, SettingsEntry::class, true);

@@ -361,8 +361,8 @@ return static function (ContainerConfigurator $container) {
             '$defaultEntityClass' => '%jbtronics.settings.orm.default_entity_class%',
             '$prefetchAll' => '%jbtronics.settings.orm.prefetch_all%',
             '$logger' => service('logger')->nullOnInvalid(),
+            '$throwOnConnectionError' => '%jbtronics.settings.orm.throw_on_connection_error%',
         ])
-        //Drop the cached (and by then detached) entities between two requests/messages of a long-running process
         ->tag('kernel.reset', ['method' => 'reset']);
 
     /*************************************************************************************

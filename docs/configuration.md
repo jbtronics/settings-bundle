@@ -89,6 +89,11 @@ jbtronics_settings:
       # This can improve performance, if you have a lot of settings, which are loaded frequently. 
       # However, it can also decrease performance, if you have a lot of settings classes, which are loaded rarely.
       prefetch_all: true
+
+      # By default, a failed database connection (including a connection lost in a long-running process) is only logged,
+      # and the settings are filled with their default values. Set this to true to throw the exception instead,
+      # if silently using default values is worse for your application than a failed request.
+      throw_on_connection_error: false
     
 
 ```

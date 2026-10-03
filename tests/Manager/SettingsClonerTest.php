@@ -117,6 +117,40 @@ class SettingsClonerTest extends KernelTestCase
         $this->assertEquals($settings->circularSettings->guessableSettings->int, $clone->circularSettings->guessableSettings->int);
     }
 
+    public function testCreateCloneEmbeddedsReachableViaMultiplePaths(): void
+    {
+        /** @var EmbedSettings $settings */
+        $settings = $this->settingsManager->get(EmbedSettings::class);
+
+        //SimpleSettings is embedded directly and via CircularEmbedSettings. In the original settings it is the same instance
+        $this->assertSame($settings->simpleSettings, $settings->circularSettings->simpleSettings);
+
+        /** @var EmbedSettings $clone */
+        $clone = $this->service->createClone($settings);
+
+        //The clone must have the same structure, so that there is only one clone of the SimpleSettings
+        $this->assertSame($clone->simpleSettings, $clone->circularSettings->simpleSettings);
+        $this->assertNotSame($settings->simpleSettings, $clone->simpleSettings);
+    }
+
+    public function testMergeCopyEmbeddedsReachableViaMultiplePaths(): void
+    {
+        /** @var EmbedSettings $settings */
+        $settings = $this->settingsManager->get(EmbedSettings::class);
+
+        /** @var EmbedSettings $clone */
+        $clone = $this->service->createClone($settings);
+
+        //Initialize the embedded settings via one path and modify it via the other one
+        $this->assertSame('default', $clone->simpleSettings->getValue1());
+        $clone->circularSettings->simpleSettings->setValue1('changed');
+
+        $this->service->mergeCopy($clone, $settings);
+
+        //The change must not get lost
+        $this->assertSame('changed', $settings->simpleSettings->getValue1());
+    }
+
     public function testCreateCloneAfterMergeFnCalled(): void
     {
         /** @var MergeableSettings $settings */

@@ -88,10 +88,16 @@ final class SettingsCloner implements SettingsClonerInterface
             if (isset($embeddedClones[$embeddedSetting->getTargetClass()])) {
                 $embeddedClone = $embeddedClones[$embeddedSetting->getTargetClass()];
             } else {
-                //Otherwise, we need to create a new clone, which we lazy load, via our proxy system
-                $embeddedClone = $this->proxyFactory->createProxy($embeddedSetting->getTargetClass(), function (object $instance) use ($embeddedSetting, $settings, $embeddedClones) {
+                //Otherwise, we need to create a new clone, which we lazy load, via our proxy system.
+                //The list of embedded clones must be shared by reference, so that the proxy initialization can reuse
+                //clones (or proxies) created elsewhere in the graph, instead of creating a second clone of the same class.
+                $embeddedClone = $this->proxyFactory->createProxy($embeddedSetting->getTargetClass(), function (object $instance) use ($embeddedSetting, $settings, &$embeddedClones) {
                     $this->createCloneInternal(PropertyAccessHelper::getProperty($settings, $embeddedSetting->getPropertyName()), $embeddedClones, $instance);
                 });
+
+                //Register the proxy immediately, so that other embeds of the same class reuse it, like in the original
+                //settings, where every settings class has only one instance
+                $embeddedClones[$embeddedSetting->getTargetClass()] = $embeddedClone;
             }
 
             //Set the embedded clone on the new instance

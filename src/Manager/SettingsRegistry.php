@@ -103,9 +103,10 @@ final class SettingsRegistry implements SettingsRegistryInterface
     /**
      * Generates a default name for the given class, based on the class name.
      * This is used, if no name is configured in the #[Settings] attribute.
-     * The name is the short class name, with every occurrence of "Settings" removed, converted to lowercase
-     * (e.g. TestSettings -> test, but also UserSettingsOverride -> useroverride).
-     * This behavior must not be changed, as the name is used as storage key and changing it would cause the
+     * The name is the short class name, with a "Settings" suffix removed, converted to lowercase
+     * (e.g. TestSettings -> test, UserSettingsOverride -> usersettingsoverride). A class named just "Settings" keeps
+     * its name ("settings"), so that the name is never empty.
+     * Be careful when changing this behavior, as the name is used as storage key and changing it would cause the
      * already persisted data to not be found anymore.
      * @param  \ReflectionClass|string  $class The class to generate the name for. Either given as classstring or as ReflectionClass
      * @phpstan-param \ReflectionClass|class-string $class
@@ -120,9 +121,12 @@ final class SettingsRegistry implements SettingsRegistryInterface
         }
 
         $tmp = $reflectionClass->getShortName();
-        //Remove "Settings" from the name. Please note that this removes every occurrence, not only the suffix.
-        //This is kept for backwards compatibility (see above).
-        return strtolower(str_replace('Settings', '', $tmp));
+        //Remove the "Settings" suffix (but only if something remains, so that the name is never empty)
+        if ($tmp !== 'Settings' && str_ends_with($tmp, 'Settings')) {
+            $tmp = substr($tmp, 0, -strlen('Settings'));
+        }
+
+        return strtolower($tmp);
     }
 
     public function getSettingsClassByName(string $name): string

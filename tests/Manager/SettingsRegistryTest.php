@@ -41,8 +41,16 @@ use Symfony\Component\Cache\Adapter\NullAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\CircularEmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 
-//Fixture for the default name generation, containing "Settings" not only as suffix
+//Fixtures for the default name generation
 class UserSettingsOverride
+{
+}
+
+class SettingsForSettingsSettings
+{
+}
+
+class Settings
 {
 }
 
@@ -81,9 +89,12 @@ class SettingsRegistryTest extends TestCase
         $this->assertSame('simple', SettingsRegistry::generateDefaultNameFromClassName(SimpleSettings::class));
         $this->assertSame('simple', SettingsRegistry::generateDefaultNameFromClassName(new \ReflectionClass(SimpleSettings::class)));
 
-        //Every occurrence of "Settings" is removed, not only the suffix. This must not change, as the name is used as
-        //storage key, and existing persisted data would not be found anymore otherwise
-        $this->assertSame('useroverride', SettingsRegistry::generateDefaultNameFromClassName(UserSettingsOverride::class));
+        //Only the "Settings" suffix is removed, other occurrences are kept
+        $this->assertSame('usersettingsoverride', SettingsRegistry::generateDefaultNameFromClassName(UserSettingsOverride::class));
+        $this->assertSame('settingsforsettings', SettingsRegistry::generateDefaultNameFromClassName(SettingsForSettingsSettings::class));
+
+        //A class named just "Settings" must not result in an empty name
+        $this->assertSame('settings', SettingsRegistry::generateDefaultNameFromClassName(Settings::class));
     }
 
     public function testGetSettingsClassByName(): void

@@ -29,6 +29,9 @@ declare(strict_types=1);
 namespace Jbtronics\SettingsBundle\ParameterTypes;
 
 use Jbtronics\SettingsBundle\Metadata\ParameterMetadata;
+use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\Type\CollectionType;
+use Symfony\Component\TypeInfo\Type\NullableType;
 
 /**
  * This parameter type implements the conversion of array values, where each element is converted by a sub-parameter type.
@@ -57,9 +60,11 @@ final class ArrayType implements ParameterTypeInterface
         //Iterate over each array element and convert it to a normalized value
         $normalized = [];
 
+        $subParameterType = $this->getSubParameterType($parameterMetadata);
+        $subPHPType = $this->resolveSubPHPType($parameterMetadata);
+
         foreach ($value as $key => $element) {
-            $subParameterType = $this->getSubParameterType($parameterMetadata);
-            $subParameterMetadata = $this->createSubParameterMetadata($parameterMetadata, $key);
+            $subParameterMetadata = $this->createSubParameterMetadata($parameterMetadata, $key, $subPHPType);
             $normalized[$key] = $subParameterType->convertPHPToNormalized($element, $subParameterMetadata);
         }
 
@@ -86,9 +91,11 @@ final class ArrayType implements ParameterTypeInterface
         //Iterate over each array element and convert it to a normalized value
         $php = [];
 
+        $subParameterType = $this->getSubParameterType($parameterMetadata);
+        $subPHPType = $this->resolveSubPHPType($parameterMetadata);
+
         foreach ($value as $key => $element) {
-            $subParameterType = $this->getSubParameterType($parameterMetadata);
-            $subParameterMetadata = $this->createSubParameterMetadata($parameterMetadata, $key);
+            $subParameterMetadata = $this->createSubParameterMetadata($parameterMetadata, $key, $subPHPType);
             $php[$key] = $subParameterType->convertNormalizedToPHP($element, $subParameterMetadata);
         }
 
@@ -103,7 +110,25 @@ final class ArrayType implements ParameterTypeInterface
         return $this->parameterTypeRegistry->getParameterType($class);
     }
 
-    private function createSubParameterMetadata(ParameterMetadata $parameterMetadata, int|string $arrayKey): ParameterMetadata
+    /**
+     * Resolves the PHP type of the array elements from the PHP type of the array itself (e.g. string for list<string>).
+     * Returns null if no element type could be determined.
+     */
+    private function resolveSubPHPType(ParameterMetadata $parameterMetadata): ?Type
+    {
+        $phpType = $parameterMetadata->getPHPType();
+
+        if ($phpType instanceof NullableType) {
+            $phpType = $phpType->getWrappedType(); // Unwrap nullable type
+        }
+        if ($phpType instanceof CollectionType) {
+            return $phpType->getCollectionValueType();
+        }
+
+        return null;
+    }
+
+    private function createSubParameterMetadata(ParameterMetadata $parameterMetadata, int|string $arrayKey, ?Type $subPHPType): ParameterMetadata
     {
         return new ParameterMetadata(
             className: $parameterMetadata->getClassName(),
@@ -111,6 +136,7 @@ final class ArrayType implements ParameterTypeInterface
             type: $parameterMetadata->getOptions()['type'],
             nullable:$parameterMetadata->getOptions()['nullable'] ?? true,
             options: $parameterMetadata->getOptions()['options'] ?? [],
+            phpType: $subPHPType
         );
     }
 }

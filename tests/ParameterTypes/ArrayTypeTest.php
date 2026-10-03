@@ -34,6 +34,7 @@ use Jbtronics\SettingsBundle\ParameterTypes\StringType;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Helpers\TestEnum;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\TypeInfo\Type;
 
 class ArrayTypeTest extends WebTestCase
 {
@@ -183,5 +184,111 @@ class ArrayTypeTest extends WebTestCase
         //Unserialiazation should also work fine
         $php = $this->arrayType->convertNormalizedToPHP($normalized, $metadata);
         $this->assertEquals($array, $php);
+    }
+
+    /**
+     * Runs both conversion directions with a sub-parameter type, which captures the metadata it receives
+     * @return ParameterMetadata[]
+     */
+    private function captureSubParameterMetadata(?Type $phpType, array $value): array
+    {
+        $captured = [];
+
+        $subType = $this->createMock(ParameterTypeInterface::class);
+        $subType->method('convertPHPToNormalized')->willReturnCallback(function ($value, ParameterMetadata $metadata) use (&$captured) {
+            $captured[] = $metadata;
+            return null;
+        });
+        $subType->method('convertNormalizedToPHP')->willReturnCallback(function ($value, ParameterMetadata $metadata) use (&$captured) {
+            $captured[] = $metadata;
+            return $value;
+        });
+
+        $registry = $this->createMock(ParameterTypeRegistryInterface::class);
+        $registry->method('getParameterType')->willReturn($subType);
+
+        $arrayType = new ArrayType($registry);
+
+        $metadata = new ParameterMetadata(
+            className: self::class,
+            propertyName: 'test',
+            type: ArrayType::class,
+            nullable: false,
+            options: [
+                'type' => StringType::class,
+            ],
+            phpType: $phpType,
+        );
+
+        $arrayType->convertPHPToNormalized($value, $metadata);
+        $arrayType->convertNormalizedToPHP($value, $metadata);
+
+        $this->assertCount(count($value) * 2, $captured);
+
+        return $captured;
+    }
+
+    public function testSubMetadataPHPTypeFromList(): void
+    {
+        $captured = $this->captureSubParameterMetadata(Type::list(Type::string()), ['foo', 'bar']);
+
+        foreach ($captured as $subMetadata) {
+            $this->assertEquals(Type::string(), $subMetadata->getPHPType());
+        }
+    }
+
+    public function testSubMetadataPHPTypeFromAssociativeArray(): void
+    {
+        $captured = $this->captureSubParameterMetadata(Type::array(Type::enum(TestEnum::class), Type::string()), ['a' => 'foo']);
+
+        foreach ($captured as $subMetadata) {
+            $this->assertEquals(Type::enum(TestEnum::class), $subMetadata->getPHPType());
+            $this->assertSame('test[a]', $subMetadata->getPropertyName());
+        }
+    }
+
+    public function testSubMetadataPHPTypeFromNullableArray(): void
+    {
+        $captured = $this->captureSubParameterMetadata(Type::nullable(Type::list(Type::int())), [1, 2]);
+
+        foreach ($captured as $subMetadata) {
+            $this->assertEquals(Type::int(), $subMetadata->getPHPType());
+        }
+    }
+
+    public function testSubMetadataPHPTypeFromNullableValueType(): void
+    {
+        $captured = $this->captureSubParameterMetadata(Type::list(Type::nullable(Type::string())), ['foo', null]);
+
+        foreach ($captured as $subMetadata) {
+            $this->assertEquals(Type::nullable(Type::string()), $subMetadata->getPHPType());
+        }
+    }
+
+    public function testSubMetadataPHPTypeFromNestedArray(): void
+    {
+        $captured = $this->captureSubParameterMetadata(Type::list(Type::list(Type::string())), [['foo']]);
+
+        foreach ($captured as $subMetadata) {
+            $this->assertEquals(Type::list(Type::string()), $subMetadata->getPHPType());
+        }
+    }
+
+    public function testSubMetadataPHPTypeWithoutPHPType(): void
+    {
+        $captured = $this->captureSubParameterMetadata(null, ['foo']);
+
+        foreach ($captured as $subMetadata) {
+            $this->assertNull($subMetadata->getPHPType());
+        }
+    }
+
+    public function testSubMetadataPHPTypeWithNonCollectionType(): void
+    {
+        $captured = $this->captureSubParameterMetadata(Type::mixed(), ['foo']);
+
+        foreach ($captured as $subMetadata) {
+            $this->assertNull($subMetadata->getPHPType());
+        }
     }
 }

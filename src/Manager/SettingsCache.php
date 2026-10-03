@@ -102,7 +102,7 @@ final class SettingsCache implements SettingsCacheInterface
         }
 
         $relevantEnvData = array_intersect_key($_ENV, array_flip($relevantEnvVars));
-        return substr(sha1(json_encode($relevantEnvData, JSON_THROW_ON_ERROR)), 0, 8);
+        return substr(hash("xxh3", json_encode($relevantEnvData, JSON_THROW_ON_ERROR)), 0, 8);
     }
 
     private function getCacheKey(SettingsMetadata $settings): string

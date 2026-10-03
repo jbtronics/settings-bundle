@@ -206,7 +206,7 @@ final class MetadataManager implements MetadataManagerInterface
         return new ParameterMetadata(
             className: $className,
             propertyName: $reflProperty->getName(),
-            type: $attribute->type ?? $type,
+            type: $type,
             nullable: $nullable,
             name: $attribute->name,
             label: $attribute->label,

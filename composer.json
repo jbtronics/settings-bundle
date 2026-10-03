@@ -39,7 +39,7 @@
     "symfony/validator": "^6.4|^7.0|^8.0",
     "symfony/form": "^6.4|^7.0|^8.0",
     "symfony/var-exporter": "^6.4|^7.0|^8.0",
-    "ergebnis/classy": "^1.6",
+    "ergebnis/classy": "^1.6|^2.0|^3.0",
     "symfony/translation": "^7.0|^6.4|^8.0",
     "symfony/deprecation-contracts": "^3.4"
   },

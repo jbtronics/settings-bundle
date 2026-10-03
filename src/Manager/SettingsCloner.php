@@ -113,7 +113,7 @@ final class SettingsCloner implements SettingsClonerInterface
         return $clone;
     }
 
-    public function mergeCopyInternal(object $copy, object $into, bool $recursive, array &$mergedClasses): object
+    private function mergeCopyInternal(object $copy, object $into, bool $recursive, array &$mergedClasses): object
     {
         $metadata = $this->metadataManager->getSettingsMetadata($copy);
 

@@ -77,10 +77,13 @@ class SettingsProfilerPanelTest extends WebTestCase
         $this->client->request('GET', '/_wdt/'.$token);
         $this->assertResponseIsSuccessful();
 
-        //The collector name contains backslashes, so we can not use it in a class selector
-        $toolbarBlock = '.sf-toolbar-block:has(a[href*="panel='.rawurlencode(SettingsCollector::class).'"])';
-        $this->assertSelectorExists($toolbarBlock);
-        $this->assertSelectorTextContains($toolbarBlock, 'Number of settings classes');
+        //The collector name contains backslashes, so we can not use it in a class selector.
+        //:has() is not supported by symfony/css-selector < 8.1, so we search the link and go up to its toolbar block
+        $toolbarBlock = $this->client->getCrawler()
+            ->filter('a[href*="panel='.rawurlencode(SettingsCollector::class).'"]')
+            ->closest('.sf-toolbar-block');
+        $this->assertNotNull($toolbarBlock);
+        $this->assertStringContainsString('Number of settings classes', $toolbarBlock->text());
     }
 
     public function testRenderPanel(): void

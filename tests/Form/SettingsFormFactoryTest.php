@@ -33,11 +33,13 @@ use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\EmbedSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\SimpleSettings;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Settings\ValidatableSettings;
 use LogicException;
+use Symfony\Bridge\PhpUnit\ExpectDeprecationTrait;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class SettingsFormFactoryTest extends KernelTestCase
 {
+    use ExpectDeprecationTrait;
 
     private SettingsFormFactory $service;
     private SettingsManagerInterface $settingsManager;
@@ -85,8 +87,12 @@ class SettingsFormFactoryTest extends KernelTestCase
         $this->assertCount(1, $formBuilder);
     }
 
+    /**
+     * @group legacy
+     */
     public function testCreateSettingsFormBuilderDeprecated(): void
     {
+        $this->expectDeprecation('Since jbtronics/settings-bundle 2.0: Passing a string as settings name to createSettingsFormBuilder() is deprecated. Pass the settings instance directly instead.');
         $formBuilder = $this->service->createSettingsFormBuilder(SimpleSettings::class);
         $this->assertInstanceOf(FormBuilderInterface::class, $formBuilder);
 
@@ -112,6 +118,9 @@ class SettingsFormFactoryTest extends KernelTestCase
         $this->service->createSettingsFormBuilder($settings);
     }
 
+    /**
+     * @group legacy
+     */
     public function testCreateSettingsFormBuilderCircularDeprecated(): void
     {
         //If we encounter a circular embedded settings structure, we should throw an exception
@@ -148,8 +157,12 @@ class SettingsFormFactoryTest extends KernelTestCase
         $this->assertSame('test', $formBuilder->getOption('label'));
     }
 
+    /**
+     * @group legacy
+     */
     public function testCreateMultiSettingsFormBuilderDeprecated(): void
     {
+        $this->expectDeprecation('Since jbtronics/settings-bundle 2.0: Passing a string as settings name to createSettingsFormBuilder() is deprecated. Pass the settings instance directly instead.');
         $formBuilder = $this->service->createMultiSettingsFormBuilder([SimpleSettings::class, ValidatableSettings::class]);
         $this->assertInstanceOf(FormBuilderInterface::class, $formBuilder);
         //The form builder should contain the 2 sub forms
@@ -171,8 +184,12 @@ class SettingsFormFactoryTest extends KernelTestCase
         $this->service->createMultiSettingsFormBuilder($array );
     }
 
+    /**
+     * @group legacy
+     */
     public function testCreateMultiSettingsFormBuilderCircularDeprecated(): void
     {
+        $this->expectDeprecation('Since jbtronics/settings-bundle 2.0: Passing a string as settings name to createSettingsFormBuilder() is deprecated. Pass the settings instance directly instead.');
         //If we encounter a circular embedded settings structure, we should throw an exception
         $this->expectException(LogicException::class);
         $this->service->createMultiSettingsFormBuilder([SimpleSettings::class, EmbedSettings::class]);

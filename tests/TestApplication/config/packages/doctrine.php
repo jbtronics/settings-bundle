@@ -26,8 +26,9 @@
 declare(strict_types=1);
 
 
+use Composer\InstalledVersions;
+
 $ormConfig = [
-    'auto_generate_proxy_classes' => true,
     'naming_strategy' => 'doctrine.orm.naming_strategy.underscore_number_aware',
     'auto_mapping' => true,
     'mappings' => [
@@ -41,9 +42,14 @@ $ormConfig = [
     ],
 ];
 
-// Doctrine ORM supports native lazy objects on PHP 8.4+ via config.
-if (PHP_VERSION_ID >= 80400) {
-    $ormConfig['enable_native_lazy_objects'] = true;
+// DoctrineBundle 3 always uses native lazy objects and removed the proxy related options
+if (version_compare(InstalledVersions::getVersion('doctrine/doctrine-bundle') ?? '0', '3.0', '<')) {
+    $ormConfig['auto_generate_proxy_classes'] = true;
+
+    // Doctrine ORM supports native lazy objects on PHP 8.4+ via config.
+    if (PHP_VERSION_ID >= 80400) {
+        $ormConfig['enable_native_lazy_objects'] = true;
+    }
 }
 
 $container->loadFromExtension('doctrine', [

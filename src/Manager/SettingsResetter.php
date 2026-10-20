@@ -92,8 +92,8 @@ final class SettingsResetter implements SettingsResetterInterface
             );
         }
 
-        //Try to retrieve the default value from the reflection property
-        $defaultValue = $reflectionProperty->getDefaultValue();
+        //Try to retrieve the default value from the reflection property. A nullable property without a default value is reset to null
+        $defaultValue = $reflectionProperty->hasDefaultValue() ? $reflectionProperty->getDefaultValue() : null;
 
         //And set it to the property
         $reflectionProperty->setValue($settings, $defaultValue);

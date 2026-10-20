@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-use Symfony\Config\WebProfilerConfig;
-
-return static function (WebProfilerConfig $webProfiler): void {
-    $webProfiler->toolbar()->enabled(false);
-};
+return [
+    'web_profiler' => [
+        'toolbar' => ['enabled' => false],
+    ],
+];

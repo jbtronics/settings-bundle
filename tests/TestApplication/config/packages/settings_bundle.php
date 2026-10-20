@@ -6,17 +6,16 @@
 
 use Jbtronics\SettingsBundle\Storage\InMemoryStorageAdapter;
 use Jbtronics\SettingsBundle\Tests\TestApplication\Entity\SettingsEntry;
-use Symfony\Config\JbtronicsSettingsConfig;
 
-return static function (JbtronicsSettingsConfig $config)
-{
-    $config->defaultStorageAdapter(InMemoryStorageAdapter::class);
-    $config->ormStorage()
-        ->defaultEntityClass(SettingsEntry::class)
-        ->prefetchAll(true)
-    ;
-
-    $config->yamlMappingPaths([
-        __DIR__ . '/../yaml_mapping'
-    ]);
-};
+return [
+    'jbtronics_settings' => [
+        'default_storage_adapter' => InMemoryStorageAdapter::class,
+        'orm_storage' => [
+            'default_entity_class' => SettingsEntry::class,
+            'prefetch_all' => true,
+        ],
+        'yaml_mapping_paths' => [
+            __DIR__ . '/../yaml_mapping'
+        ],
+    ],
+];

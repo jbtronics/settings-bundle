@@ -23,10 +23,10 @@
  * SOFTWARE.
  */
 
-use Symfony\Config\TwigConfig;
-
-return static function (TwigConfig $twig): void {
-    //The profiler panel uses the dump() function, which only renders something in debug mode
-    $twig->debug(true);
-    $twig->strictVariables(true);
-};
+return [
+    'twig' => [
+        //The profiler panel uses the dump() function, which only renders something in debug mode
+        'debug' => true,
+        'strict_variables' => true,
+    ],
+];

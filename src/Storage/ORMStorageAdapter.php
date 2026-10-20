@@ -94,8 +94,11 @@ final class ORMStorageAdapter implements StorageAdapterInterface, ResetInterface
             return $this->cache[$entityClass][$key];
         }
 
-        //Retrieve the entity from the database or create a new one if it does not exist
-        $entity = $entityManager->getRepository($entityClass)->findOneBy(['key' => $key]);
+        //Retrieve the entity from the database or create a new one if it does not exist.
+        //After a preload, every existing entity is already in the cache, so a cache miss means that there is none
+        $entity = isset($this->preloadedEntityClasses[$entityClass])
+            ? null
+            : $entityManager->getRepository($entityClass)->findOneBy(['key' => $key]);
         if ($entity === null) {
             $entity = new $entityClass($key);
         }

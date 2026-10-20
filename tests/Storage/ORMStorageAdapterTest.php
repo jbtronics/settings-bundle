@@ -126,6 +126,31 @@ class ORMStorageAdapterTest extends KernelTestCase
         $this->assertEquals(['foo' => 'preloaded2'], $adapter->load('existing2', ['entity_class' => OtherSettingsEntry::class]));
     }
 
+    public function testFetchAllDoesNotQueryKeysMissingFromThePreload(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())->method('findAll')->willReturn([(new SettingsEntry('existing1'))->setData(['foo' => 'preloaded1'])]);
+        //All entities are known after findAll(), so a key missing in the preload must not cause another query
+        $repository->expects($this->never())->method('findOneBy');
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('getRepository')->willReturn($repository);
+        $entityManager->method('contains')->willReturn(true);
+
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->method('getManagerForClass')->willReturn($entityManager);
+
+        $adapter = new ORMStorageAdapter($registry, SettingsEntry::class, true);
+
+        $this->assertEquals(['foo' => 'preloaded1'], $adapter->load('existing1'));
+        $this->assertNull($adapter->load('never_saved_1'));
+        $this->assertNull($adapter->load('never_saved_2'));
+
+        //Saving a key, which was not in the preload, must still work
+        $adapter->save('never_saved_1', ['foo' => 'bar']);
+        $this->assertEquals(['foo' => 'bar'], $adapter->load('never_saved_1'));
+    }
+
     public function testThrowOnInvalidDefaultEntityClass(): void
     {
         //Must throw an exception, if the default entity class is not a subclass of AbstractSettingsORMEntry
